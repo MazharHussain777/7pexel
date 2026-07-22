@@ -1,0 +1,185 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  /* Custom colors - Wine Red & Light Sand Theme */
+  --color-ink: #2d1a1a;
+  --color-ink-light: #4a2a2a;
+  --color-wine: #7F011F;
+  --color-wine-dark: #5a0015;
+  --color-wine-light: #a80a30;
+  --color-wine-soft: #c94a6a;
+  --color-wine-pale: #e8b0c0;
+  --color-sand: #F5EBD0;
+  --color-sand-dark: #e8dcc0;
+  --color-sand-light: #faf5e8;
+  --color-cream: #fdfaf5;
+  --color-rose: #d46a7a;
+  
+  /* Custom fonts */
+  --font-fraunces: 'Fraunces', serif;
+  --font-poppins: 'Poppins', sans-serif;
+}
+
+:root {
+  --background: #FDFAF5;
+  --foreground: #2d1a1a;
+  --surface: #FDFAF5;
+  --surface-2: #F5EBD0;
+  --line: rgba(127, 1, 31, 0.12);
+  --line-soft: rgba(127, 1, 31, 0.06);
+  --glass: rgba(253, 250, 245, 0.72);
+  --glass-dark: rgba(253, 250, 245, 0.90);
+  --shadow-color: rgba(45, 26, 26, 0.08);
+  --shadow-heavy: rgba(127, 1, 31, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #1a0a0a;
+    --foreground: #F5EBD0;
+    --surface: #2d1a1a;
+    --surface-2: #3a2020;
+    --line: rgba(201, 74, 106, 0.15);
+    --line-soft: rgba(201, 74, 106, 0.08);
+    --glass: rgba(45, 26, 26, 0.75);
+    --glass-dark: rgba(45, 26, 26, 0.92);
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-heavy: rgba(127, 1, 31, 0.3);
+  }
+}
+
+body {
+  background:
+    radial-gradient(800px 500px at 85% -10%, rgba(127, 1, 31, 0.05), transparent 60%),
+    radial-gradient(700px 500px at 5% 110%, rgba(127, 1, 31, 0.03), transparent 60%),
+    linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%);
+  color: var(--foreground);
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes winePulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(127, 1, 31, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(127, 1, 31, 0.25);
+  }
+}
+
+.animate-spin {
+  animation: spin 9s linear infinite;
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-wine-pulse {
+  animation: winePulse 3s ease-in-out infinite;
+}
+
+.font-fraunces {
+  font-family: 'Fraunces', serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--wine);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--wine-dark);
+}
+
+::selection {
+  background: var(--wine);
+  color: #F5EBD0;
+}
+/* app/globals.css - Add these styles at the end */
+
+/* 7pexel Brand Accent */
+.brand-gradient {
+  background: linear-gradient(135deg, #7F011F 0%, #c94a6a 50%, #e07a8f 100%);
+}
+
+.brand-text-gradient {
+  background: linear-gradient(135deg, #7F011F 0%, #c94a6a 50%, #e07a8f 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 7pexel Glow Animation */
+@keyframes brandPulse {
+  0%, 100% {
+    text-shadow: 0 0 20px rgba(127, 1, 31, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 40px rgba(127, 1, 31, 0.6), 0 0 60px rgba(201, 74, 106, 0.3);
+  }
+}
+
+.brand-glow {
+  animation: brandPulse 3s ease-in-out infinite;
+}
+
+/* 7pexel Watermark */
+.watermark-7p {
+  position: relative;
+}
+
+.watermark-7p::after {
+  content: "7P";
+  position: absolute;
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(127, 1, 31, 0.03);
+  pointer-events: none;
+  letter-spacing: -8px;
+  font-family: 'Poppins', sans-serif;
+}

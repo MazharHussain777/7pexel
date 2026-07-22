@@ -1,0 +1,10 @@
+# public/robots.txt
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /_error/
+
+Sitemap: https://techblog.com/sitemap.xml
+Host: https://techblog.com

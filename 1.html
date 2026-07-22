@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iPhone 15 Pro — Full Specs, AnTuTu, Price & Review</title>
+  <meta name="description" content="iPhone 15 Pro full specs: 6.1&quot; ProMotion OLED, A17 Pro, 48MP triple camera, AnTuTu v10 1,580,000. Price, colors, benchmarks.">
+  <link rel="canonical" href="https://saithui.com/phones/iphone-15-pro">
+  <meta property="og:title" content="iPhone 15 Pro Full Specifications & AnTuTu Benchmark">
+  <meta property="og:description" content="Complete iPhone 15 Pro spec sheet: display, chipset, camera, battery, AnTuTu v10 score and pricing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    /* ——— ROOT ——— */
+    :root {
+      --ink: #1c1130;
+      --plum: #6d5489;
+      --plum-soft: #8a72a8;
+      --accent-1: #5a2f96;
+      --accent-2: #9a5fd0;
+      --accent-3: #c9a8f0;
+      --surface: #faf7ff;
+      --surface-2: #f1e9fb;
+      --line: rgba(120, 76, 176, 0.14);
+      --line-soft: rgba(120, 76, 176, 0.08);
+      --gold: #cf9b3f;
+      --glass: rgba(255, 255, 255, 0.7);
+      --glass-dark: rgba(255, 255, 255, 0.88);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(900px 500px at 85% -10%, rgba(154, 95, 208, 0.10), transparent 60%),
+        radial-gradient(700px 500px at 5% 110%, rgba(90, 47, 150, 0.07), transparent 60%),
+        linear-gradient(160deg, #fbf8ff 0%, #f3ecfa 100%);
+      color: var(--ink);
+    }
+    .spec-page { max-width: 1320px; margin: 0 auto; padding: 3rem 2rem 3.5rem; }
+
+    /* ——— HERO ——— */
+    .banner-hero {
+      position: relative;
+      background: linear-gradient(135deg, #1c0e36 0%, #3e1d68 45%, #6b35a8 85%, #8a4fce 100%);
+      border-radius: 34px;
+      padding: 3.4rem 3.4rem 3.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      overflow: hidden;
+      box-shadow: 0 35px 80px rgba(50, 20, 90, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      isolation: isolate;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .banner-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(520px 520px at 90% 0%, rgba(210, 165, 255, 0.28), transparent 70%),
+        radial-gradient(420px 420px at 6% 105%, rgba(120, 70, 200, 0.24), transparent 70%),
+        radial-gradient(260px 260px at 50% 50%, rgba(255, 255, 255, 0.03), transparent 70%);
+      pointer-events: none;
+    }
+    .banner-hero::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+      background-size: 34px 34px;
+      mask-image: radial-gradient(circle at 75% 30%, black, transparent 65%);
+      pointer-events: none;
+    }
+    .banner-badge {
+      position: absolute; top: 1.6rem; right: 2rem;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 40px;
+      padding: 0.4rem 1.3rem;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      color: #f3e8ff;
+      display: flex; align-items: center; gap: 0.5rem;
+      z-index: 5;
+    }
+    .banner-badge i { color: #e3c4ff; }
+    .banner-badge.alt {
+      top: auto; right: auto; left: 2rem; bottom: 1.6rem;
+      background: rgba(207, 155, 63, 0.15); border-color: rgba(207, 155, 63, 0.35); color: #f0d9a8;
+    }
+    .banner-badge.alt i { color: var(--gold); }
+    .banner-left { flex: 1; min-width: 260px; position: relative; z-index: 2; }
+    .phone-model {
+      font-size: 0.7rem; font-weight: 500; letter-spacing: 3px; text-transform: uppercase;
+      color: #c9a8f0; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.6rem;
+    }
+    .phone-name {
+      font-family: 'Fraunces', serif;
+      font-size: 4.1rem;
+      font-weight: 600;
+      line-height: 1;
+      letter-spacing: -1px;
+      color: #fff;
+      margin-bottom: 0.6rem;
+    }
+    .phone-name em {
+      font-style: italic;
+      background: linear-gradient(120deg, #e3c4ff 10%, #fff 50%, #c9a8f0 90%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .phone-tagline {
+      font-size: 1rem; font-weight: 300; color: #d8c4ee; margin-bottom: 1.2rem;
+      display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;
+    }
+    .phone-tagline i { color: #e3c4ff; }
+    .spec-pills-row {
+      display: flex; flex-wrap: wrap; gap: 0.6rem;
+    }
+    .pill-xl {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 0.55rem 1rem;
+      backdrop-filter: blur(6px);
+      transition: all .25s ease;
+    }
+    .pill-xl:hover { background: rgba(255, 255, 255, 0.13); transform: translateY(-2px); }
+    .pill-xl .pill-icon {
+      width: 1.9rem; height: 1.9rem; border-radius: 9px;
+      background: rgba(227, 196, 255, 0.16);
+      display: flex; align-items: center; justify-content: center;
+      color: #e3c4ff; font-size: 0.78rem;
+    }
+    .pill-xl .pill-content { display: flex; flex-direction: column; line-height: 1.2; }
+    .pill-xl .pill-label { font-size: 0.48rem; letter-spacing: 0.8px; text-transform: uppercase; color: #bda2da; }
+    .pill-xl .pill-value { font-size: 0.84rem; font-weight: 600; color: #fff; }
+    .pill-xl .pill-value .hl { color: #c9a8f0; font-weight: 400; }
+    .banner-stats {
+      display: flex; gap: 1.8rem; flex-wrap: wrap; margin-top: 1.8rem;
+    }
+    .stat-item { display: flex; align-items: center; gap: 0.5rem; color: #bda2da; font-size: 0.78rem; }
+    .stat-item i { font-size: 0.85rem; color: #c9a8f0; }
+    .stat-item .stat-number { font-weight: 600; color: #fff; font-size: 0.88rem; }
+    .stat-item.favorite i { color: #f0a8c4; }
+
+    .hero-antutu {
+      display: flex; align-items: center; gap: 1rem;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(227, 196, 255, 0.3);
+      border-radius: 18px;
+      padding: 0.9rem 1.3rem;
+      backdrop-filter: blur(8px);
+      max-width: 480px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+      margin-top: 1.2rem;
+    }
+    .hero-antutu .antutu-icon {
+      flex: 0 0 2.6rem; height: 2.6rem; width: 2.6rem; border-radius: 13px;
+      background: linear-gradient(135deg, var(--accent-2), var(--gold));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.1rem;
+      box-shadow: 0 8px 18px rgba(207, 155, 63, 0.3);
+    }
+    .hero-antutu .antutu-body { flex: 1; min-width: 0; }
+    .hero-antutu .antutu-label {
+      display: block; font-size: 0.6rem; letter-spacing: 0.7px; text-transform: uppercase; color: #c9a8f0; margin-bottom: 0.15rem;
+    }
+    .hero-antutu .antutu-score {
+      display: block; font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600; color: #fff; line-height: 1.1;
+    }
+    .hero-antutu .antutu-score small { font-family: 'Poppins', sans-serif; font-size: 0.6rem; color: #d8c4ee; font-weight: 400; margin-left: 0.25rem; }
+    .hero-antutu .antutu-bar {
+      margin-top: 0.4rem; height: 5px; border-radius: 6px; background: rgba(255, 255, 255, 0.12); overflow: hidden;
+    }
+    .hero-antutu .antutu-bar-fill {
+      height: 100%; width: 91%; border-radius: 6px;
+      background: linear-gradient(90deg, var(--accent-2), var(--gold));
+    }
+    .hero-antutu .antutu-rank {
+      flex: 0 0 auto; font-size: 0.62rem; font-weight: 600; color: #f0d9a8;
+      display: flex; align-items: center; gap: 0.35rem;
+      background: rgba(207, 155, 63, 0.15); border: 1px solid rgba(207, 155, 63, 0.3);
+      padding: 0.35rem 0.7rem; border-radius: 30px; white-space: nowrap;
+    }
+    .hero-antutu .antutu-rank i { color: var(--gold); }
+
+    .banner-right {
+      flex: 0 0 320px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 2;
+      min-height: 320px;
+    }
+    .banner-right .glow-ring {
+      position: absolute; width: 300px; height: 300px; border-radius: 50%;
+      background: conic-gradient(from 0deg, rgba(227, 196, 255, 0.0), rgba(227, 196, 255, 0.35), rgba(227, 196, 255, 0.0) 60%);
+      filter: blur(2px);
+      animation: spin 9s linear infinite;
+    }
+    .banner-right .glow-ring::after {
+      content: ''; position: absolute; inset: 14px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(60, 25, 105, 0.0) 55%, rgba(28, 14, 54, 0.0) 100%);
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .banner-right .glow-blob {
+      position: absolute; width: 260px; height: 260px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(154, 95, 208, 0.4), transparent 70%);
+      filter: blur(10px);
+    }
+    .banner-right img {
+      position: relative; z-index: 2;
+      max-width: 230px; width: 100%; height: auto;
+      filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.4));
+      animation: float 5s ease-in-out infinite;
+    }
+    .float-chip {
+      position: absolute; z-index: 3;
+      background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px; padding: 0.4rem 0.8rem;
+      font-size: 0.6rem; font-weight: 600; color: #f3e8ff;
+      display: flex; align-items: center; gap: 0.4rem;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    }
+    .float-chip i { color: #e3c4ff; }
+    .float-chip.chip-top { top: 6%; right: 2%; }
+    .float-chip.chip-bottom { bottom: 8%; left: 0%; }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+
+    /* ——— LEDGER ——— */
+    .ledger-section { margin-top: 3rem; }
+    .ledger-heading {
+      display: flex; align-items: baseline; gap: 0.8rem; margin-bottom: 1.6rem; padding: 0 0.2rem;
+    }
+    .ledger-heading h2 {
+      font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink);
+    }
+    .ledger-heading .rule { flex: 1; height: 1px; background: linear-gradient(90deg, var(--line), transparent); }
+    .ledger-heading .count { font-size: 0.7rem; color: var(--plum); letter-spacing: 0.5px; }
+
+    .ledger-grid-wrap { display: flex; gap: 1.6rem; align-items: stretch; }
+
+    /* connected block: cards share borders, no gaps */
+    .ledger-connected {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--glass-dark);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(110, 60, 170, 0.06);
+    }
+    .ledger-card {
+      padding: 1.8rem 1.9rem 2rem;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      transition: background .25s ease;
+    }
+    .ledger-card:hover { background: rgba(255, 255, 255, 0.6); }
+    .ledger-card:nth-child(2n) { border-right: none; }
+    .ledger-card.span-full { grid-column: 1 / -1; border-right: none; }
+    .ledger-card:last-child { border-bottom: none; }
+    .ledger-card-head {
+      display: flex; align-items: center; gap: 0.7rem; margin-bottom: 1.4rem;
+    }
+    .ledger-card-head .ic {
+      width: 2.3rem; height: 2.3rem; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 0.9rem;
+      box-shadow: 0 6px 16px rgba(90, 47, 150, 0.25);
+    }
+    .ledger-card-head h3 {
+      font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--ink);
+    }
+
+    .ledger-list {
+      position: relative;
+      display: flex; flex-direction: column;
+      padding-left: 1.1rem;
+    }
+    .ledger-list::before {
+      content: '';
+      position: absolute; left: 0.21rem; top: 0.3rem; bottom: 0.3rem;
+      width: 1px;
+      background: linear-gradient(to bottom, rgba(154, 95, 208, 0.45), rgba(154, 95, 208, 0.08));
+    }
+    .ledger-row {
+      position: relative;
+      padding: 0 0 1.1rem 1rem;
+    }
+    .ledger-row:last-child { padding-bottom: 0; }
+    .ledger-row::before {
+      content: '';
+      position: absolute; left: -1.1rem; top: 0.32rem;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 0 3px rgba(154, 95, 208, 0.15);
+    }
+    .ledger-row .label {
+      display: block;
+      font-size: 0.6rem; font-weight: 600; letter-spacing: 0.9px; text-transform: uppercase;
+      color: var(--plum-soft); margin-bottom: 0.28rem;
+    }
+    .ledger-row .value {
+      display: block;
+      font-size: 0.92rem; font-weight: 500; color: var(--ink); line-height: 1.4;
+    }
+    .ledger-row .value .chip-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(90, 47, 150, 0.1), rgba(154, 95, 208, 0.12));
+      color: var(--accent-1);
+      padding: 0.18rem 0.8rem;
+      border-radius: 30px;
+      font-size: 0.78rem; font-weight: 600;
+    }
+    .antutu-callout {
+      display: flex; align-items: center; gap: 0.9rem;
+      background: linear-gradient(135deg, rgba(90, 47, 150, 0.08), rgba(207, 155, 63, 0.1));
+      border: 1px solid rgba(207, 155, 63, 0.3);
+      border-radius: 16px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .antutu-callout .ac-icon {
+      flex: 0 0 2.4rem; height: 2.4rem; width: 2.4rem; border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent-2), var(--gold));
+      display: flex; align-items: center; justify-content: center; color: #fff; font-size: 1rem;
+      box-shadow: 0 8px 16px rgba(207, 155, 63, 0.25);
+    }
+    .antutu-callout .ac-body { flex: 1; }
+    .antutu-callout .ac-label { display: block; font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.6px; color: var(--plum-soft); }
+    .antutu-callout .ac-score { display: block; font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600; color: var(--ink); line-height: 1.15; }
+    .antutu-callout .ac-score small { font-family: 'Poppins', sans-serif; font-size: 0.62rem; color: var(--plum); font-weight: 400; margin-left: 0.2rem; }
+    .antutu-callout .ac-rank {
+      font-size: 0.62rem; font-weight: 600; color: #9a7320;
+      background: rgba(207, 155, 63, 0.18); padding: 0.3rem 0.65rem; border-radius: 30px; white-space: nowrap;
+    }
+    .related-mobile {
+      margin-top: 1.3rem; padding-top: 1.1rem; border-top: 1px dashed var(--line);
+      display: flex; align-items: center; gap: 0.5rem; font-size: 0.68rem; color: var(--plum);
+    }
+    .related-mobile i { color: var(--accent-1); font-size: 0.72rem; }
+    .related-mobile .rel-name { font-weight: 600; color: var(--ink); }
+
+    /* ——— SIDE PANELS ——— */
+    .side-panel {
+      flex: 0 0 220px;
+      background: var(--glass-dark);
+      backdrop-filter: blur(6px);
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      padding: 1.8rem 1.5rem;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      gap: 0.8rem;
+      box-shadow: 0 8px 24px rgba(110, 60, 170, 0.05);
+    }
+    .side-panel i.head-icon { font-size: 1.7rem; color: var(--accent-2); opacity: 0.75; }
+    .side-panel .sp-title { font-weight: 600; color: var(--accent-1); font-size: 0.85rem; }
+    .side-panel .sp-sub { font-size: 0.72rem; color: var(--plum); }
+    .side-panel .sp-btn {
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      color: #fff; border: none; padding: 0.5rem 1.6rem; border-radius: 40px;
+      font-size: 0.72rem; font-weight: 600; box-shadow: 0 8px 20px rgba(90, 47, 150, 0.2);
+      cursor: default;
+    }
+    .side-panel .sp-btn.outline {
+      background: transparent; color: var(--accent-1); border: 1px solid rgba(154, 95, 208, 0.5); box-shadow: none;
+    }
+    .side-links { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; margin-top: 0.3rem; }
+    .side-links .sl-item {
+      display: flex; align-items: center; gap: 0.6rem; font-size: 0.72rem; color: var(--accent-1);
+      padding: 0.4rem 0.7rem; border-radius: 12px; background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--line-soft); text-align: left;
+    }
+    .side-links .sl-item i { width: 1.1rem; text-align: center; color: var(--accent-2); }
+
+    /* ——— FOOTER ——— */
+    .spec-footer {
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--line);
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+      font-size: 0.78rem; color: var(--plum);
+    }
+    .spec-footer i { color: var(--accent-1); margin-right: 5px; }
+    .spec-footer .rating {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(255, 255, 255, 0.6); padding: 0.3rem 1.3rem; border-radius: 40px;
+      border: 1px solid var(--line);
+    }
+    .spec-footer .rating i { color: var(--gold); margin-right: 0; }
+
+    /* ——— RESPONSIVE ——— */
+    @media screen and (max-width: 1100px) {
+      .ledger-grid-wrap { flex-direction: column; }
+      .side-panel { flex-direction: row; flex-wrap: wrap; justify-content: center; flex: 1 1 auto; width: 100%; }
+      .side-links { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+    }
+    @media screen and (max-width: 650px) {
+      .ledger-connected { grid-template-columns: 1fr; }
+      .ledger-card { border-right: none !important; }
+    }
+    @media screen and (max-width: 850px) {
+      .banner-hero { flex-direction: column; text-align: center; padding: 2.4rem 1.8rem; }
+      .phone-name { font-size: 2.8rem; }
+      .spec-pills-row { justify-content: center; }
+      .banner-stats { justify-content: center; }
+      .banner-right { order: -1; }
+    }
+    @media screen and (max-width: 600px) {
+      .spec-page { padding: 2rem 1.1rem; }
+      .phone-name { font-size: 2.2rem; }
+      .ledger-card { padding: 1.4rem 1.4rem 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="spec-page">
+    <!-- HERO -->
+    <div class="banner-hero">
+      <div class="banner-badge"><i class="fas fa-star"></i> 2025 · flagship</div>
+      <div class="banner-left">
+        <div class="phone-model"><i class="fas fa-mobile-alt"></i> Apple · Titanium</div>
+        <h1 class="phone-name">iPhone 15 <em>Pro</em></h1>
+        <div class="phone-tagline"><i class="fas fa-bolt"></i> A17 Pro · 5G · Ceramic Shield</div>
+        <div class="spec-pills-row">
+          <div class="pill-xl"><div class="pill-icon"><i class="fas fa-desktop"></i></div><div class="pill-content"><span class="pill-label">Display</span><span class="pill-value">6.1" <span class="hl">OLED</span></span></div></div>
+          <div class="pill-xl"><div class="pill-icon"><i class="fas fa-microchip"></i></div><div class="pill-content"><span class="pill-label">RAM</span><span class="pill-value">8 <span class="hl">GB</span></span></div></div>
+          <div class="pill-xl"><div class="pill-icon"><i class="fas fa-hdd"></i></div><div class="pill-content"><span class="pill-label">Storage</span><span class="pill-value">256 <span class="hl">GB</span></span></div></div>
+          <div class="pill-xl"><div class="pill-icon"><i class="fas fa-camera"></i></div><div class="pill-content"><span class="pill-label">Camera</span><span class="pill-value">48 <span class="hl">MP</span></span></div></div>
+          <div class="pill-xl"><div class="pill-icon"><i class="fas fa-battery-three-quarters"></i></div><div class="pill-content"><span class="pill-label">Battery</span><span class="pill-value">3274 <span class="hl">mAh</span></span></div></div>
+          <div class="pill-xl"><div class="pill-icon"><i class="fas fa-plus"></i></div><div class="pill-content"><span class="pill-label">More</span><span class="pill-value">5G · <span class="hl">WiFi 6E</span></span></div></div>
+        </div>
+        <div class="banner-stats">
+          <div class="stat-item"><i class="fas fa-eye"></i><span class="stat-number">12.4K</span> views</div>
+          <div class="stat-item favorite"><i class="fas fa-heart"></i><span class="stat-number">3.8K</span> favorites</div>
+          <div class="stat-item"><i class="fas fa-share-alt"></i><span class="stat-number">892</span> shares</div>
+          <div class="stat-item"><i class="fas fa-comment"></i><span class="stat-number">456</span> reviews</div>
+        </div>
+        <div class="hero-antutu">
+          <div class="antutu-icon"><i class="fas fa-tachometer-alt"></i></div>
+          <div class="antutu-body">
+            <span class="antutu-label">AnTuTu v10 Benchmark</span>
+            <span class="antutu-score">1,580,000<small>pts</small></span>
+            <div class="antutu-bar"><div class="antutu-bar-fill"></div></div>
+          </div>
+          <div class="antutu-rank"><i class="fas fa-trophy"></i> Top 1% mobile</div>
+        </div>
+      </div>
+      <div class="banner-badge alt"><i class="fas fa-trophy"></i> Editor's choice</div>
+      <div class="banner-right">
+        <div class="glow-blob"></div>
+        <div class="glow-ring"></div>
+        <div class="float-chip chip-top"><i class="fas fa-microchip"></i> A17 Pro</div>
+        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 160'%3E%3Crect width='100' height='150' x='10' y='5' rx='24' fill='%23e8ddf5'/%3E%3Crect width='76' height='120' x='22' y='20' rx='12' fill='%23d5c5e8'/%3E%3Ccircle cx='60' cy='135' r='8' fill='%23b090c0'/%3E%3C/svg%3E" alt="iPhone 15 Pro">
+        <div class="float-chip chip-bottom"><i class="fas fa-gem"></i> Titanium</div>
+      </div>
+    </div>
+
+    <!-- LEDGER -->
+    <div class="ledger-section">
+      <div class="ledger-heading">
+        <h2>Full specification</h2>
+        <div class="rule"></div>
+        <span class="count">85+ data points</span>
+      </div>
+      <div class="ledger-grid-wrap">
+        <!-- side panel left -->
+        <div class="side-panel">
+          <i class="fas fa-gem head-icon"></i>
+          <div class="sp-title">You may like</div>
+          <div class="sp-sub">AirPods Pro 2</div>
+          <div class="sp-btn outline">View</div>
+          <div class="side-links">
+            <div class="sl-item"><i class="fas fa-tablet-alt"></i> iPad Pro</div>
+            <div class="sl-item"><i class="fas fa-laptop"></i> MacBook Air</div>
+            <div class="sl-item"><i class="fas fa-charging-station"></i> 20W adapter</div>
+          </div>
+        </div>
+
+        <!-- connected spec cards -->
+        <div class="ledger-connected">
+          <!-- LAUNCH -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-calendar-alt"></i></div><h3>Launch</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Announced</span><span class="value">Sept 12, 2023</span></div>
+              <div class="ledger-row"><span class="label">Released</span><span class="value">Sept 22, 2023</span></div>
+              <div class="ledger-row"><span class="label">Status</span><span class="value"><span class="chip-tag">Available</span></span></div>
+              <div class="ledger-row"><span class="label">Launch price</span><span class="value">$999 / 256GB</span></div>
+            </div>
+          </div>
+          <!-- BODY -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-shapes"></i></div><h3>Body &amp; Build</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Dimensions</span><span class="value">146.6 × 70.6 × 8.25 mm</span></div>
+              <div class="ledger-row"><span class="label">Weight</span><span class="value">187 g</span></div>
+              <div class="ledger-row"><span class="label">Build</span><span class="value">Titanium frame · Ceramic Shield front · glass back</span></div>
+              <div class="ledger-row"><span class="label">Water &amp; dust</span><span class="value">IP68 (6m, 30 min)</span></div>
+              <div class="ledger-row"><span class="label">SIM</span><span class="value">Nano-SIM + eSIM / Dual eSIM</span></div>
+            </div>
+          </div>
+          <!-- DISPLAY -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-desktop"></i></div><h3>Display</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Size</span><span class="value">6.1 inches</span></div>
+              <div class="ledger-row"><span class="label">Type</span><span class="value">Super Retina XDR (OLED)</span></div>
+              <div class="ledger-row"><span class="label">Resolution</span><span class="value">2556 × 1179 px</span></div>
+              <div class="ledger-row"><span class="label">Refresh rate</span><span class="value">120Hz ProMotion</span></div>
+              <div class="ledger-row"><span class="label">Brightness</span><span class="value">1000 nits typ · 2000 nits peak</span></div>
+              <div class="ledger-row"><span class="label">Protection</span><span class="value">Ceramic Shield glass</span></div>
+            </div>
+            <div class="related-mobile"><i class="fas fa-mobile-alt"></i> <span class="rel-name">iPhone 15 Plus</span> · 6.7" OLED</div>
+          </div>
+          <!-- PLATFORM -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-microchip"></i></div><h3>Platform</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">OS</span><span class="value">iOS 17, upgradable</span></div>
+              <div class="ledger-row"><span class="label">Updates</span><span class="value">Up to iOS 18 confirmed</span></div>
+              <div class="ledger-row"><span class="label">Chipset</span><span class="value"><span class="chip-tag">A17 Pro</span> · 3nm</span></div>
+              <div class="ledger-row"><span class="label">CPU</span><span class="value">Hexa-core (2×3.78GHz + 4×2.11GHz)</span></div>
+              <div class="ledger-row"><span class="label">GPU</span><span class="value">Apple GPU 6-core, ray tracing</span></div>
+            </div>
+            <div class="related-mobile"><i class="fas fa-microchip"></i> <span class="rel-name">iPhone 15</span> · A16 Bionic</div>
+          </div>
+          <!-- MEMORY -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-hdd"></i></div><h3>Memory</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">RAM</span><span class="value">8 GB</span></div>
+              <div class="ledger-row"><span class="label">Storage</span><span class="value">128 / 256 / 512 GB · 1 TB</span></div>
+              <div class="ledger-row"><span class="label">Card slot</span><span class="value">No</span></div>
+              <div class="ledger-row"><span class="label">RAM type</span><span class="value">LPDDR5</span></div>
+            </div>
+          </div>
+          <!-- MAIN CAMERA -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-camera"></i></div><h3>Main Camera</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Wide</span><span class="value">48 MP, f/1.78, OIS</span></div>
+              <div class="ledger-row"><span class="label">Ultra wide</span><span class="value">12 MP, f/2.2, 120°</span></div>
+              <div class="ledger-row"><span class="label">Telephoto</span><span class="value">12 MP, f/2.8, 3× optical</span></div>
+              <div class="ledger-row"><span class="label">Features</span><span class="value">LED flash, HDR, panorama</span></div>
+              <div class="ledger-row"><span class="label">Video</span><span class="value">4K@24/25/30/60fps, ProRes, Dolby Vision HDR</span></div>
+            </div>
+            <div class="related-mobile"><i class="fas fa-camera"></i> <span class="rel-name">iPhone 15 Pro Max</span> · 5× optical</div>
+          </div>
+          <!-- SELFIE CAMERA -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-user-circle"></i></div><h3>Selfie Camera</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Front sensor</span><span class="value">12 MP, f/1.9, autofocus</span></div>
+              <div class="ledger-row"><span class="label">Features</span><span class="value">Photonic Engine, HDR, Night mode</span></div>
+              <div class="ledger-row"><span class="label">Video</span><span class="value">4K@24/25/30/60fps, gyro-EIS</span></div>
+              <div class="ledger-row"><span class="label">Face unlock</span><span class="value">Face ID, dot projector</span></div>
+            </div>
+          </div>
+          <!-- SOUND -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-volume-up"></i></div><h3>Sound</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Loudspeaker</span><span class="value">Yes, stereo speakers</span></div>
+              <div class="ledger-row"><span class="label">3.5mm jack</span><span class="value">No</span></div>
+              <div class="ledger-row"><span class="label">Mic</span><span class="value">Triple mic w/ noise cancellation</span></div>
+            </div>
+          </div>
+          <!-- CONNECTIVITY -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-wifi"></i></div><h3>Connectivity</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Network</span><span class="value">5G, LTE</span></div>
+              <div class="ledger-row"><span class="label">WLAN</span><span class="value">Wi-Fi 6E a/b/g/n/ac/ax, dual-band</span></div>
+              <div class="ledger-row"><span class="label">Bluetooth</span><span class="value">5.3, A2DP, LE</span></div>
+              <div class="ledger-row"><span class="label">GPS</span><span class="value">GPS, GLONASS, GALILEO, BDS, QZSS</span></div>
+              <div class="ledger-row"><span class="label">NFC</span><span class="value">Yes</span></div>
+              <div class="ledger-row"><span class="label">Radio</span><span class="value">No FM radio</span></div>
+              <div class="ledger-row"><span class="label">USB</span><span class="value">USB Type-C 3.0</span></div>
+            </div>
+          </div>
+          <!-- NETWORK BANDS -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-signal"></i></div><h3>Network Bands</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">2G</span><span class="value">GSM 850/900/1800/1900</span></div>
+              <div class="ledger-row"><span class="label">3G</span><span class="value">HSDPA, HSPA+, DC-HSDPA</span></div>
+              <div class="ledger-row"><span class="label">4G LTE</span><span class="value">Bands 1–8, 12–14, 17–20, 25–30, 32, 34, 38–42, 46, 48, 66, 71</span></div>
+              <div class="ledger-row"><span class="label">5G</span><span class="value">Sub-6GHz + mmWave (US models)</span></div>
+              <div class="ledger-row"><span class="label">Speed</span><span class="value">HSPA, LTE-A, 5G NR sub6/mmWave</span></div>
+            </div>
+          </div>
+          <!-- SENSORS -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-satellite-dish"></i></div><h3>Sensors &amp; Features</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Sensors</span><span class="value">Face ID, accelerometer, gyro, proximity, barometer, compass</span></div>
+              <div class="ledger-row"><span class="label">Action button</span><span class="value">Customizable</span></div>
+              <div class="ledger-row"><span class="label">Satellite</span><span class="value">Emergency SOS via satellite</span></div>
+            </div>
+          </div>
+          <!-- BATTERY -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-battery-three-quarters"></i></div><h3>Battery &amp; Charging</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Type</span><span class="value">Li-Ion, 3274 mAh</span></div>
+              <div class="ledger-row"><span class="label">Wired charging</span><span class="value">20W, 50% in ~30 min</span></div>
+              <div class="ledger-row"><span class="label">Wireless</span><span class="value">MagSafe 15W · Qi 7.5W</span></div>
+              <div class="ledger-row"><span class="label">Video playback</span><span class="value">Up to 23 hours</span></div>
+            </div>
+          </div>
+          <!-- PERFORMANCE -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-tachometer-alt"></i></div><h3>Performance</h3></div>
+            <div class="antutu-callout">
+              <div class="ac-icon"><i class="fas fa-bolt"></i></div>
+              <div class="ac-body">
+                <span class="ac-label">AnTuTu v10 Benchmark</span>
+                <span class="ac-score">1,580,000<small>pts</small></span>
+              </div>
+              <div class="ac-rank"><i class="fas fa-trophy"></i> Top 1%</div>
+            </div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">GeekBench 6 single</span><span class="value">~2950</span></div>
+              <div class="ledger-row"><span class="label">GeekBench 6 multi</span><span class="value">~7200</span></div>
+              <div class="ledger-row"><span class="label">3DMark Wild Life</span><span class="value">Top tier mobile GPU</span></div>
+            </div>
+          </div>
+          <!-- TESTS -->
+          <div class="ledger-card">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-vial"></i></div><h3>Tests</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Display</span><span class="value">Max brightness 1576 nits (auto)</span></div>
+              <div class="ledger-row"><span class="label">Loudspeaker</span><span class="value">-26.2 LUFS, Very good</span></div>
+              <div class="ledger-row"><span class="label">Battery (Active use)</span><span class="value">~13:30 h endurance rating</span></div>
+              <div class="ledger-row"><span class="label">Camera quality</span><span class="value">Excellent stills, top-tier video stabilization</span></div>
+            </div>
+          </div>
+          <!-- MISC (spans full width) -->
+          <div class="ledger-card span-full">
+            <div class="ledger-card-head"><div class="ic"><i class="fas fa-palette"></i></div><h3>Colors, Models &amp; Pricing</h3></div>
+            <div class="ledger-list">
+              <div class="ledger-row"><span class="label">Colors</span><span class="value">Black Titanium, White Titanium, Blue Titanium, Natural Titanium</span></div>
+              <div class="ledger-row"><span class="label">Models</span><span class="value">A2848 (US), A3101 (Intl)</span></div>
+              <div class="ledger-row"><span class="label">Price</span><span class="value">$999 · 128GB — $1199 · 512GB — $1399 · 1TB</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- side panel right -->
+        <div class="side-panel">
+          <i class="fas fa-crown head-icon"></i>
+          <div class="sp-title">Sponsor</div>
+          <div class="sp-sub">Premium accessories</div>
+          <div class="sp-btn">Explore</div>
+          <div class="side-links">
+            <div class="sl-item"><i class="fas fa-tag"></i> Leather case</div>
+            <div class="sl-item"><i class="fas fa-tag"></i> Clear MagSafe</div>
+            <div class="sl-item"><i class="fas fa-tag"></i> Carbon fiber</div>
+            <div class="sl-item"><i class="fas fa-headphones"></i> AirPods Max</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="spec-footer">
+      <span><i class="fas fa-phone-alt"></i> iPhone 15 Pro · 256GB · Titanium</span>
+      <span><i class="fas fa-microchip"></i> A17 Pro · 8GB RAM</span>
+      <span class="rating">
+        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
+        4.8
+      </span>
+    </div>
+  </main>
+</body>
+</html>

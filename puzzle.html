@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>All CSS Cursors — Saithui</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07070f;
+    --card:#0f0f1e;
+    --card-border:rgba(255,255,255,0.07);
+    --accent:#A855F7;
+    --accent-soft:rgba(168,85,247,0.35);
+    --text:#f5f5fa;
+    --muted:#82829a;
+    --code:#7dd3fc;
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  html,body{
+    height:100vh;
+    width:100%;
+    overflow:hidden;
+    background:var(--bg);
+    font-family:'Poppins',sans-serif;
+    color:var(--text);
+  }
+
+  body{
+    position:relative;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 10%, rgba(168,85,247,0.14), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 85% 90%, rgba(126,58,242,0.12), transparent 60%),
+      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(168,85,247,0.05), transparent 70%),
+      var(--bg);
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image: radial-gradient(rgba(255,255,255,0.14) 1px, transparent 1px);
+    background-size: 42px 42px;
+    opacity:0.35;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* subtle grain for premium texture */
+  body::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:2;
+    opacity:0.025;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+
+  .page{
+    position:relative;
+    z-index:1;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(16px,2.6vh,28px);
+    padding:clamp(14px,2vh,30px) clamp(16px,3vw,40px);
+  }
+
+  @keyframes riseIn{
+    from{ opacity:0; transform:translateY(14px); filter:blur(4px); }
+    to{ opacity:1; transform:translateY(0); filter:blur(0); }
+  }
+
+  .badge{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 16px;
+    border-radius:999px;
+    background:rgba(168,85,247,0.08);
+    border:1px solid rgba(168,85,247,0.3);
+    font-family:'Fira Code',monospace;
+    font-size:clamp(10px,0.9vw,12px);
+    color:var(--accent);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    animation:riseIn .6s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .badge::before{
+    content:"";
+    width:6px;height:6px;
+    border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 8px var(--accent);
+    animation:pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.5; transform:scale(0.8); }
+  }
+
+  h1{
+    font-size:clamp(30px,4.6vw,54px);
+    font-weight:800;
+    letter-spacing:-0.03em;
+    text-align:center;
+    line-height:1.05;
+    background:linear-gradient(180deg,#ffffff 20%, #ababc4 100%);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    filter:drop-shadow(0 0 30px rgba(168,85,247,0.15));
+    animation:riseIn .7s cubic-bezier(.2,.8,.2,1) .08s both;
+  }
+
+  .snippet{
+    font-family:'Fira Code',monospace;
+    font-weight:400;
+    font-size:clamp(13px,1.4vw,17px);
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:2px;
+    animation:riseIn .7s cubic-bezier(.2,.8,.2,1) .16s both;
+  }
+  .snippet .prop{
+    color:var(--code);
+    font-weight:500;
+    transition:color .15s ease;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(6, 1fr);
+    grid-template-rows:repeat(2, 1fr);
+    gap:clamp(10px,1.3vw,16px);
+    width:min(1220px, 92vw);
+    height:clamp(300px,50vh,440px);
+  }
+
+  .card{
+    position:relative;
+    background:linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01));
+    backdrop-filter:blur(6px);
+    border:1px solid var(--card-border);
+    border-radius:18px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:clamp(8px,1.3vh,15px);
+    transition:transform .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s ease, border-color .3s ease, background .3s ease;
+    overflow:hidden;
+    opacity:0;
+    animation:cardIn .55s cubic-bezier(.16,1,.3,1) forwards;
+  }
+
+  @keyframes cardIn{
+    from{ opacity:0; transform:translateY(22px) scale(.92); }
+    to{ opacity:1; transform:translateY(0) scale(1); }
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    padding:1px;
+    background:linear-gradient(135deg, var(--accent), transparent 40%, transparent 60%, var(--accent));
+    -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    opacity:0;
+    transition:opacity .3s ease;
+    pointer-events:none;
+  }
+
+  .card:hover{
+    transform:translateY(-4px) scale(1.02);
+    background:linear-gradient(160deg, rgba(168,85,247,0.1), rgba(255,255,255,0.02));
+    box-shadow:0 14px 40px -8px rgba(168,85,247,0.35), 0 0 0 1px rgba(168,85,247,0.15) inset;
+  }
+  .card:hover::before{ opacity:1; }
+
+  .icon{
+    font-size:clamp(20px,2.6vw,30px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:clamp(28px,3.4vh,38px);
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  }
+
+  .card:hover .icon svg[stroke]{
+    stroke:var(--accent);
+    transition:stroke .25s ease;
+  }
+
+  .icon svg{ width:clamp(22px,2.6vw,30px); height:auto; fill:none; stroke:#fff; stroke-width:1.6; transition:stroke .25s ease; }
+
+  .label{
+    font-size:clamp(11px,1vw,13.5px);
+    color:var(--text);
+    font-weight:500;
+    letter-spacing:0.01em;
+    font-family:'Fira Code',monospace;
+  }
+
+  .live-hint{
+    font-family:'Fira Code',monospace;
+    font-size:clamp(11px,1vw,13px);
+    color:var(--muted);
+    text-align:center;
+    opacity:0;
+    animation:riseIn .6s ease .9s both;
+  }
+  .live-hint span{ color:var(--accent); font-weight:500; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="badge">Saithui · CSS Reference</div>
+  <h1>All CSS Cursors</h1>
+  <div class="snippet">cursor: <span class="prop" id="propLabel">css-property-name</span>;</div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="live-hint">hover any card — <span>the cursor actually changes</span></div>
+</div>
+
+<script>
+const cursors = [
+  "none","default","help","pointer",
+  "context-menu","progress","wait","cell",
+  "crosshair","text","vertical-text","alias",
+  "copy","move","not-allowed","grab",
+  "zoom-in","col-resize","row-resize","nwse-resize",
+  "all-scroll","no-drop","grabbing","zoom-out"
+];
+
+function svgFor(name){
+  const s = 'stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+  switch(name){
+    case "none": return `<span style="font-size:20px;color:#555">&times;</span>`;
+    case "default": return `<svg viewBox="0 0 20 20" ${s}><path d="M4 3l14 8-6 1.5L10 19z"/></svg>`;
+    case "help": return `<svg viewBox="0 0 20 20" ${s}><circle cx="10" cy="10" r="8"/><path d="M7.8 8a2.2 2.2 0 1 1 3.1 2c-.9.6-1.1 1-1.1 1.8" stroke-linecap="round"/><circle cx="10" cy="14.2" r="0.4" fill="#fff"/></svg>`;
+    case "pointer": return `<svg viewBox="0 0 20 20" ${s}><path d="M7 2.5v9M7 2.5l3 3M5.2 11h8a3 3 0 0 1 3 3v3.5H8.5"/></svg>`;
+    case "context-menu": return `<svg viewBox="0 0 20 20" ${s}><path d="M3 2l13 7.5-5.2 1.2L13 17l-2 1-2.5-6.5-3 3z"/><path d="M13 4.5h5M13 7h5M13 9.5h3" stroke-width="1.2"/></svg>`;
+    case "progress": return `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="#1a2540"/><path d="M10 10 L10 2 A8 8 0 0 1 17 13 Z" fill="#3b82f6"/></svg>`;
+    case "wait": return `<svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="#22c55e"/><path d="M10 10 L10 2 A8 8 0 0 1 17.3 7 Z" fill="#ef4444"/><path d="M10 10 L17.3 7 A8 8 0 0 1 13 17.3 Z" fill="#f59e0b"/><path d="M10 10 L13 17.3 A8 8 0 0 1 3 13 Z" fill="#3b82f6"/></svg>`;
+    case "cell": return `<svg viewBox="0 0 20 20" ${s}><path d="M10 3v14M3 10h14"/></svg>`;
+    case "crosshair": return `<svg viewBox="0 0 20 20" ${s}><circle cx="10" cy="10" r="3"/><path d="M10 1v4M10 15v4M1 10h4M15 10h4"/></svg>`;
+    case "text": return `<svg viewBox="0 0 20 20" ${s}><path d="M7 3h6M10 3v14M7 17h6"/></svg>`;
+    case "vertical-text": return `<svg viewBox="0 0 20 20" ${s}><path d="M3 7v6M3 10h14M17 7v6"/></svg>`;
+    case "alias": return `<svg viewBox="0 0 20 20" ${s}><path d="M4 3l14 8-6 1.5L10 19z"/><path d="M13 4l4 0 0 4" transform="translate(-1,-1)"/><path d="M11.5 6.5l4.5-3.5"/></svg>`;
+    case "copy": return `<svg viewBox="0 0 20 20" ${s}><path d="M3 2l14 8-5.8 1.3L13 17l-2 1-3-7z"/><circle cx="15" cy="15" r="3" fill="var(--card)" stroke="#fff"/><path d="M15 13.5v3M13.5 15h3"/></svg>`;
+    case "move": return `<svg viewBox="0 0 20 20" ${s}><path d="M10 2v16M2 10h16M10 2l-2 2M10 2l2 2M10 18l-2-2M10 18l2-2M2 10l2-2M2 10l2 2M18 10l-2-2M18 10l-2 2"/></svg>`;
+    case "not-allowed": return `<svg viewBox="0 0 20 20" ${s}><circle cx="10" cy="10" r="8"/><path d="M4.5 4.5l11 11"/></svg>`;
+    case "grab": return `<svg viewBox="0 0 20 20" ${s}><path d="M6 10V5.5a1.2 1.2 0 0 1 2.4 0V9M8.4 9V4.8a1.2 1.2 0 0 1 2.4 0V9M10.8 9V5.5a1.2 1.2 0 0 1 2.4 0V10M13.2 10V7.3a1.1 1.1 0 0 1 2.2 0V12c0 3.3-2 5.5-5.2 5.5-2.6 0-3.8-1-5-2.8L3.5 12a1.1 1.1 0 0 1 1.8-1.3L6 12"/></svg>`;
+    case "zoom-in": return `<svg viewBox="0 0 20 20" ${s}><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5M8.5 6v5M6 8.5h5"/></svg>`;
+    case "col-resize": return `<svg viewBox="0 0 20 20" ${s}><path d="M6 4l-3 3 3 3M14 4l3 3-3 3M3 7h14M10 2v16"/></svg>`;
+    case "row-resize": return `<svg viewBox="0 0 20 20" ${s}><path d="M4 6l3-3 3 3M4 14l3 3 3-3M7 3v14M2 10h16" transform="translate(3,0)"/></svg>`;
+    case "nwse-resize": return `<svg viewBox="0 0 20 20" ${s}><path d="M3 3l5 0M3 3l0 5M3 3l6 6M17 17l-5 0M17 17l0-5M17 17l-6-6"/></svg>`;
+    case "all-scroll": return `<svg viewBox="0 0 20 20" ${s}><circle cx="10" cy="10" r="2" fill="#fff"/><path d="M10 2v4M10 18v-4M2 10h4M18 10h-4M5 5l2 2M15 5l-2 2M5 15l2-2M15 15l-2-2"/></svg>`;
+    case "no-drop": return `<svg viewBox="0 0 20 20" ${s}><path d="M6 10V5.5a1.2 1.2 0 0 1 2.4 0V9M8.4 9V4.8a1.2 1.2 0 0 1 2.4 0V9M10.8 9V5.5a1.2 1.2 0 0 1 2.4 0V10M13.2 10V7.3a1.1 1.1 0 0 1 2.2 0V12c0 3.3-2 5.5-5.2 5.5-2.6 0-3.8-1-5-2.8L3.5 12a1.1 1.1 0 0 1 1.8-1.3L6 12"/><circle cx="15" cy="6" r="4" fill="#07070f" stroke="#ef4444"/><path d="M13 4l4 4" stroke="#ef4444"/></svg>`;
+    case "grabbing": return `<svg viewBox="0 0 20 20" ${s}><path d="M5 10.5V8a1 1 0 0 1 2 0v1.5M7 9.5V7a1 1 0 0 1 2 0v2.5M9 9.5V7.3a1 1 0 0 1 2 0V10M11 10V8.6a1 1 0 0 1 2 0v3.4c0 3-1.8 5-4.8 5-2.4 0-3.6-1-4.6-2.6L2.6 12a1 1 0 0 1 1.6-1.2L5 12"/></svg>`;
+    case "zoom-out": return `<svg viewBox="0 0 20 20" ${s}><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5M6 8.5h5"/></svg>`;
+    default: return `<svg viewBox="0 0 20 20" ${s}><circle cx="10" cy="10" r="6"/></svg>`;
+  }
+}
+
+const grid = document.getElementById("grid");
+const propLabel = document.getElementById("propLabel");
+
+cursors.forEach((name, i) => {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.style.cursor = name;
+  card.style.animationDelay = (0.28 + i * 0.045) + "s";
+  card.innerHTML = `
+    <div class="icon">${svgFor(name)}</div>
+    <div class="label">${name}</div>
+  `;
+  card.addEventListener("mouseenter", () => propLabel.textContent = name);
+  card.addEventListener("mouseleave", () => propLabel.textContent = "css-property-name");
+  grid.appendChild(card);
+});
+</script>
+
+</body>
+</html>

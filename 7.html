@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
+  <title>Phone Finder · refined sliders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Poppins', sans-serif; background: #F8FAFC; color: #0b1a2e; padding: 16px; }
+    .app { max-width: 1600px; margin: 0 auto; background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px -12px rgba(0,0,0,0.08); padding: 20px 20px 30px; }
+
+    .filter-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .filter-header h1 { font-weight: 600; font-size: 1.6rem; display: flex; align-items: center; gap: 8px; }
+    .filter-header h1 i { color: #2563EB; }
+    .badge-count { background: #2563EB; color: white; font-size: 0.75rem; font-weight: 600; padding: 2px 10px; border-radius: 30px; margin-left: 8px; }
+    .search-box { display: flex; align-items: center; background: #F1F5F9; border-radius: 40px; padding: 8px 18px; width: 100%; max-width: 280px; transition: 0.2s; }
+    .search-box:focus-within { box-shadow: 0 0 0 2px #2563EB40; }
+    .search-box i { color: #64748b; margin-right: 10px; }
+    .search-box input { border: none; background: transparent; font-family: 'Poppins', sans-serif; font-size: 0.9rem; width: 100%; outline: none; padding: 6px 0; }
+
+    .filter-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: center;
+      background: #f8fafc;
+      padding: 12px 16px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      border: 1px solid #eef2f6;
+    }
+    .filter-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+    .filter-dropdown > .drop-btn {
+      background: white;
+      border: 1px solid #dce1e8;
+      border-radius: 40px;
+      padding: 6px 18px 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      font-family: 'Poppins', sans-serif;
+      color: #1e293b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s;
+      white-space: nowrap;
+    }
+    .filter-dropdown > .drop-btn:hover {
+      border-color: #2563EB;
+      background: #f0f7ff;
+    }
+    .filter-dropdown > .drop-btn i {
+      font-size: 0.65rem;
+      color: #94a3b8;
+    }
+    .filter-dropdown .dropdown-content {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: white;
+      min-width: 200px;
+      max-height: 380px;
+      overflow-y: auto;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px -12px rgba(0,0,0,0.2);
+      padding: 12px 8px;
+      z-index: 100;
+      border: 1px solid #eef2f6;
+    }
+    .filter-dropdown .dropdown-content.show {
+      display: block;
+    }
+    .filter-dropdown .dropdown-content .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: 0.1s;
+    }
+    .filter-dropdown .dropdown-content .filter-option:hover {
+      background: #f1f5f9;
+    }
+    .filter-dropdown .dropdown-content .filter-option input[type="checkbox"],
+    .filter-dropdown .dropdown-content .filter-option input[type="radio"] {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #cbd5e1;
+      border-radius: 4px;
+      background: white;
+      flex-shrink: 0;
+      cursor: pointer;
+      position: relative;
+    }
+    .filter-dropdown .dropdown-content .filter-option input[type="radio"] {
+      border-radius: 50%;
+    }
+    .filter-dropdown .dropdown-content .filter-option input:checked {
+      background: #2563EB;
+      border-color: #2563EB;
+    }
+    .filter-dropdown .dropdown-content .filter-option input:checked::after {
+      content: "✓";
+      color: white;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .filter-dropdown .dropdown-content .filter-option input[type="radio"]:checked::after {
+      content: "•";
+      font-size: 20px;
+    }
+    .filter-dropdown .dropdown-content .range-group {
+      padding: 0 8px;
+    }
+    .filter-dropdown .dropdown-content .range-group input[type="range"] {
+      width: 100%;
+      accent-color: #2563EB;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 10px;
+    }
+    .filter-dropdown .dropdown-content .range-values {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .filter-dropdown .dropdown-content .toggle-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 4px 8px;
+    }
+    .filter-dropdown .dropdown-content .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+    }
+    .filter-dropdown .dropdown-content .toggle-switch input {
+      width: 34px;
+      height: 18px;
+      background: #cbd5e1;
+      border-radius: 30px;
+      appearance: none;
+      position: relative;
+      cursor: pointer;
+      transition: 0.2s;
+      border: none;
+    }
+    .filter-dropdown .dropdown-content .toggle-switch input:checked {
+      background: #2563EB;
+    }
+    .filter-dropdown .dropdown-content .toggle-switch input::before {
+      content: "";
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: 0.2s;
+    }
+    .filter-dropdown .dropdown-content .toggle-switch input:checked::before {
+      left: 18px;
+    }
+    .filter-dropdown .dropdown-content .show-more {
+      color: #2563EB;
+      font-weight: 500;
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+    .filter-actions .btn {
+      padding: 6px 20px;
+      border-radius: 40px;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: 0.15s;
+    }
+    .btn-primary { background: #2563EB; color: white; }
+    .btn-primary:hover { background: #1d4ed8; transform: scale(0.97); }
+    .btn-outline { border: 1px solid #cbd5e1; background: transparent; color: #1e293b; }
+    .btn-outline:hover { background: #f8fafc; }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 12px;
+    }
+    .chip {
+      background: #EFF6FF;
+      color: #1e3a8a;
+      padding: 4px 12px 4px 14px;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .chip i { cursor: pointer; font-size: 0.7rem; color: #2563EB; }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 14px;
+      margin-top: 12px;
+    }
+    .product-card {
+      background: white;
+      border-radius: 14px;
+      padding: 10px 6px 12px;
+      box-shadow: 0 4px 14px -6px rgba(0,0,0,0.05);
+      transition: 0.2s;
+      border: 1px solid #f0f4f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 2px;
+    }
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px -10px rgba(37,99,235,0.12);
+      border-color: #dbeafe;
+    }
+    .product-img {
+      background: #f1f5f9;
+      border-radius: 12px;
+      width: 100%;
+      aspect-ratio: 1/1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.4rem;
+      color: #94a3b8;
+      margin-bottom: 2px;
+    }
+    .product-img i { font-size: 3rem; opacity: 0.5; }
+    .product-brand {
+      font-size: 0.55rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2px;
+      color: #2563EB;
+      margin-top: 2px;
+    }
+    .product-name {
+      font-weight: 600;
+      font-size: 0.75rem;
+      line-height: 1.2;
+      margin: 1px 0;
+    }
+    .product-specs {
+      font-size: 0.6rem;
+      color: #64748b;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .product-specs span {
+      background: #f1f5f9;
+      padding: 0 6px;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 1400px) { .product-grid { grid-template-columns: repeat(6, 1fr); } }
+    @media (max-width: 1200px) { .product-grid { grid-template-columns: repeat(5, 1fr); } }
+    @media (max-width: 992px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 768px) {
+      .product-grid { grid-template-columns: repeat(3, 1fr); }
+      .filter-strip { flex-wrap: wrap; }
+      .filter-actions { margin-left: 0; width: 100%; justify-content: flex-start; }
+      .filter-dropdown .dropdown-content { min-width: 180px; left: -10px; }
+    }
+    @media (max-width: 480px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .product-card { padding: 8px 4px; }
+      .product-img { font-size: 1.8rem; }
+      .product-img i { font-size: 2rem; }
+      .product-name { font-size: 0.65rem; }
+      .filter-header { flex-direction: column; align-items: stretch; gap: 10px; }
+      .search-box { max-width: 100%; }
+      .filter-strip { padding: 10px 12px; gap: 6px; }
+      .filter-dropdown > .drop-btn { font-size: 0.7rem; padding: 4px 12px; }
+    }
+    .breadcrumb { font-size: 0.75rem; color: #475569; margin-bottom: 12px; }
+    .breadcrumb span { color: #2563EB; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="filter-header">
+    <h1><i class="fas fa-mobile-alt"></i> Phone Finder <span class="badge-count" id="filterCount">0</span></h1>
+    <div class="search-box">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search phones..." id="searchInput" />
+    </div>
+  </div>
+  <div class="breadcrumb"><i class="fas fa-home"></i> Home / <span>Phones</span></div>
+
+  <div class="filter-strip" id="filterStrip">
+    <div class="filter-actions">
+      <button class="btn btn-primary" id="applyFiltersBtn"><i class="fas fa-check"></i> Apply</button>
+      <button class="btn btn-outline" id="resetFiltersBtn"><i class="fas fa-undo-alt"></i> Reset</button>
+    </div>
+  </div>
+
+  <div class="filter-chips" id="filterChips"></div>
+  <section class="product-grid" id="productGrid"></section>
+</div>
+
+<script>
+  (function() {
+    // ---------- FILTER DEFINITIONS with refined realistic ranges ----------
+    const filterGroups = [
+      { id: 'brand', label: 'Brand', type: 'checkboxes', options: ["Apple","Samsung","Google","Xiaomi","OnePlus","Motorola","Sony","Huawei","Oppo","Vivo","Realme","Honor","Nothing","Tecno","Infinix","Nokia","Asus","Lenovo","ZTE","Blackview","Doogee","Meizu","Sharp","RedMagic","POCO","iQOO","Fairphone"] },
+      // RAM: realistic 2GB to 24GB (minimum 2GB, maximum 24GB)
+      { id: 'ram', label: 'RAM', type: 'range', min: 2, max: 24, step: 1 },
+      // Storage: realistic 16GB to 1TB (1024GB)
+      { id: 'storage', label: 'Storage', type: 'range', min: 16, max: 1024, step: 16 },
+      // Display: 4.5" to 7.5"
+      { id: 'displaySize', label: 'Display', type: 'range', min: 4.5, max: 7.5, step: 0.1 },
+      // Refresh: 60Hz to 165Hz
+      { id: 'refresh', label: 'Refresh', type: 'range', min: 60, max: 165, step: 1 },
+      // Battery: 3000mAh to 7000mAh
+      { id: 'battery', label: 'Battery', type: 'range', min: 3000, max: 7000, step: 100 },
+      // Back Camera MP: 12MP to 200MP
+      { id: 'backCamMP', label: 'Back Camera', type: 'range', min: 12, max: 200, step: 1 },
+      // Front Camera MP: 8MP to 60MP
+      { id: 'frontCamMP', label: 'Front Camera', type: 'range', min: 8, max: 60, step: 1 },
+      // Back Camera Features (checkboxes)
+      { id: 'backCamType', label: 'Back Features', type: 'checkboxes', options: ["Single","Dual","Triple","Quad","Penta","OIS","EIS","4K Video","8K Video","Telephoto","Periscope","Ultra Wide","Macro","Night Mode","LED Flash"] },
+      // Front Camera Features (checkboxes)
+      { id: 'frontCamType', label: 'Front Features', type: 'checkboxes', options: ["8MP+","12MP+","16MP+","32MP+","50MP+","4K Selfie","Dual Selfie","Flash","HDR","Portrait","Night Mode","AI Beautification"] },
+      // Fingerprint sensor types
+      { id: 'fingerprint', label: 'Fingerprint', type: 'checkboxes', options: ["Side Mounted","Rear Mounted","Under Display Optical","Under Display Ultrasonic","Face Unlock Only","No Fingerprint"] },
+      // Face Unlock
+      { id: 'faceUnlock', label: 'Face Unlock', type: 'toggle', options: ["Yes","No"] },
+      // OS
+      { id: 'os', label: 'OS', type: 'checkboxes', options: ["Android","iOS","HarmonyOS"] },
+      // Network
+      { id: 'network', label: 'Network', type: 'checkboxes', options: ["4G LTE","5G","5G SA","5G NSA"] },
+      // Expandable Storage
+      { id: 'expandable', label: 'Expandable', type: 'toggle', options: ["Yes","No","MicroSD"] },
+      // Build Material
+      { id: 'build', label: 'Build', type: 'checkboxes', options: ["Plastic","Glass","Metal","Titanium","Ceramic"] },
+      // Water Resistance
+      { id: 'water', label: 'Water Resistance', type: 'checkboxes', options: ["None","IP52","IP53","IP54","IP67","IP68"] },
+    ];
+
+    let selected = {};
+
+    function renderDropdowns() {
+      const strip = document.getElementById('filterStrip');
+      const actions = strip.querySelector('.filter-actions');
+      strip.innerHTML = '';
+      
+      filterGroups.forEach(group => {
+        const drop = document.createElement('div');
+        drop.className = 'filter-dropdown';
+        const btn = document.createElement('button');
+        btn.className = 'drop-btn';
+        btn.innerHTML = `${group.label} <i class="fas fa-chevron-down"></i>`;
+        const content = document.createElement('div');
+        content.className = 'dropdown-content';
+
+        if (group.type === 'checkboxes') {
+          group.options.forEach(opt => {
+            const label = document.createElement('label');
+            label.className = 'filter-option';
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.value = opt;
+            input.dataset.filter = group.id;
+            if (selected[group.id] && selected[group.id].includes(opt)) input.checked = true;
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(opt));
+            content.appendChild(label);
+          });
+          const more = document.createElement('div');
+          more.className = 'show-more';
+          more.textContent = '+ Show more';
+          content.appendChild(more);
+        } else if (group.type === 'range') {
+          const minVal = selected[group.id]?.min ?? group.min;
+          const maxVal = selected[group.id]?.max ?? group.max;
+          const unit = group.label === 'RAM' ? 'GB' : group.label === 'Storage' ? 'GB' : group.label === 'Battery' ? 'mAh' : group.label === 'Display' ? '"' : group.label === 'Refresh' ? 'Hz' : group.label.includes('Camera') ? 'MP' : '';
+          const rangeDiv = document.createElement('div');
+          rangeDiv.className = 'range-group';
+          rangeDiv.innerHTML = `
+            <div class="range-values"><span>${minVal}${unit}</span><span>${maxVal}${unit}</span></div>
+            <input type="range" min="${group.min}" max="${group.max}" step="${group.step}" value="${minVal}" data-filter="${group.id}" data-type="min" />
+            <input type="range" min="${group.min}" max="${group.max}" step="${group.step}" value="${maxVal}" data-filter="${group.id}" data-type="max" />
+          `;
+          content.appendChild(rangeDiv);
+        } else if (group.type === 'toggle') {
+          const toggleWrap = document.createElement('div');
+          toggleWrap.className = 'toggle-group';
+          group.options.forEach(opt => {
+            const toggle = document.createElement('label');
+            toggle.className = 'toggle-switch';
+            const inp = document.createElement('input');
+            inp.type = 'checkbox';
+            inp.value = opt;
+            inp.dataset.filter = group.id;
+            if (selected[group.id] && selected[group.id].includes(opt)) inp.checked = true;
+            toggle.appendChild(inp);
+            toggle.appendChild(document.createTextNode(opt));
+            toggleWrap.appendChild(toggle);
+          });
+          content.appendChild(toggleWrap);
+        }
+
+        drop.appendChild(btn);
+        drop.appendChild(content);
+        strip.appendChild(drop);
+
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+          content.classList.toggle('show');
+        });
+        document.addEventListener('click', () => {
+          document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+        });
+        content.addEventListener('click', (e) => e.stopPropagation());
+      });
+
+      strip.appendChild(actions);
+    }
+
+    function collectSelected() {
+      const newSelected = {};
+      document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(inp => {
+        if (inp.checked) {
+          const key = inp.dataset.filter;
+          if (!newSelected[key]) newSelected[key] = [];
+          newSelected[key].push(inp.value);
+        }
+      });
+      document.querySelectorAll('.dropdown-content input[type="range"]').forEach(inp => {
+        const key = inp.dataset.filter;
+        if (!newSelected[key]) newSelected[key] = { min: 0, max: 0 };
+        if (inp.dataset.type === 'min') newSelected[key].min = parseFloat(inp.value);
+        else newSelected[key].max = parseFloat(inp.value);
+      });
+      document.querySelectorAll('.dropdown-content .toggle-switch input[type="checkbox"]').forEach(inp => {
+        if (inp.checked) {
+          const key = inp.dataset.filter;
+          if (!newSelected[key]) newSelected[key] = [];
+          newSelected[key].push(inp.value);
+        }
+      });
+      return newSelected;
+    }
+
+    function updateUI() {
+      const all = collectSelected();
+      const chipsContainer = document.getElementById('filterChips');
+      chipsContainer.innerHTML = '';
+      let total = 0;
+      Object.keys(all).forEach(key => {
+        const val = all[key];
+        if (Array.isArray(val)) {
+          val.forEach(v => {
+            total++;
+            const chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.innerHTML = `${v} <i class="fas fa-times" data-filter="${key}" data-value="${v}"></i>`;
+            chipsContainer.appendChild(chip);
+          });
+        } else if (val.min !== undefined && val.max !== undefined) {
+          total++;
+          const group = filterGroups.find(g => g.id === key);
+          const unit = group ? (group.label === 'RAM' ? 'GB' : group.label === 'Storage' ? 'GB' : group.label === 'Battery' ? 'mAh' : group.label === 'Display' ? '"' : group.label === 'Refresh' ? 'Hz' : group.label.includes('Camera') ? 'MP' : '') : '';
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.innerHTML = `${val.min}${unit} - ${val.max}${unit} <i class="fas fa-times" data-filter="${key}" data-value="range"></i>`;
+          chipsContainer.appendChild(chip);
+        }
+      });
+      document.getElementById('filterCount').textContent = total;
+
+      chipsContainer.querySelectorAll('.chip i').forEach(icon => {
+        icon.addEventListener('click', function(e) {
+          const filter = this.dataset.filter;
+          const value = this.dataset.value;
+          if (value === 'range') {
+            const group = filterGroups.find(g => g.id === filter);
+            if (group) {
+              const inputs = document.querySelectorAll(`.dropdown-content input[data-filter="${filter}"]`);
+              inputs.forEach(inp => {
+                if (inp.dataset.type === 'min') inp.value = group.min;
+                else inp.value = group.max;
+                inp.dispatchEvent(new Event('input'));
+              });
+            }
+          } else {
+            const inputs = document.querySelectorAll(`.dropdown-content input[data-filter="${filter}"]`);
+            inputs.forEach(inp => {
+              if (inp.value === value) inp.checked = false;
+            });
+          }
+          updateUI();
+          renderProducts();
+        });
+      });
+    }
+
+    // ---------- PRODUCTS with specs ----------
+    const dummyProducts = [
+      { brand: 'Apple', model: 'iPhone 15 Pro', ram: 8, storage: 256, display: 6.1, refresh: 120, battery: 4500, backCam: '48MP Triple', frontCam: '12MP', fingerprint: 'Face Unlock Only', faceUnlock: 'Yes', os: 'iOS', network: '5G' },
+      { brand: 'Samsung', model: 'Galaxy S24 Ultra', ram: 12, storage: 512, display: 6.8, refresh: 120, battery: 5000, backCam: '200MP Quad', frontCam: '12MP', fingerprint: 'Under Display Ultrasonic', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Google', model: 'Pixel 8 Pro', ram: 12, storage: 128, display: 6.7, refresh: 120, battery: 5050, backCam: '50MP Triple', frontCam: '10.5MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Xiaomi', model: '13 Pro', ram: 8, storage: 256, display: 6.73, refresh: 120, battery: 4820, backCam: '50MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'OnePlus', model: '12', ram: 12, storage: 256, display: 6.82, refresh: 120, battery: 5400, backCam: '50MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Motorola', model: 'Edge 40', ram: 8, storage: 128, display: 6.55, refresh: 144, battery: 4600, backCam: '50MP Dual', frontCam: '32MP', fingerprint: 'Side Mounted', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Sony', model: 'Xperia 1 V', ram: 12, storage: 256, display: 6.5, refresh: 120, battery: 5000, backCam: '48MP Triple', frontCam: '12MP', fingerprint: 'Side Mounted', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Nothing', model: 'Phone 2', ram: 8, storage: 128, display: 6.7, refresh: 120, battery: 4700, backCam: '50MP Dual', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Realme', model: 'GT 5 Pro', ram: 12, storage: 256, display: 6.78, refresh: 144, battery: 5400, backCam: '50MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Oppo', model: 'Find X7', ram: 12, storage: 256, display: 6.78, refresh: 120, battery: 5000, backCam: '50MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Vivo', model: 'X100 Pro', ram: 12, storage: 256, display: 6.78, refresh: 120, battery: 5400, backCam: '50MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Honor', model: 'Magic 6 Pro', ram: 12, storage: 512, display: 6.8, refresh: 120, battery: 5600, backCam: '180MP Quad', frontCam: '50MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Asus', model: 'ROG Phone 8', ram: 16, storage: 512, display: 6.78, refresh: 165, battery: 6000, backCam: '50MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Nokia', model: 'G60', ram: 4, storage: 64, display: 6.58, refresh: 120, battery: 4500, backCam: '50MP Triple', frontCam: '8MP', fingerprint: 'Side Mounted', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'Tecno', model: 'Camon 20', ram: 8, storage: 256, display: 6.67, refresh: 120, battery: 5000, backCam: '64MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '4G LTE' },
+      { brand: 'POCO', model: 'X6 Pro', ram: 12, storage: 256, display: 6.67, refresh: 120, battery: 5000, backCam: '64MP Triple', frontCam: '16MP', fingerprint: 'Side Mounted', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'iQOO', model: '12', ram: 12, storage: 256, display: 6.78, refresh: 144, battery: 5000, backCam: '50MP Triple', frontCam: '16MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+      { brand: 'ZTE', model: 'Axon 50', ram: 8, storage: 128, display: 6.67, refresh: 120, battery: 4800, backCam: '108MP Triple', frontCam: '32MP', fingerprint: 'Under Display Optical', faceUnlock: 'Yes', os: 'Android', network: '5G' },
+    ];
+
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = '';
+      dummyProducts.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <div class="product-img"><i class="fas fa-mobile-alt"></i></div>
+          <div class="product-brand">${p.brand}</div>
+          <div class="product-name">${p.model}</div>
+          <div class="product-specs">
+            <span>${p.ram}GB</span>
+            <span>${p.storage}GB</span>
+            <span>${p.display}"</span>
+            <span>${p.battery}mAh</span>
+          </div>
+          <div class="product-specs">
+            <span><i class="fas fa-camera"></i> ${p.backCam}</span>
+            <span><i class="fas fa-camera-retro"></i> ${p.frontCam}</span>
+          </div>
+          <div class="product-specs">
+            <span>${p.fingerprint}</span>
+            <span>${p.os}</span>
+            <span>${p.network}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function bindEvents() {
+      document.addEventListener('input', function(e) {
+        if (e.target.matches('.dropdown-content input[type="range"]')) {
+          const filter = e.target.dataset.filter;
+          const type = e.target.dataset.type;
+          const sibling = document.querySelector(`.dropdown-content input[data-filter="${filter}"][data-type="${type === 'min' ? 'max' : 'min'}"]`);
+          if (sibling) {
+            if (type === 'min' && parseFloat(e.target.value) > parseFloat(sibling.value)) sibling.value = e.target.value;
+            if (type === 'max' && parseFloat(e.target.value) < parseFloat(sibling.value)) sibling.value = e.target.value;
+          }
+          const parent = e.target.closest('.range-group');
+          if (parent) {
+            const vals = parent.querySelector('.range-values');
+            const min = parent.querySelector('input[data-type="min"]').value;
+            const max = parent.querySelector('input[data-type="max"]').value;
+            const group = filterGroups.find(g => g.id === filter);
+            const unit = group ? (group.label === 'RAM' ? 'GB' : group.label === 'Storage' ? 'GB' : group.label === 'Battery' ? 'mAh' : group.label === 'Display' ? '"' : group.label === 'Refresh' ? 'Hz' : group.label.includes('Camera') ? 'MP' : '') : '';
+            vals.innerHTML = `<span>${min}${unit}</span><span>${max}${unit}</span>`;
+          }
+          updateUI();
+        }
+      });
+
+      document.addEventListener('change', function(e) {
+        if (e.target.matches('.dropdown-content input[type="checkbox"]')) {
+          setTimeout(() => { updateUI(); }, 20);
+        }
+      });
+
+      document.getElementById('resetFiltersBtn').addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-content input[type="checkbox"]').forEach(inp => inp.checked = false);
+        document.querySelectorAll('.dropdown-content input[type="range"]').forEach(inp => {
+          const group = filterGroups.find(g => g.id === inp.dataset.filter);
+          if (group) {
+            if (inp.dataset.type === 'min') inp.value = group.min;
+            else inp.value = group.max;
+            inp.dispatchEvent(new Event('input'));
+          }
+        });
+        updateUI();
+        renderProducts();
+      });
+
+      document.getElementById('applyFiltersBtn').addEventListener('click', function() {
+        renderProducts();
+        document.querySelectorAll('.dropdown-content').forEach(d => d.classList.remove('show'));
+      });
+    }
+
+    renderDropdowns();
+    document.querySelectorAll('.dropdown-content input[type="range"]').forEach(inp => inp.dispatchEvent(new Event('input')));
+    updateUI();
+    renderProducts();
+    bindEvents();
+  })();
+</script>
+</body>
+</html>
