@@ -17,7 +17,6 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      // ✅ ADD THIS - allows unsplash.com (main website)
       {
         protocol: 'https',
         hostname: 'unsplash.com',
@@ -61,6 +60,13 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '*.githubusercontent.com',
+        port: '',
+        pathname: '/**',
+      },
+      // ✅ ADD THIS - ImageKit
+      {
+        protocol: 'https',
+        hostname: 'ik.imagekit.io',
         port: '',
         pathname: '/**',
       },
@@ -116,7 +122,6 @@ const nextConfig: NextConfig = {
     minimumCacheTTL: 60,
   },
   reactStrictMode: true,
-  // swcMinify: true,   // REMOVED - not supported in Next.js 16
   poweredByHeader: false,
   compress: true,
   generateEtags: true,

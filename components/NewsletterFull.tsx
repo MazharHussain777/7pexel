@@ -5,14 +5,14 @@ import { useState } from "react";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
 export function NewsletterFull() {
-  const { isSubscribed, subscribe } = useSubscription();
+  const { isSubscribed, subscriberEmail, subscribe } = useSubscription();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // If subscribed, hide the entire component - returns nothing
-  if (isSubscribed) {
+  // If subscribed, hide the entire component
+  if (isSubscribed && subscriberEmail) {
     return null;
   }
 
@@ -28,18 +28,22 @@ export function NewsletterFull() {
     setSuccess(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      subscribe(email);
-      setSuccess(true);
-      setEmail("");
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+      const result = await subscribe(email);
+      if (result.success) {
+        setSuccess(true);
+        setEmail("");
+        // Auto-hide success message after 3 seconds
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.message || "Failed to subscribe");
+      }
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Full newsletter form - only shown when NOT subscribed
   return (
     <div className="bg-gradient-to-r from-[#7F011F]/5 via-[#a80a30]/5 to-[#f5ebd0]/30 rounded-3xl p-8 md:p-12 border border-[rgba(127,1,31,0.06)]">
       <div className="max-w-2xl mx-auto text-center">

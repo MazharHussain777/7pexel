@@ -2,7 +2,7 @@
 "use client";
 
 import { phoneData } from "@/lib/phoneData";
-import { HeroSection } from "./HeroSection";
+import { HeroSection } from "./phone-finder/HeroSection";
 import { SpecSection } from "./SpecSection";
 
 export function PhoneFinder() {

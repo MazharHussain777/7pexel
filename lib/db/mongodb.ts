@@ -1,11 +1,8 @@
 // lib/db/mongodb.ts
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI as string;
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGODB_URI environment variable");
-}
+// HARDCODE YOUR URI HERE - This will work immediately
+const MONGODB_URI = "mongodb://mazharhussain137913_db_user:Hussain777@ac-w7guc6w-shard-00-00.qgw6esj.mongodb.net:27017,ac-w7guc6w-shard-00-01.qgw6esj.mongodb.net:27017,ac-w7guc6w-shard-00-02.qgw6esj.mongodb.net:27017/?ssl=true&replicaSet=atlas-fiabp8-shard-0&authSource=admin&appName=Cluster0";
 
 interface GlobalMongoose {
   conn: typeof mongoose | null;

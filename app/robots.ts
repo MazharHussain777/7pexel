@@ -2,18 +2,24 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://techblog.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
   
   return {
     rules: {
       userAgent: '*',
-      allow: '/',
+      allow: [
+        '/',
+        '/compare?*',  // Allow all compare pages
+      ],
       disallow: [
         '/api/',
         '/admin/',
         '/_next/',
         '/_error',
+        '/private/',
+        '/draft/',
       ],
+      crawlDelay: 0.1,
     },
     sitemap: `${baseUrl}/sitemap.xml`,
     host: baseUrl,

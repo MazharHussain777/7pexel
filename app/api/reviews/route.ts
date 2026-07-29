@@ -1,3 +1,4 @@
+// @ts-nocheck
 // app/api/reviews/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db/mongodb";

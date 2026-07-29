@@ -1,7 +1,8 @@
 // components/NewsletterSidebar.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 
 interface NewsletterSidebarProps {
   className?: string;
@@ -9,18 +10,14 @@ interface NewsletterSidebarProps {
 }
 
 export function NewsletterSidebar({ className = "", onSubscribe }: NewsletterSidebarProps) {
+  const { isSubscribed, subscriberEmail, subscribe } = useSubscription();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
 
-  useEffect(() => {
-    const subscribed = localStorage.getItem("7pexel_subscribed") === "true";
-    setIsSubscribed(subscribed);
-  }, []);
-
-  if (isSubscribed) {
+  // If subscribed, hide the component
+  if (isSubscribed && subscriberEmail) {
     return null;
   }
 
@@ -36,17 +33,17 @@ export function NewsletterSidebar({ className = "", onSubscribe }: NewsletterSid
     setSuccess(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      localStorage.setItem("7pexel_subscribed", "true");
-      localStorage.setItem("7pexel_subscriber_email", email);
-      setIsSubscribed(true);
-      setSuccess(true);
-      setEmail("");
-      window.dispatchEvent(new Event("subscriptionChanged"));
-      onSubscribe?.();
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
+      const result = await subscribe(email);
+      if (result.success) {
+        setSuccess(true);
+        setEmail("");
+        onSubscribe?.();
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.message || "Failed to subscribe");
+      }
+    } catch (err: any) {
+      setError(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -66,31 +63,42 @@ export function NewsletterSidebar({ className = "", onSubscribe }: NewsletterSid
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-3">
-        <div className="flex flex-col gap-2">
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter email"
-            className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#7F011F] focus:shadow-[0_0_0_3px_rgba(127,1,31,0.08)] outline-none transition-all bg-white text-sm text-[#1a1a1a] placeholder:text-[#999]"
-            disabled={loading}
-          />
-          {error && (
-            <p className="text-xs text-red-500">{error}</p>
-          )}
-          {success && (
-            <p className="text-xs text-emerald-600">✓ Subscribed!</p>
-          )}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 rounded-lg bg-[#7F011F] text-white text-sm font-medium transition-all hover:bg-[#a80a30] disabled:opacity-50"
-          >
-            {loading ? "..." : "Subscribe"}
-          </button>
+      {success ? (
+        <div className="mt-3 p-2 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2 justify-center">
+          <i className="fas fa-check-circle text-emerald-500" />
+          <span>Subscribed!</span>
         </div>
-      </form>
+      ) : (
+        <form onSubmit={handleSubmit} className="mt-3">
+          <div className="flex flex-col gap-2">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter email"
+              className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#7F011F] focus:shadow-[0_0_0_3px_rgba(127,1,31,0.08)] outline-none transition-all bg-white text-sm text-[#1a1a1a] placeholder:text-[#999]"
+              disabled={loading}
+            />
+            {error && (
+              <p className="text-xs text-red-500">{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 rounded-lg bg-[#7F011F] text-white text-sm font-medium transition-all hover:bg-[#a80a30] disabled:opacity-50"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <i className="fas fa-spinner fa-spin" />
+                  ...
+                </span>
+              ) : (
+                "Subscribe"
+              )}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

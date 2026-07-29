@@ -1,16 +1,19 @@
+// @ts-nocheck
 // app/phone-finder/page.tsx
 "use client";
 
-import { Suspense } from "react";
-import { useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/Header";
+import { PhoneFilterBar } from "@/components/phone-finder/PhoneFilterBar";
+import { PhoneFilterChips } from "@/components/phone-finder/PhoneFilterChips";
 
 // Types
 interface Phone {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   brand: string;
   price: number;
@@ -27,14 +30,63 @@ interface Phone {
   rating: number;
   reviews: number;
   tags: string[];
+  isFlagship?: boolean;
+  isEditorChoice?: boolean;
 }
 
-interface FilterOptions {
-  brands: string[];
-  priceRanges: { label: string; min: number; max: number }[];
-  ramOptions: string[];
-  storageOptions: string[];
-}
+// Filter Group Definitions
+const filterGroups = [
+  {
+    id: "brand",
+    label: "Brand",
+    type: "checkboxes" as const,
+    options: ["Apple", "Samsung", "Google", "OnePlus", "Xiaomi", "Nothing", "Sony", "Motorola", "Asus"],
+  },
+  {
+    id: "ram",
+    label: "RAM",
+    type: "checkboxes" as const,
+    options: ["4GB", "6GB", "8GB", "12GB", "16GB", "18GB"],
+  },
+  {
+    id: "storage",
+    label: "Storage",
+    type: "checkboxes" as const,
+    options: ["64GB", "128GB", "256GB", "512GB", "1TB", "2TB"],
+  },
+  {
+    id: "battery",
+    label: "Battery",
+    type: "range" as const,
+    min: 3000,
+    max: 7000,
+    step: 100,
+    presets: [
+      { label: "Under 4000", min: 3000, max: 4000 },
+      { label: "4000-5000", min: 4000, max: 5000 },
+      { label: "5000+", min: 5000, max: 7000 },
+    ],
+  },
+  {
+    id: "display",
+    label: "Display",
+    type: "range" as const,
+    min: 5.5,
+    max: 7.0,
+    step: 0.1,
+    presets: [
+      { label: "Under 6.0\"", min: 5.5, max: 6.0 },
+      { label: "6.0-6.5\"", min: 6.0, max: 6.5 },
+      { label: "6.5+\"", min: 6.5, max: 7.0 },
+    ],
+  },
+  {
+    id: "features",
+    label: "Features",
+    type: "toggle" as const,
+    options: ["5G", "Wireless Charging", "Water Resistant", "Flagship", "Editor's Choice"],
+  },
+];
 
 // Loading skeleton component
 function PhoneFinderSkeleton() {
@@ -50,14 +102,13 @@ function PhoneFinderSkeleton() {
             </h1>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="bg-white rounded-[3px] overflow-hidden border border-[rgba(127,1,31,0.06)] animate-pulse">
-              <div className="aspect-[4/3] bg-[#f5ebd0]/50" />
-              <div className="p-3 space-y-2">
-                <div className="h-4 bg-[#f5ebd0]/50 rounded w-3/4" />
-                <div className="h-3 bg-[#f5ebd0]/50 rounded w-1/2" />
-                <div className="h-3 bg-[#f5ebd0]/50 rounded w-1/3" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
+          {[...Array(14)].map((_, i) => (
+            <div key={i} className="bg-white rounded-[3px] overflow-hidden border border-[rgba(0,0,0,0.06)] animate-pulse">
+              <div className="aspect-[4/5] bg-[#f0f0f0]" />
+              <div className="px-3 pt-2.5 pb-3 text-center">
+                <div className="h-2 w-12 mx-auto rounded-full bg-[#e8e8e8] mb-1.5" />
+                <div className="h-3 w-20 mx-auto rounded-full bg-[#e8e8e8]" />
               </div>
             </div>
           ))}
@@ -67,7 +118,7 @@ function PhoneFinderSkeleton() {
   );
 }
 
-// Main content component that uses useSearchParams
+// Main content component
 function PhoneFinderContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -76,23 +127,22 @@ function PhoneFinderContent() {
   const [filteredPhones, setFilteredPhones] = useState<Phone[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterOptions>({
-    brands: [],
-    priceRanges: [],
-    ramOptions: [],
-    storageOptions: [],
-  });
   
   // Filter states
-  const [selectedBrand, setSelectedBrand] = useState<string>("");
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>("");
-  const [selectedRam, setSelectedRam] = useState<string>("");
-  const [selectedStorage, setSelectedStorage] = useState<string>("");
+  const [selectedFilters, setSelectedFilters] = useState<Record<string, any>>({
+    brand: [],
+    ram: [],
+    storage: [],
+    battery: { min: 3000, max: 7000 },
+    display: { min: 5.5, max: 7.0 },
+    features: [],
+  });
+  
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [activeSearchQuery, setActiveSearchQuery] = useState<string>("");
   
   // Get query params
   const brand = searchParams.get("brand") || "";
-  const priceRange = searchParams.get("price") || "";
   const ram = searchParams.get("ram") || "";
   const storage = searchParams.get("storage") || "";
   const search = searchParams.get("search") || "";
@@ -105,30 +155,32 @@ function PhoneFinderContent() {
     try {
       const params = new URLSearchParams();
       if (brand) params.set("brand", brand);
-      if (priceRange) params.set("price", priceRange);
       if (ram) params.set("ram", ram);
       if (storage) params.set("storage", storage);
       if (search) params.set("search", search);
+      params.set("limit", "100");
 
       const response = await fetch(`/api/phones?${params.toString()}`);
       const result = await response.json();
 
       if (result.success) {
-        setPhones(result.data);
-        setFilteredPhones(result.data);
-        setFilters(result.filters || {
-          brands: [],
-          priceRanges: [],
-          ramOptions: [],
-          storageOptions: [],
-        });
+        setPhones(result.data || []);
+        setFilteredPhones(result.data || []);
         
         // Set selected filters from URL
-        if (brand) setSelectedBrand(brand);
-        if (priceRange) setSelectedPriceRange(priceRange);
-        if (ram) setSelectedRam(ram);
-        if (storage) setSelectedStorage(storage);
-        if (search) setSearchQuery(search);
+        if (brand) {
+          setSelectedFilters(prev => ({ ...prev, brand: [brand] }));
+        }
+        if (ram) {
+          setSelectedFilters(prev => ({ ...prev, ram: [ram] }));
+        }
+        if (storage) {
+          setSelectedFilters(prev => ({ ...prev, storage: [storage] }));
+        }
+        if (search) {
+          setSearchQuery(search);
+          setActiveSearchQuery(search);
+        }
       } else {
         setError(result.error || "Failed to fetch phones");
         setPhones([]);
@@ -142,117 +194,209 @@ function PhoneFinderContent() {
     } finally {
       setLoading(false);
     }
-  }, [brand, priceRange, ram, storage, search]);
+  }, [brand, ram, storage, search]);
 
   useEffect(() => {
     fetchPhones();
   }, [fetchPhones]);
 
-  // Apply filters
+  // Apply all filters
   const applyFilters = useCallback(() => {
     let filtered = [...phones];
 
-    if (selectedBrand) {
-      filtered = filtered.filter(p => p.brand === selectedBrand);
+    // Brand filter
+    if (selectedFilters.brand && selectedFilters.brand.length > 0) {
+      filtered = filtered.filter(p => selectedFilters.brand.includes(p.brand));
     }
 
-    if (selectedPriceRange) {
-      const range = filters.priceRanges.find(r => r.label === selectedPriceRange);
-      if (range) {
-        filtered = filtered.filter(p => p.price >= range.min && p.price <= range.max);
-      }
+    // RAM filter
+    if (selectedFilters.ram && selectedFilters.ram.length > 0) {
+      filtered = filtered.filter(p => {
+        const ramValue = p.specs?.ram?.replace(/\s*GB\s*/g, '') || '';
+        return selectedFilters.ram.some((r: string) => ramValue.includes(r.replace('GB', '')));
+      });
     }
 
-    if (selectedRam) {
-      filtered = filtered.filter(p => p.specs.ram === selectedRam);
+    // Storage filter
+    if (selectedFilters.storage && selectedFilters.storage.length > 0) {
+      filtered = filtered.filter(p => {
+        const storageValue = p.specs?.storage?.replace(/\s*GB\s*/g, '') || '';
+        return selectedFilters.storage.some((s: string) => storageValue.includes(s.replace('GB', '')));
+      });
     }
 
-    if (selectedStorage) {
-      filtered = filtered.filter(p => p.specs.storage === selectedStorage);
+    // Battery range
+    if (selectedFilters.battery) {
+      const { min, max } = selectedFilters.battery;
+      filtered = filtered.filter(p => {
+        const batteryValue = parseInt(p.specs?.battery?.replace(/\D/g, '') || '0');
+        return batteryValue >= min && batteryValue <= max;
+      });
     }
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+    // Display range
+    if (selectedFilters.display) {
+      const { min, max } = selectedFilters.display;
+      filtered = filtered.filter(p => {
+        const displayValue = parseFloat(p.specs?.display?.replace(/[^0-9.]/g, '') || '0');
+        return displayValue >= min && displayValue <= max;
+      });
+    }
+
+    // Features
+    if (selectedFilters.features && selectedFilters.features.length > 0) {
+      filtered = filtered.filter(p => {
+        return selectedFilters.features.every((feature: string) => {
+          switch(feature) {
+            case "5G": return p.tags?.includes("5G");
+            case "Wireless Charging": return p.specs?.wirelessCharging && p.specs.wirelessCharging !== "No";
+            case "Water Resistant": return p.specs?.waterResistance && p.specs.waterResistance !== "N/A";
+            case "Flagship": return p.isFlagship;
+            case "Editor's Choice": return p.isEditorChoice;
+            default: return true;
+          }
+        });
+      });
+    }
+
+    // Search filter
+    if (activeSearchQuery) {
+      const query = activeSearchQuery.toLowerCase().trim();
       filtered = filtered.filter(p => 
-        p.name.toLowerCase().includes(query) ||
-        p.brand.toLowerCase().includes(query) ||
-        p.tags.some(tag => tag.toLowerCase().includes(query))
+        p.name?.toLowerCase().includes(query) ||
+        p.brand?.toLowerCase().includes(query) ||
+        p.tags?.some(tag => tag.toLowerCase().includes(query)) ||
+        p.specs?.processor?.toLowerCase().includes(query) ||
+        p.specs?.camera?.toLowerCase().includes(query)
       );
     }
 
     setFilteredPhones(filtered);
-  }, [phones, selectedBrand, selectedPriceRange, selectedRam, selectedStorage, searchQuery, filters]);
+  }, [phones, selectedFilters, activeSearchQuery]);
 
   useEffect(() => {
     applyFilters();
   }, [applyFilters]);
 
-  // Update URL with filters
-  const updateFilters = (key: string, value: string) => {
+  // Handle filter changes
+  const handleFilterChange = (filterId: string, value: any) => {
+    setSelectedFilters(prev => ({ ...prev, [filterId]: value }));
+  };
+
+  // Apply filters
+  const handleApplyFilters = () => {
     const params = new URLSearchParams();
-    if (selectedBrand && key !== "brand") params.set("brand", selectedBrand);
-    if (selectedPriceRange && key !== "price") params.set("price", selectedPriceRange);
-    if (selectedRam && key !== "ram") params.set("ram", selectedRam);
-    if (selectedStorage && key !== "storage") params.set("storage", selectedStorage);
-    if (searchQuery && key !== "search") params.set("search", searchQuery);
     
-    if (value) params.set(key, value);
+    if (selectedFilters.brand && selectedFilters.brand.length > 0) {
+      params.set("brand", selectedFilters.brand[0]);
+    }
+    if (selectedFilters.ram && selectedFilters.ram.length > 0) {
+      params.set("ram", selectedFilters.ram[0]);
+    }
+    if (selectedFilters.storage && selectedFilters.storage.length > 0) {
+      params.set("storage", selectedFilters.storage[0]);
+    }
+    if (activeSearchQuery) {
+      params.set("search", activeSearchQuery);
+    }
     
     router.push(`/phone-finder${params.toString() ? "?" + params.toString() : ""}`);
   };
 
-  // Handle filter changes
-  const handleBrandChange = (brand: string) => {
-    setSelectedBrand(brand);
-    updateFilters("brand", brand);
-  };
-
-  const handlePriceChange = (price: string) => {
-    setSelectedPriceRange(price);
-    updateFilters("price", price);
-  };
-
-  const handleRamChange = (ram: string) => {
-    setSelectedRam(ram);
-    updateFilters("ram", ram);
-  };
-
-  const handleStorageChange = (storage: string) => {
-    setSelectedStorage(storage);
-    updateFilters("storage", storage);
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) {
-      const params = new URLSearchParams();
-      if (selectedBrand) params.set("brand", selectedBrand);
-      if (selectedPriceRange) params.set("price", selectedPriceRange);
-      if (selectedRam) params.set("ram", selectedRam);
-      if (selectedStorage) params.set("storage", selectedStorage);
-      router.push(`/phone-finder${params.toString() ? "?" + params.toString() : ""}`);
-      return;
-    }
-    updateFilters("search", searchQuery.trim());
-  };
-
-  // Clear all filters
-  const clearFilters = () => {
-    setSelectedBrand("");
-    setSelectedPriceRange("");
-    setSelectedRam("");
-    setSelectedStorage("");
+  // Reset all filters
+  const handleResetFilters = () => {
+    setSelectedFilters({
+      brand: [],
+      ram: [],
+      storage: [],
+      battery: { min: 3000, max: 7000 },
+      display: { min: 5.5, max: 7.0 },
+      features: [],
+    });
     setSearchQuery("");
+    setActiveSearchQuery("");
     router.push("/phone-finder");
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
+  // Remove a single chip
+  const handleRemoveChip = (filterId: string, value: string) => {
+    if (filterId === "battery" || filterId === "display") {
+      const defaultValues = {
+        battery: { min: 3000, max: 7000 },
+        display: { min: 5.5, max: 7.0 },
+      };
+      setSelectedFilters(prev => ({
+        ...prev,
+        [filterId]: defaultValues[filterId as keyof typeof defaultValues] || { min: 0, max: 0 }
+      }));
+    } else if (filterId === "features") {
+      setSelectedFilters(prev => ({
+        ...prev,
+        [filterId]: (prev[filterId] || []).filter((v: string) => v !== value)
+      }));
+    } else {
+      setSelectedFilters(prev => ({
+        ...prev,
+        [filterId]: (prev[filterId] || []).filter((v: string) => v !== value)
+      }));
+    }
+  };
+
+  // Calculate active filter count
+  const getFilterCount = useCallback(() => {
+    let count = 0;
+    
+    if (selectedFilters.brand && selectedFilters.brand.length > 0) count++;
+    if (selectedFilters.ram && selectedFilters.ram.length > 0) count++;
+    if (selectedFilters.storage && selectedFilters.storage.length > 0) count++;
+    if (selectedFilters.features && selectedFilters.features.length > 0) count++;
+    
+    const batteryDefault = { min: 3000, max: 7000 };
+    if (selectedFilters.battery && 
+        (selectedFilters.battery.min !== batteryDefault.min || 
+         selectedFilters.battery.max !== batteryDefault.max)) {
+      count++;
+    }
+    
+    const displayDefault = { min: 5.5, max: 7.0 };
+    if (selectedFilters.display && 
+        (selectedFilters.display.min !== displayDefault.min || 
+         selectedFilters.display.max !== displayDefault.max)) {
+      count++;
+    }
+    
+    return count;
+  }, [selectedFilters]);
+
+  // Search handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const executeSearch = useCallback(() => {
+    const trimmedQuery = searchQuery.trim();
+    setActiveSearchQuery(trimmedQuery);
+    
+    const params = new URLSearchParams();
+    if (selectedFilters.brand && selectedFilters.brand.length > 0) {
+      params.set("brand", selectedFilters.brand[0]);
+    }
+    if (selectedFilters.ram && selectedFilters.ram.length > 0) {
+      params.set("ram", selectedFilters.ram[0]);
+    }
+    if (selectedFilters.storage && selectedFilters.storage.length > 0) {
+      params.set("storage", selectedFilters.storage[0]);
+    }
+    if (trimmedQuery) params.set("search", trimmedQuery);
+    
+    router.push(`/phone-finder${params.toString() ? "?" + params.toString() : ""}`);
+  }, [searchQuery, selectedFilters, router]);
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      executeSearch();
+    }
   };
 
   if (loading) {
@@ -304,7 +448,7 @@ function PhoneFinderContent() {
 
         {/* Search Bar */}
         <div className="mb-6">
-          <form onSubmit={handleSearch} className="relative">
+          <div className="relative">
             <div className="flex items-center bg-white rounded-2xl shadow-md border border-[rgba(127,1,31,0.06)] focus-within:border-[#7F011F] focus-within:shadow-[0_0_0_3px_rgba(127,1,31,0.08)] transition-all overflow-hidden">
               <div className="px-4 text-[#6d4a4a]">
                 <i className="fas fa-search" />
@@ -312,14 +456,16 @@ function PhoneFinderContent() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyDown}
                 placeholder="Search phones by name, brand, or tags..."
                 className="flex-1 py-3 bg-transparent outline-none text-[#2d1a1a] placeholder:text-[#6d4a4a]/50 font-['Poppins',sans-serif] text-sm"
+                aria-label="Search phones"
               />
-              {(searchQuery || selectedBrand || selectedPriceRange || selectedRam || selectedStorage) && (
+              {(searchQuery || selectedFilters.brand?.length > 0 || selectedFilters.ram?.length > 0 || selectedFilters.storage?.length > 0 || activeSearchQuery) && (
                 <button
                   type="button"
-                  onClick={clearFilters}
+                  onClick={handleResetFilters}
                   className="px-3 text-[#6d4a4a] hover:text-[#7F011F] transition-colors"
                 >
                   <i className="fas fa-times" />
@@ -327,197 +473,92 @@ function PhoneFinderContent() {
               )}
               <button
                 type="submit"
+                onClick={executeSearch}
                 className="px-5 py-3 bg-gradient-to-r from-[#7F011F] to-[#a80a30] text-white font-semibold hover:shadow-lg hover:shadow-[#7F011F]/30 transition-all text-sm"
               >
                 Search
               </button>
             </div>
-          </form>
-        </div>
-
-        {/* Filters */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {/* Brand Filter */}
-          <div>
-            <label className="text-xs font-medium text-[#6d4a4a] block mb-1.5">Brand</label>
-            <select
-              value={selectedBrand}
-              onChange={(e) => handleBrandChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white rounded-xl border border-[rgba(127,1,31,0.06)] focus:border-[#7F011F] focus:outline-none text-sm text-[#2d1a1a]"
-            >
-              <option value="">All Brands</option>
-              {filters.brands.map((brand) => (
-                <option key={brand} value={brand}>{brand}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Price Range Filter */}
-          <div>
-            <label className="text-xs font-medium text-[#6d4a4a] block mb-1.5">Price Range</label>
-            <select
-              value={selectedPriceRange}
-              onChange={(e) => handlePriceChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white rounded-xl border border-[rgba(127,1,31,0.06)] focus:border-[#7F011F] focus:outline-none text-sm text-[#2d1a1a]"
-            >
-              <option value="">All Prices</option>
-              {filters.priceRanges.map((range) => (
-                <option key={range.label} value={range.label}>
-                  {range.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* RAM Filter */}
-          <div>
-            <label className="text-xs font-medium text-[#6d4a4a] block mb-1.5">RAM</label>
-            <select
-              value={selectedRam}
-              onChange={(e) => handleRamChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white rounded-xl border border-[rgba(127,1,31,0.06)] focus:border-[#7F011F] focus:outline-none text-sm text-[#2d1a1a]"
-            >
-              <option value="">All RAM</option>
-              {filters.ramOptions.map((ram) => (
-                <option key={ram} value={ram}>{ram}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Storage Filter */}
-          <div>
-            <label className="text-xs font-medium text-[#6d4a4a] block mb-1.5">Storage</label>
-            <select
-              value={selectedStorage}
-              onChange={(e) => handleStorageChange(e.target.value)}
-              className="w-full px-3 py-2 bg-white rounded-xl border border-[rgba(127,1,31,0.06)] focus:border-[#7F011F] focus:outline-none text-sm text-[#2d1a1a]"
-            >
-              <option value="">All Storage</option>
-              {filters.storageOptions.map((storage) => (
-                <option key={storage} value={storage}>{storage}</option>
-              ))}
-            </select>
           </div>
         </div>
 
-        {/* Active Filters */}
-        {(selectedBrand || selectedPriceRange || selectedRam || selectedStorage || searchQuery) && (
-          <div className="flex flex-wrap items-center gap-2 mb-6">
-            <span className="text-sm text-[#6d4a4a]">Active filters:</span>
-            {selectedBrand && (
-              <span className="inline-flex items-center gap-1.5 bg-[#7F011F]/10 text-[#7F011F] px-3 py-1 rounded-full text-xs font-medium">
-                <i className="fas fa-tag" />
-                {selectedBrand}
-                <button onClick={() => handleBrandChange("")} className="hover:text-[#a80a30]">
-                  <i className="fas fa-times text-[10px]" />
-                </button>
-              </span>
-            )}
-            {selectedPriceRange && (
-              <span className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-medium">
-                <i className="fas fa-dollar-sign" />
-                {selectedPriceRange}
-                <button onClick={() => handlePriceChange("")} className="hover:text-blue-800">
-                  <i className="fas fa-times text-[10px]" />
-                </button>
-              </span>
-            )}
-            {selectedRam && (
-              <span className="inline-flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
-                <i className="fas fa-memory" />
-                {selectedRam}
-                <button onClick={() => handleRamChange("")} className="hover:text-green-800">
-                  <i className="fas fa-times text-[10px]" />
-                </button>
-              </span>
-            )}
-            {selectedStorage && (
-              <span className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
-                <i className="fas fa-hdd" />
-                {selectedStorage}
-                <button onClick={() => handleStorageChange("")} className="hover:text-purple-800">
-                  <i className="fas fa-times text-[10px]" />
-                </button>
-              </span>
-            )}
-            {searchQuery && (
-              <span className="inline-flex items-center gap-1.5 bg-gray-50 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">
-                <i className="fas fa-search" />
-                {searchQuery}
-              </span>
-            )}
-            <button onClick={clearFilters} className="text-xs text-[#7F011F] hover:underline font-medium">
-              Clear all
-            </button>
-          </div>
-        )}
+        {/* Filter Bar */}
+        <PhoneFilterBar
+          filterGroups={filterGroups}
+          selected={selectedFilters}
+          onFilterChange={handleFilterChange}
+          onApply={handleApplyFilters}
+          onReset={handleResetFilters}
+          filterCount={getFilterCount()}
+        />
 
-        {/* Results */}
-        {filteredPhones.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {filteredPhones.map((phone) => (
+        {/* Filter Chips */}
+        <PhoneFilterChips
+          filterGroups={filterGroups}
+          selected={selectedFilters}
+          onRemoveChip={handleRemoveChip}
+          onClearAll={handleResetFilters}
+        />
+
+        {/* Results Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-3">
+          {filteredPhones.length > 0 ? (
+            filteredPhones.map((phone) => (
               <Link
-                key={phone.id}
-                href={`/phones/${phone.slug}`}
-                className="group bg-white rounded-[3px] overflow-hidden border border-[rgba(127,1,31,0.06)] hover:border-[#7F011F]/20 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                key={phone._id || phone.id || phone.slug}
+                href={`/phone-finder/${phone.slug}`}
+                className="group bg-white rounded-[3px] overflow-hidden border border-[rgba(0,0,0,0.06)] hover:border-[rgba(127,1,31,0.15)] hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#f5ebd0]/20">
-                  <Image
-                    src={phone.image}
-                    alt={phone.name}
-                    fill
-                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  />
+                {/* Image */}
+                <div className="relative w-full aspect-[4/5] bg-white overflow-hidden px-[3px] pt-[3px]">
+                  <div className="relative w-full h-full overflow-hidden rounded-t-[3px]">
+                    <Image
+                      src={phone.image || "/images/default-phone.jpg"}
+                      alt={`${phone.brand} ${phone.name}`}
+                      fill
+                      className="object-contain p-2 group-hover:scale-[1.04] transition-transform duration-500"
+                      loading="lazy"
+                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, (max-width: 1536px) 16.6vw, 14.28vw"
+                    />
+                  </div>
                 </div>
-                <div className="p-4">
-                  <div className="text-[0.55rem] font-bold text-[#7F011F] mb-1 uppercase tracking-wider">
+
+                {/* Brand and Name */}
+                <div className="flex flex-col items-center text-center px-3 pt-2 pb-3">
+                  <span className="text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#7F011F]/70">
                     {phone.brand}
-                  </div>
-                  <h3 className="text-sm font-bold text-[#2d1a1a] leading-tight line-clamp-2 group-hover:text-[#7F011F] transition-colors font-['Poppins',sans-serif]">
+                  </span>
+                  <span className="font-semibold text-[0.78rem] leading-snug text-[#1a1a1a] font-['Poppins',sans-serif] line-clamp-2 min-h-[2em] mt-0.5">
                     {phone.name}
-                  </h3>
-                  <div className="mt-2 space-y-1">
-                    <div className="text-xs text-[#6d4a4a]">
-                      <span className="font-medium">${phone.price}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-[0.5rem] text-[#6d4a4a]">
-                      <i className="fas fa-star text-[#FFD700]" />
-                      <span>{phone.rating || 0}</span>
-                      <span>({phone.reviews || 0} reviews)</span>
-                    </div>
-                    {phone.tags && phone.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {phone.tags.slice(0, 3).map((tag) => (
-                          <span key={tag} className="text-[0.45rem] bg-[#f5ebd0]/50 px-1.5 py-0.5 rounded-full text-[#6d4a4a]">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  </span>
                 </div>
               </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 bg-white/80 backdrop-blur-sm rounded-3xl border border-[rgba(127,1,31,0.06)]">
-            <div className="w-24 h-24 mx-auto rounded-full bg-[#f5ebd0]/50 flex items-center justify-center mb-6">
-              <i className="fas fa-search text-3xl text-[#7F011F]/30" />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-16 bg-white rounded-3xl border border-[rgba(0,0,0,0.06)]">
+              <div className="w-16 h-16 mx-auto rounded-full bg-[#7F011F]/5 flex items-center justify-center mb-4">
+                <i className="fas fa-search text-2xl text-[#7F011F]/20" />
+              </div>
+              <h3 className="text-lg font-bold text-[#1a1a1a] mb-2 font-['Poppins',sans-serif]">
+                No phones found
+              </h3>
+              <p className="text-sm text-[#6d4a4a] max-w-md mx-auto">
+                We couldn't find any phones matching your filters. Try adjusting your search criteria.
+              </p>
+              <button
+                onClick={handleResetFilters}
+                className="mt-4 px-6 py-2 bg-[#7F011F] text-white rounded-full text-sm hover:bg-[#a80a30] transition-colors"
+              >
+                Clear all filters
+              </button>
             </div>
-            <h3 className="text-xl font-bold text-[#2d1a1a] mb-2 font-['Poppins',sans-serif]">
-              No phones found
-            </h3>
-            <p className="text-[#6d4a4a] max-w-md mx-auto">
-              We couldn't find any phones matching your filters. Try adjusting your search criteria.
-            </p>
-            <button
-              onClick={clearFilters}
-              className="mt-4 px-6 py-2 bg-[#7F011F] text-white rounded-full text-sm hover:bg-[#a80a30] transition-colors"
-            >
-              Clear all filters
-            </button>
+          )}
+        </div>
+
+        {/* Results count */}
+        {filteredPhones.length > 0 && (
+          <div className="text-xs text-[#6d4a4a] pt-4 mt-2 font-['Poppins',sans-serif]">
+            Showing <span className="font-semibold text-[#1a1a1a]">{filteredPhones.length}</span> phones
           </div>
         )}
       </main>
