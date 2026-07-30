@@ -29,8 +29,41 @@ export async function GET(
 
     // Ensure image exists - use actual phone image or fallback
     if (!phone.image) {
-      // Try to get image from phone data
       phone.image = phone.images?.[0] || `/images/phones/${phone.slug}.png`;
+    }
+
+    // ✅ AUTO-INDEX: Ping Google when phone is viewed
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
+      const phoneUrl = `${baseUrl}/phone-finder/${phone.slug}`;
+      
+      // Only ping if not already indexed recently (check if indexedAt > 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      if (!phone.indexedAt || new Date(phone.indexedAt) < sevenDaysAgo) {
+        // Ping Google and Bing
+        await Promise.all([
+          fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(phoneUrl)}`),
+          fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(phoneUrl)}`),
+        ]);
+        
+        // Update indexedAt timestamp
+        await Phone.updateOne(
+          { slug: phone.slug },
+          { 
+            $set: { 
+              indexedAt: new Date(),
+              indexingStatus: 'pending'
+            } 
+          }
+        );
+        
+        console.log(`✅ Indexing pinged for: ${phone.slug}`);
+      }
+    } catch (indexError) {
+      // Don't fail the request if indexing fails
+      console.error('⚠️ Indexing ping error (non-critical):', indexError);
     }
 
     return NextResponse.json({

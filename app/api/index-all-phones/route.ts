@@ -1,74 +1,40 @@
 // app/api/index-all-phones/route.ts
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import { Phone } from "@/lib/models/Phone";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     await connectToDatabase();
     
+    const phones = await Phone.find({}, { slug: 1 }).lean();
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
     
-    // Get all phones
-    const phones = await Phone.find({}, { slug: 1, brand: 1, name: 1 }).lean();
+    let successCount = 0;
     
-    console.log(`🔄 Indexing ${phones.length} phones...`);
-    
-    const results = [];
-    
-    // Index each phone
     for (const phone of phones) {
       try {
         const phoneUrl = `${baseUrl}/phone-finder/${phone.slug}`;
-        
-        // Ping Google
-        await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(phoneUrl)}`);
-        
-        // Update status
-        await Phone.findOneAndUpdate(
-          { slug: phone.slug },
-          {
-            indexingStatus: 'indexed',
-            indexedAt: new Date(),
-            googleIndexed: true,
-            googleIndexedAt: new Date(),
-          }
-        );
-        
-        results.push({
-          slug: phone.slug,
-          status: 'success',
-        });
-        
-        // Wait a bit to avoid rate limiting
+        await Promise.all([
+          fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(phoneUrl)}`),
+          fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(phoneUrl)}`),
+        ]);
+        successCount++;
         await new Promise(resolve => setTimeout(resolve, 100));
-        
-      } catch (error: any) {
-        results.push({
-          slug: phone.slug,
-          status: 'failed',
-          error: error.message,
-        });
+      } catch (error) {
+        console.error(`Failed to index ${phone.slug}:`, error);
       }
     }
     
-    // Ping sitemap
-    await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(`${baseUrl}/sitemap.xml`)}`);
-    await fetch(`https://www.bing.com/ping?sitemap=${encodeURIComponent(`${baseUrl}/sitemap.xml`)}`);
-    
     return NextResponse.json({
       success: true,
-      message: `Indexed ${results.filter(r => r.status === 'success').length} phones`,
-      results,
-      total: phones.length,
-      successCount: results.filter(r => r.status === 'success').length,
-      failedCount: results.filter(r => r.status === 'failed').length,
+      message: `Submitted ${successCount} of ${phones.length} phones to Google`,
+      data: { total: phones.length, success: successCount }
     });
-    
   } catch (error: any) {
-    console.error('❌ Bulk indexing error:', error);
+    console.error('Bulk indexing error:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to index phones' },
+      { success: false, error: error.message || "Failed to index phones" },
       { status: 500 }
     );
   }
