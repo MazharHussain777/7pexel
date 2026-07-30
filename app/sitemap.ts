@@ -16,7 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
   const currentDate = new Date();
 
-  console.log('🔄 Generating sitemap...');
+  console.log('🔄 Generating main sitemap...');
 
   // ============= STATIC PAGES =============
   const staticPages = [
@@ -27,22 +27,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/phone-finder`,
-      lastModified: currentDate,
-      changeFrequency: 'hourly' as const,
-      priority: 0.98,
-    },
-    {
-      url: `${baseUrl}/compare`,
-      lastModified: currentDate,
-      changeFrequency: 'daily' as const,
-      priority: 0.95,
-    },
-    {
       url: `${baseUrl}/about`,
       lastModified: currentDate,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/author`,
+      lastModified: currentDate,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/contact`,
@@ -68,35 +62,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let phones: PhoneType[] = [];
   try {
     await connectToDatabase();
-    phones = await Phone.find({}, { 
-      slug: 1, 
-      updatedAt: 1, 
-      brand: 1, 
-      name: 1,
-      year: 1,
-      isFlagship: 1 
-    }).lean();
+    phones = await Phone.find(
+      {}, 
+      { 
+        slug: 1, 
+        updatedAt: 1, 
+        brand: 1, 
+        name: 1,
+        year: 1,
+        isFlagship: 1 
+      }
+    ).lean();
     
     console.log(`📱 Found ${phones.length} phones in database`);
   } catch (error) {
     console.error('❌ Error fetching phones for sitemap:', error);
-    // Fallback: try API
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const response = await fetch(`${apiUrl}/api/phones?limit=2000`, {
-        next: { revalidate: 3600 },
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          phones = result.data;
-          console.log(`📱 Found ${phones.length} phones via API`);
-        }
-      }
-    } catch (apiError) {
-      console.error('❌ API fallback failed:', apiError);
-    }
   }
 
   // ============= INDIVIDUAL PHONE PAGES =============
@@ -113,7 +93,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const comparePages: MetadataRoute.Sitemap = [];
   
   // Limit to 50 phones to keep sitemap manageable
-  // 50 phones = 1,225 combinations
+  // 50 phones = 1,225 combinations (well within Google's 50,000 URL limit)
   const maxPhones = Math.min(phones.length, 50);
   const topPhones = phones.slice(0, maxPhones);
 
@@ -137,11 +117,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Generated ${comparePages.length} comparison pages`);
 
-  // ============= POPULAR 3-PHONE COMPARISONS =============
+  // ============= POPULAR BRAND 3-PHONE COMPARISONS =============
   const threePhonePages: MetadataRoute.Sitemap = [];
   
   // Top brands for 3-way comparisons
-  const brands = ["samsung", "apple", "google", "oneplus", "xiaomi", "vivo"];
+  const brands = ["samsung", "apple", "google", "oneplus", "xiaomi", "vivo", "oppo", "nothing", "sony", "motorola"];
   
   for (const brand of brands) {
     const brandPhones = phones.filter(p => 
@@ -166,7 +146,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const flagshipPhones = phones.filter(p => p.isFlagship === true);
   
   if (flagshipPhones.length >= 2) {
-    const topFlagships = flagshipPhones.slice(0, 10);
+    const topFlagships = flagshipPhones.slice(0, 15);
     for (let i = 0; i < topFlagships.length; i++) {
       for (let j = i + 1; j < topFlagships.length; j++) {
         const slugs = [topFlagships[i].slug, topFlagships[j].slug];

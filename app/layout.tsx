@@ -32,27 +32,17 @@ export const metadata: Metadata = {
   
   // ===== KEYWORDS - Aggressive targeting =====
   keywords: [
-    // Tech keywords
     "tech", "technology", "tech news", "technology news",
-    // Reviews
     "reviews", "phone reviews", "smartphone reviews", "tech reviews",
-    // Comparison keywords
     "phone comparison", "smartphone comparison", "compare phones", "compare smartphones",
     "phone vs phone", "smartphone battle", "specs comparison",
-    // Phone brands
     "Samsung", "Apple", "Google", "OnePlus", "Xiaomi", "Vivo", "Oppo", "Nothing", "Sony", "Motorola",
-    // Phone models
     "Galaxy S24", "Galaxy S25", "iPhone 15", "iPhone 16", "Pixel 8", "Pixel 9", "OnePlus 12", "OnePlus 13",
-    // Spec keywords
     "camera comparison", "battery comparison", "display comparison", "performance comparison",
     "phone specs", "smartphone specs", "phone features",
-    // Question keywords
     "which phone is better", "which is better", "best smartphone", "best phone 2026",
-    // Brand keywords
     "Samsung vs Apple", "Apple vs Google", "Samsung vs Google",
-    // AI and gadgets
     "AI", "gadgets", "smartphones", "mobile phones",
-    // Brand-specific
     "7pexel", "tech blog", "phone finder",
   ].join(", "),
   
