@@ -26,6 +26,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
       priority: 1.0,
     },
+    // ✅ ADDED: Phone Finder page
+    {
+      url: `${baseUrl}/phone-finder`,
+      lastModified: currentDate,
+      changeFrequency: 'daily' as const,
+      priority: 0.98,
+    },
+    // ✅ ADDED: Compare page
+    {
+      url: `${baseUrl}/compare`,
+      lastModified: currentDate,
+      changeFrequency: 'daily' as const,
+      priority: 0.95,
+    },
     {
       url: `${baseUrl}/about`,
       lastModified: currentDate,
@@ -92,14 +106,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ============= COMPARISON PAGES - ALL 2-PHONE COMBINATIONS =============
   const comparePages: MetadataRoute.Sitemap = [];
   
-  // Limit to 50 phones to keep sitemap manageable
-  // 50 phones = 1,225 combinations (well within Google's 50,000 URL limit)
   const maxPhones = Math.min(phones.length, 50);
   const topPhones = phones.slice(0, maxPhones);
 
   console.log(`🔄 Generating comparisons for ${topPhones.length} phones (${(topPhones.length * (topPhones.length - 1)) / 2} combinations)`);
 
-  // Generate ALL 2-phone combinations
   for (let i = 0; i < topPhones.length; i++) {
     for (let j = i + 1; j < topPhones.length; j++) {
       const p1 = topPhones[i];
@@ -119,16 +130,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ============= POPULAR BRAND 3-PHONE COMPARISONS =============
   const threePhonePages: MetadataRoute.Sitemap = [];
-  
-  // Top brands for 3-way comparisons
   const brands = ["samsung", "apple", "google", "oneplus", "xiaomi", "vivo", "oppo", "nothing", "sony", "motorola"];
   
   for (const brand of brands) {
     const brandPhones = phones.filter(p => 
       p.brand?.toLowerCase().includes(brand)
     );
-    
-    // Get top 3 phones from each brand
     const top3 = brandPhones.slice(0, 3);
     if (top3.length >= 3) {
       const slugs = top3.map(p => p.slug);
