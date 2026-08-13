@@ -1,59 +1,36 @@
 {
-<<<<<<< HEAD
   "name": "my-app",
-=======
-  "name": "electronics",
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@prisma/adapter-pg": "^7.9.1",
-    "mongodb": "^7.5.0",
-    "mongoose": "^9.9.2",
     "next": "16.3.0",
-    "pg": "^8.23.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-=======
-    "critters": "^0.0.23",
+    "mongoose": "^9.9.2",
+    "mongodb": "^7.5.0",
+    "uuid": "^14.0.1",
     "dotenv": "^17.4.2",
-    "mongodb": "^7.4.0",
-    "mongoose": "^9.7.4",
-    "next": "16.2.9",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
-    "uuid": "^14.0.1"
+    "pg": "^8.23.0",
+    "critters": "^0.0.23",
+    "@prisma/adapter-pg": "^7.9.1"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-<<<<<<< HEAD
-    "@types/node": "^20",
-    "@types/pg": "^8.21.0",
-=======
-    "@types/mongoose": "^5.11.96",
-    "@types/node": "^20.19.43",
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/uuid": "^10.0.0",
+    "typescript": "^5.9.3",
     "eslint": "^9",
-<<<<<<< HEAD
     "eslint-config-next": "16.3.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
-=======
-    "eslint-config-next": "16.2.9",
-    "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/pg": "^8.21.0",
+    "@types/uuid": "^10.0.0",
+    "ts-node": "^10.9.2"
   }
 }

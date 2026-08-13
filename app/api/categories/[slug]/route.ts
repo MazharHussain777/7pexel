@@ -1,14 +1,5 @@
-<<<<<<< HEAD
 // app/api/categories/[slug]/route.ts
 
-// @ts-nocheck
-import { NextRequest, NextResponse } from 'next/server';
-import { getCategoryBySlug, getCategoryWithArticles, updateCategory, deleteCategory } from '@/lib/category-service';
-import { revalidatePath } from 'next/cache';
-
-=======
-// @ts-nocheck
-// app/api/categories/[slug]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import { Category } from "@/lib/models/Category";
@@ -16,71 +7,25 @@ import { Category } from "@/lib/models/Category";
 // ============================================
 // GET - Get single category by slug
 // ============================================
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-<<<<<<< HEAD
-    const { slug } = await params;
-    const searchParams = request.nextUrl.searchParams;
-    const includeArticles = searchParams.get('includeArticles') === 'true';
-    
-    const category = includeArticles 
-      ? await getCategoryWithArticles(slug)
-      : await getCategoryBySlug(slug);
-    
-    if (!category) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
-    
-    return NextResponse.json(category);
-  } catch (error) {
-    console.error('Error fetching category:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch category' },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  try {
-    const { slug } = await params;
-    const body = await request.json();
-    
-    // Get category by slug to get ID
-    const existing = await getCategoryBySlug(slug);
-    if (!existing) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
-    
-    const updated = await updateCategory(existing.id, body);
-    if (!updated) {
-      return NextResponse.json({ error: 'Failed to update category' }, { status: 404 });
-    }
-    
-    revalidatePath('/news');
-    revalidatePath(`/news/category/${slug}`);
-    if (body.slug && body.slug !== slug) {
-      revalidatePath(`/news/category/${body.slug}`);
-    }
-    
-    return NextResponse.json(updated);
-  } catch (error) {
-    console.error('Error updating category:', error);
-    return NextResponse.json(
-      { error: 'Failed to update category' },
-=======
     await connectToDatabase();
 
-    const { slug } = await params;
+    const { slug } = await context.params;
+    const searchParams = request.nextUrl.searchParams;
+    const includeArticles = searchParams.get("includeArticles") === "true";
+    const includeInactive = searchParams.get("includeInactive") === "true";
 
-    const category = await Category.findOne({ slug, isActive: true }).lean();
+    // Build query
+    let query: any = { slug };
+    if (!includeInactive) {
+      query.isActive = true;
+    }
+
+    const category = await Category.findOne(query).lean();
 
     if (!category) {
       return NextResponse.json(
@@ -89,54 +34,134 @@ export async function PUT(
       );
     }
 
+    // If includeArticles is true, fetch articles for this category
+    let articles = [];
+    if (includeArticles) {
+      try {
+        // Import dynamically to avoid circular dependencies
+        const { Review } = await import("@/lib/models/Review");
+        articles = await Review.find({ 
+          category: category.name,
+          published: true 
+        })
+        .sort({ date: -1 })
+        .limit(20)
+        .lean();
+      } catch (error) {
+        console.warn("Could not fetch articles for category:", error);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: category,
+      ...(includeArticles && { articles }),
     });
   } catch (error: any) {
     console.error("Error fetching category:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to fetch category" },
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
       { status: 500 }
     );
   }
 }
 
-<<<<<<< HEAD
-=======
+// ============================================
+// PUT - Update category by slug
+// ============================================
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ slug: string }> }
+) {
+  try {
+    await connectToDatabase();
+
+    const { slug } = await context.params;
+    const body = await request.json();
+
+    // Find the category
+    const category = await Category.findOne({ slug });
+    if (!category) {
+      return NextResponse.json(
+        { success: false, error: "Category not found" },
+        { status: 404 }
+      );
+    }
+
+    // Remove _id, __v, createdAt, updatedAt from update body
+    const { _id, __v, createdAt, updatedAt, ...updateData } = body;
+
+    // If name is being updated, check for duplicates
+    if (updateData.name && updateData.name !== category.name) {
+      const existing = await Category.findOne({
+        name: { $regex: new RegExp(`^${updateData.name}$`, 'i') },
+        _id: { $ne: category._id }
+      });
+      if (existing) {
+        return NextResponse.json(
+          { success: false, error: `Category "${updateData.name}" already exists` },
+          { status: 409 }
+        );
+      }
+    }
+
+    // If slug is being updated, check for duplicates
+    if (updateData.slug && updateData.slug !== category.slug) {
+      const existing = await Category.findOne({
+        slug: updateData.slug,
+        _id: { $ne: category._id }
+      });
+      if (existing) {
+        return NextResponse.json(
+          { success: false, error: `Category with slug "${updateData.slug}" already exists` },
+          { status: 409 }
+        );
+      }
+    }
+
+    // Update the category
+    const updatedCategory = await Category.findOneAndUpdate(
+      { slug },
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: "Category updated successfully",
+      data: updatedCategory,
+    });
+  } catch (error: any) {
+    console.error("Error updating category:", error);
+    
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Category with this name or slug already exists" 
+        },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to update category" },
+      { status: 500 }
+    );
+  }
+}
+
 // ============================================
 // DELETE - Delete category by slug
 // ============================================
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ slug: string }> }
 ) {
   try {
-<<<<<<< HEAD
-    const { slug } = await params;
-    
-    const existing = await getCategoryBySlug(slug);
-    if (!existing) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
-    
-    await deleteCategory(existing.id);
-    revalidatePath('/news');
-    
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Category deleted successfully' 
-    });
-  } catch (error) {
-    console.error('Error deleting category:', error);
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to delete category' },
-=======
     await connectToDatabase();
 
-    const { slug } = await params;
+    const { slug } = await context.params;
     const searchParams = request.nextUrl.searchParams;
     const force = searchParams.get("force") === "true";
 
@@ -148,6 +173,7 @@ export async function DELETE(
       );
     }
 
+    // Check if category has articles
     if (category.articleCount > 0 && !force) {
       return NextResponse.json(
         { 
@@ -159,26 +185,28 @@ export async function DELETE(
       );
     }
 
+    // If force is true, delete permanently
     if (force) {
       await Category.findOneAndDelete({ slug });
       return NextResponse.json({
         success: true,
         message: `Category "${category.label}" deleted permanently`,
       });
-    } else {
-      category.isActive = false;
-      await category.save();
-      return NextResponse.json({
-        success: true,
-        message: `Category "${category.label}" deactivated`,
-        data: category,
-      });
     }
+
+    // Otherwise, soft delete (deactivate)
+    category.isActive = false;
+    await category.save();
+
+    return NextResponse.json({
+      success: true,
+      message: `Category "${category.label}" deactivated`,
+      data: category,
+    });
   } catch (error: any) {
     console.error("Error deleting category:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to delete category" },
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
       { status: 500 }
     );
   }

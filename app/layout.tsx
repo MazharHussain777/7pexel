@@ -1,71 +1,31 @@
 // app/layout.tsx
-<<<<<<< HEAD
-import type { Metadata } from "next";
-import { Fraunces, Poppins, JetBrains_Mono } from "next/font/google";
-import { NewsletterProvider } from "@/contexts/NewsletterContext";
-import "./globals.css";
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: "7pexel — Tech & Electronics, Decoded",
-  description: "Every device, decoded — before you buy. Specs, reviews and side-by-side comparisons across every category.",
-  keywords: "tech reviews, electronics, phones, laptops, auto, comparisons, buying guides",
-  authors: [{ name: "7pexel Team" }],
-  openGraph: {
-    title: "7pexel — Tech & Electronics, Decoded",
-    description: "Every device, decoded — before you buy.",
-    url: "https://7pexel.com",
-    siteName: "7pexel",
-    images: [
-      {
-        url: "https://7pexel.com/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "7pexel - Tech & Electronics",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "7pexel — Tech & Electronics, Decoded",
-    description: "Every device, decoded — before you buy.",
-    images: ["https://7pexel.com/og-image.jpg"],
-  },
-};
-
-=======
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
+import { Fraunces, Poppins, JetBrains_Mono } from "next/font/google";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
+
+// Font configurations
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-fraunces",
+});
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
   variable: "--font-poppins",
-  fallback: ["system-ui", "Arial", "sans-serif"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+  variable: "--font-jetbrains-mono",
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
@@ -76,16 +36,13 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   
-  // ===== TITLE =====
   title: {
     default: "7pexel — Premium Tech Insights, Reviews & Phone Comparisons",
     template: "%s | 7pexel",
   },
   
-  // ===== DESCRIPTION =====
   description: "Compare smartphones side by side. Full specifications, camera quality, battery life, performance benchmarks, and pricing. Find the best phone for you with 7pexel.",
   
-  // ===== KEYWORDS - Aggressive targeting =====
   keywords: [
     "tech", "technology", "tech news", "technology news",
     "reviews", "phone reviews", "smartphone reviews", "tech reviews",
@@ -101,7 +58,6 @@ export const metadata: Metadata = {
     "7pexel", "tech blog", "phone finder",
   ].join(", "),
   
-  // ===== AUTHORS =====
   authors: [{ name: "7pexel Team", url: siteUrl }],
   creator: "7pexel",
   publisher: "7pexel",
@@ -109,7 +65,6 @@ export const metadata: Metadata = {
   applicationName: "7pexel",
   referrer: "origin-when-cross-origin",
   
-  // ===== OPEN GRAPH (Facebook, LinkedIn, etc.) =====
   openGraph: {
     title: "7pexel — Compare Smartphones, Tech Reviews & Insights",
     description: "Compare smartphones side by side. Full specifications, camera, battery, performance. Find the best phone for you.",
@@ -127,7 +82,6 @@ export const metadata: Metadata = {
     ],
   },
   
-  // ===== TWITTER CARD =====
   twitter: {
     card: "summary_large_image",
     site: "@7pexel",
@@ -137,7 +91,6 @@ export const metadata: Metadata = {
     images: [`${siteUrl}/og-image.jpg`],
   },
   
-  // ===== ROBOTS =====
   robots: {
     index: true,
     follow: true,
@@ -151,7 +104,6 @@ export const metadata: Metadata = {
     },
   },
   
-  // ===== CANONICAL =====
   alternates: {
     canonical: siteUrl,
     languages: {
@@ -159,7 +111,6 @@ export const metadata: Metadata = {
     },
   },
   
-  // ===== ICONS =====
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -173,14 +124,10 @@ export const metadata: Metadata = {
     shortcut: ['/favicon.ico'],
   },
   
-  // ===== MANIFEST =====
   manifest: '/manifest.json',
-  
-  // ===== OTHER =====
   category: "Technology",
   classification: "Technology News, Reviews & Phone Comparisons",
   
-  // ===== VERIFICATION =====
   verification: {
     google: process.env.GOOGLE_SITE_VERIFICATION || '',
   },
@@ -204,21 +151,13 @@ export const viewport: Viewport = {
 // ============================================================
 // ROOT LAYOUT
 // ============================================================
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-<<<<<<< HEAD
-    <html lang="en">
-      <body className={`${fraunces.variable} ${poppins.variable} ${jetbrainsMono.variable} antialiased bg-white text-[#12180F] font-poppins overflow-x-hidden`}>
-        <NewsletterProvider>
-          {children}
-        </NewsletterProvider>
-=======
-    <html lang="en" className={poppins.variable}>
+    <html lang="en" className={`${fraunces.variable} ${poppins.variable} ${jetbrainsMono.variable}`}>
       <head>
         {/* ===== FONT AWESOME ===== */}
         <link
@@ -322,12 +261,13 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-white antialiased flex flex-col">
         <SubscriptionProvider>
-          <div className="flex flex-col min-h-screen">
-            {children}
-            <Footer />
-          </div>
+          <NewsletterProvider>
+            <div className="flex flex-col min-h-screen">
+              {children}
+              <Footer />
+            </div>
+          </NewsletterProvider>
         </SubscriptionProvider>
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
       </body>
     </html>
   );

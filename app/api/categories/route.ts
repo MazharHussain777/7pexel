@@ -1,26 +1,5 @@
-<<<<<<< HEAD
 // app/api/categories/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { getAllCategories, createCategory, seedCategories } from '@/lib/category-service';
 
-export async function GET(request: NextRequest) {
-  try {
-    const searchParams = request.nextUrl.searchParams;
-    const action = searchParams.get('action');
-    
-    if (action === 'seed') {
-      const categories = await seedCategories();
-      return NextResponse.json({ message: 'Categories seeded successfully', categories });
-    }
-    
-    const categories = await getAllCategories();
-    return NextResponse.json({ categories });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to fetch categories' },
-=======
-// @ts-nocheck
-// app/api/categories/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import { Category } from "@/lib/models/Category";
@@ -38,6 +17,17 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "50");
     const page = parseInt(searchParams.get("page") || "1");
     const skip = (page - 1) * limit;
+    const action = searchParams.get("action");
+
+    // Handle seed action
+    if (action === "seed") {
+      const categories = await seedCategories();
+      return NextResponse.json({
+        success: true,
+        message: `Seeded ${categories.length} categories`,
+        data: categories,
+      });
+    }
 
     let query: any = {};
     if (active) query.isActive = true;
@@ -60,7 +50,17 @@ export async function GET(request: NextRequest) {
       Category.countDocuments(query),
     ]);
 
-    const stats = await Category.getStats();
+    let stats = null;
+    try {
+      stats = await Category.getStats();
+    } catch (statsError) {
+      // If getStats doesn't exist, provide fallback stats
+      stats = {
+        total: await Category.countDocuments(),
+        active: await Category.countDocuments({ isActive: true }),
+        categories: categories.length,
+      };
+    }
 
     return NextResponse.json({
       success: true,
@@ -77,32 +77,11 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to fetch categories" },
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
       { status: 500 }
     );
   }
 }
 
-<<<<<<< HEAD
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const requiredFields = ['name', 'slug', 'icon'];
-    const missingFields = requiredFields.filter(field => !body[field]);
-    
-    if (missingFields.length > 0) {
-      return NextResponse.json(
-        { error: `Missing required fields: ${missingFields.join(', ')}` },
-        { status: 400 }
-      );
-    }
-    
-    const category = await createCategory(body);
-    return NextResponse.json(category, { status: 201 });
-  } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create category' },
-=======
 // ============================================
 // POST - Create a new category (ANY NAME ALLOWED)
 // ============================================
@@ -212,6 +191,72 @@ export async function POST(request: NextRequest) {
 }
 
 // ============================================
+// PUT - Update a category
+// ============================================
+export async function PUT(request: NextRequest) {
+  try {
+    await connectToDatabase();
+
+    const searchParams = request.nextUrl.searchParams;
+    const id = searchParams.get("id");
+    const name = searchParams.get("name");
+    const body = await request.json();
+
+    let query: any = {};
+    if (id) query._id = id;
+    else if (name) query.name = { $regex: new RegExp(`^${name}$`, 'i') };
+    else {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Please provide either 'id' or 'name' parameter" 
+        },
+        { status: 400 }
+      );
+    }
+
+    // Remove _id, __v, createdAt, updatedAt from update body
+    const { _id, __v, createdAt, updatedAt, ...updateData } = body;
+
+    const category = await Category.findOneAndUpdate(
+      query,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!category) {
+      return NextResponse.json(
+        { success: false, error: "Category not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Category updated successfully",
+      data: category,
+    });
+  } catch (error: any) {
+    console.error("Error updating category:", error);
+    
+    if (error.code === 11000) {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: "Category with this name or slug already exists" 
+        },
+        { status: 409 }
+      );
+    }
+
+    return NextResponse.json(
+      { success: false, error: error.message || "Failed to update category" },
+      { status: 500 }
+    );
+  }
+}
+
+// ============================================
 // DELETE - Delete a category
 // ============================================
 export async function DELETE(request: NextRequest) {
@@ -281,68 +326,97 @@ export async function DELETE(request: NextRequest) {
 }
 
 // ============================================
-// PUT - Update a category
+// Helper function to seed categories
 // ============================================
-export async function PUT(request: NextRequest) {
-  try {
-    await connectToDatabase();
+async function seedCategories() {
+  const defaultCategories = [
+    {
+      name: "phones",
+      label: "Phones",
+      description: "Latest smartphones, reviews, and comparisons",
+      icon: "fa-mobile-alt",
+      color: "#3B82F6",
+      isActive: true,
+    },
+    {
+      name: "laptops",
+      label: "Laptops",
+      description: "Laptop reviews, comparisons, and buying guides",
+      icon: "fa-laptop",
+      color: "#8B5CF6",
+      isActive: true,
+    },
+    {
+      name: "reviews",
+      label: "Reviews",
+      description: "In-depth product reviews and analysis",
+      icon: "fa-star",
+      color: "#F59E0B",
+      isActive: true,
+    },
+    {
+      name: "news",
+      label: "News",
+      description: "Latest tech news and updates",
+      icon: "fa-newspaper",
+      color: "#EF4444",
+      isActive: true,
+    },
+    {
+      name: "guides",
+      label: "Guides",
+      description: "How-to guides and tutorials",
+      icon: "fa-book",
+      color: "#10B981",
+      isActive: true,
+    },
+    {
+      name: "comparison",
+      label: "Comparison",
+      description: "Side-by-side product comparisons",
+      icon: "fa-balance-scale",
+      color: "#6366F1",
+      isActive: true,
+    },
+    {
+      name: "auto",
+      label: "Auto",
+      description: "Automotive news, reviews, and comparisons",
+      icon: "fa-car",
+      color: "#14B8A6",
+      isActive: true,
+    },
+    {
+      name: "technology",
+      label: "Technology",
+      description: "Tech innovations and advancements",
+      icon: "fa-microchip",
+      color: "#7C3AED",
+      isActive: true,
+    },
+  ];
 
-    const searchParams = request.nextUrl.searchParams;
-    const id = searchParams.get("id");
-    const name = searchParams.get("name");
-    const body = await request.json();
+  const seededCategories = [];
+  for (const categoryData of defaultCategories) {
+    const slug = categoryData.slug || categoryData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
-    let query: any = {};
-    if (id) query._id = id;
-    else if (name) query.name = { $regex: new RegExp(`^${name}$`, 'i') };
-    else {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Please provide either 'id' or 'name' parameter" 
-        },
-        { status: 400 }
-      );
+    // Check if category already exists
+    const existing = await Category.findOne({ slug });
+    if (!existing) {
+      const category = new Category({
+        ...categoryData,
+        slug,
+        articleCount: 0,
+      });
+      await category.save();
+      seededCategories.push(category);
+    } else {
+      seededCategories.push(existing);
     }
-
-    // Remove _id, __v, createdAt, updatedAt from update body
-    const { _id, __v, createdAt, updatedAt, ...updateData } = body;
-
-    const category = await Category.findOneAndUpdate(
-      query,
-      { $set: updateData },
-      { new: true, runValidators: true }
-    );
-
-    if (!category) {
-      return NextResponse.json(
-        { success: false, error: "Category not found" },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "Category updated successfully",
-      data: category,
-    });
-  } catch (error: any) {
-    console.error("Error updating category:", error);
-    
-    if (error.code === 11000) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Category with this name or slug already exists" 
-        },
-        { status: 409 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: error.message || "Failed to update category" },
->>>>>>> 4342b619607c12c626558131bb24b975ec2918e6
-      { status: 500 }
-    );
   }
+
+  return seededCategories;
 }
