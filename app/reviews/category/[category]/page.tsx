@@ -1,4 +1,7 @@
 // app/reviews/category/[category]/page.tsx
+
+export const dynamic = 'force-dynamic';
+
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
