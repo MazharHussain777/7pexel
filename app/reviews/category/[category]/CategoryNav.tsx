@@ -50,10 +50,10 @@ export function CategoryNav({ currentCategoryId }: { currentCategoryId: string }
     <>
       {categories.map((c) => (
         <Link
-          key={c._id || c.id}
+          key={c._id}
           href={`/reviews/category/${c.slug}`}
           className={`px-4 py-2 rounded-full border-[1.5px] text-[0.78rem] font-semibold transition-all ${
-            c.id === currentCategoryId || c.slug === currentCategoryId
+            c._id === currentCategoryId || c.slug === currentCategoryId
               ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
               : "border-[var(--color-line)] text-[var(--color-ink-soft)] bg-[var(--color-paper)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)]"
           }`}

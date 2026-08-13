@@ -142,6 +142,14 @@ export function ReviewDetailClient({
   const displayedSameCategory = showAllRelated ? sameCategoryReviews : sameCategoryReviews.slice(0, 3);
   const displayedOtherCategory = showAllRelated ? otherCategoryReviews : otherCategoryReviews.slice(0, 4);
 
+  // Helper function for stars
+  function getStars(rating: number): string {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5 ? 1 : 0;
+    const empty = 5 - full - half;
+    return "⭐".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
+  }
+
   return (
     <div className="wrap">
       <style dangerouslySetInnerHTML={{ __html: `
@@ -460,42 +468,42 @@ export function ReviewDetailClient({
         {/* ─── LEFT COLUMN: CONTENT ────────────────────── */}
         <div className="flex-1 min-w-0">
           <article>
-{/* Header */}
-<header className="mb-6">
-  <div className="flex items-center gap-2 mb-2 flex-wrap">
-    <span className="text-[0.7rem] px-3 py-1 rounded-full bg-[var(--color-green)]/10 text-[var(--color-green)] font-semibold font-jetbrains-mono uppercase tracking-[0.05em] mb-3">
-      {categoryIcon} {categoryName}
-    </span>
-  </div>
-  
-  <h1 className="font-fraunces font-medium text-[clamp(2rem,3vw,3.2rem)] tracking-[-0.02em] leading-[1.1] -mt-0.1">
-    {review.title}
-  </h1>
-  
-  <p className="text-[1.05rem] text-[var(--color-ink-soft)] mt-3 leading-[1.6]">{review.excerpt}</p>
+            {/* Header */}
+            <header className="mb-6">
+              <div className="flex items-center gap-2 mb-2 flex-wrap">
+                <span className="text-[0.7rem] px-3 py-1 rounded-full bg-[var(--color-green)]/10 text-[var(--color-green)] font-semibold font-jetbrains-mono uppercase tracking-[0.05em] mb-3">
+                  {categoryIcon} {categoryName}
+                </span>
+              </div>
+              
+              <h1 className="font-fraunces font-medium text-[clamp(2rem,3vw,3.2rem)] tracking-[-0.02em] leading-[1.1] -mt-0.1">
+                {review.title}
+              </h1>
+              
+              <p className="text-[1.05rem] text-[var(--color-ink-soft)] mt-3 leading-[1.6]">{review.excerpt}</p>
 
-  {/* Meta */}
-  <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-4 border-t border-[var(--color-line)]">
-    <div className="flex items-center gap-2.5">
-      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-green-deep)] to-[var(--color-green-bright)] flex items-center justify-center text-white font-semibold text-[0.8rem]">
-        {review.authorAvatar}
-      </div>
-      <div>
-        <div className="text-[0.8rem] font-semibold">{review.author}</div>
-        <div className="text-[0.7rem] text-[var(--color-ink-soft)]">{formattedDate}</div>
-      </div>
-    </div>
-    <div className="flex items-center gap-3 text-[0.7rem] text-[var(--color-ink-soft)]">
-      <span>🏷️ {review.tags.slice(0, 3).join(", ")}</span>
-      <button
-        onClick={handleCopyLink}
-        className="px-2.5 py-1 rounded-full border border-[var(--color-line)] hover:border-[var(--color-green)] hover:text-[var(--color-green)] transition-colors"
-      >
-        {copied ? "✅ Copied!" : "📋 Copy"}
-      </button>
-    </div>
-  </div>
-</header>
+              {/* Meta */}
+              <div className="flex flex-wrap items-center justify-between gap-4 mt-4 pt-4 border-t border-[var(--color-line)]">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-green-deep)] to-[var(--color-green-bright)] flex items-center justify-center text-white font-semibold text-[0.8rem]">
+                    {review.authorAvatar}
+                  </div>
+                  <div>
+                    <div className="text-[0.8rem] font-semibold">{review.author}</div>
+                    <div className="text-[0.7rem] text-[var(--color-ink-soft)]">{formattedDate}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-[0.7rem] text-[var(--color-ink-soft)]">
+                  <span>🏷️ {review.tags.slice(0, 3).join(", ")}</span>
+                  <button
+                    onClick={handleCopyLink}
+                    className="px-2.5 py-1 rounded-full border border-[var(--color-line)] hover:border-[var(--color-green)] hover:text-[var(--color-green)] transition-colors"
+                  >
+                    {copied ? "✅ Copied!" : "📋 Copy"}
+                  </button>
+                </div>
+              </div>
+            </header>
 
             {/* Featured Image */}
             <figure className="relative w-full aspect-[16/9] rounded-[16px] overflow-hidden bg-[#eef1e9] mb-6">
@@ -618,7 +626,7 @@ export function ReviewDetailClient({
                     const rStars = getStars(r.rating);
                     return (
                       <Link
-                        key={r._id.toString()}
+                        key={r._id}
                         href={`/reviews/${r.slug}`}
                         className="flex gap-3 p-2 rounded-[8px] transition-all hover:bg-[var(--color-green)]/5 hover:pl-3 group border border-transparent hover:border-[var(--color-line)]"
                       >
@@ -662,7 +670,7 @@ export function ReviewDetailClient({
                         const rStars = getStars(r.rating);
                         return (
                           <Link
-                            key={r._id.toString()}
+                            key={r._id}
                             href={`/reviews/${r.slug}`}
                             className="flex gap-2 p-2 rounded-[8px] transition-all hover:bg-[var(--color-green)]/5 hover:pl-3 group border border-transparent hover:border-[var(--color-line)]"
                           >
@@ -707,7 +715,7 @@ export function ReviewDetailClient({
                 const isActive = cat.slug === review.categorySlug;
                 return (
                   <Link
-                    key={cat._id.toString()}
+                    key={cat._id}
                     href={`/reviews/category/${cat.slug}`}
                     className={`px-3 py-1.5 rounded-full border text-[0.7rem] font-semibold transition-all ${
                       isActive 
@@ -735,12 +743,4 @@ export function ReviewDetailClient({
       </div>
     </div>
   );
-}
-
-// Helper function for stars
-function getStars(rating: number): string {
-  const full = Math.floor(rating);
-  const half = rating - full >= 0.5 ? 1 : 0;
-  const empty = 5 - full - half;
-  return "⭐".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
 }

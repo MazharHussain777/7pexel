@@ -72,7 +72,11 @@ async function getCategoriesFromDB(): Promise<ICategory[]> {
     const categories = await Category.find({ isActive: true })
       .sort({ order: 1 })
       .lean();
-    return categories;
+    // ✅ Convert ObjectId to string
+    return categories.map(cat => ({
+      ...cat,
+      _id: cat._id.toString()
+    }));
   } catch (error) {
     console.error('Error fetching categories from DB:', error);
     return [];
@@ -84,7 +88,14 @@ async function getCategoryFromDB(slug: string): Promise<ICategory | null> {
   try {
     await dbConnect();
     const category = await Category.findOne({ slug }).lean();
-    return category;
+    if (category) {
+      // ✅ Convert ObjectId to string
+      return {
+        ...category,
+        _id: category._id.toString()
+      };
+    }
+    return null;
   } catch (error) {
     console.error('Error fetching category from DB:', error);
     return null;
@@ -101,19 +112,21 @@ async function getReviewsByCategoryFromDB(categorySlug: string): Promise<IReview
     })
     .sort({ date: -1 })
     .lean();
-    return reviews;
+    // ✅ Convert ObjectId to string
+    return reviews.map(review => ({
+      ...review,
+      _id: review._id.toString()
+    }));
   } catch (error) {
     console.error('Error fetching reviews from DB:', error);
     return [];
   }
 }
 
-// ✅ FIXED: Handle empty categories
 export async function generateStaticParams() {
   try {
     const categories = await getCategoriesFromDB();
     
-    // If no categories, return empty array (no error)
     if (!categories || categories.length === 0) {
       console.warn("⚠️ No categories found in database, skipping static generation");
       return [];
@@ -206,6 +219,9 @@ export default async function CategoryReviewsPage({
     return "⭐".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
   }
 
+  // ✅ Convert to string for client component
+  const categoryId = cat._id.toString();
+
   return (
     <div className="min-h-screen bg-[#fbfdfb]">
       <Header />
@@ -278,7 +294,8 @@ export default async function CategoryReviewsPage({
             >
               📋 All Reviews
             </Link>
-            <CategoryNav currentCategoryId={cat._id} />
+            {/* ✅ Pass string ID */}
+            <CategoryNav currentCategoryId={categoryId} />
           </div>
         </div>
 

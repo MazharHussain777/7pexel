@@ -65,7 +65,16 @@ async function getReviewFromDB(slug: string): Promise<IReview | null> {
   try {
     await dbConnect();
     const review = await Review.findOne({ slug, published: true }).lean();
-    return review;
+    if (review) {
+      // ✅ Convert ObjectId to string and handle all nested objects
+      return {
+        ...review,
+        _id: review._id.toString(),
+        // Convert any other ObjectId fields if they exist
+        category: review.category?.toString ? review.category.toString() : review.category,
+      };
+    }
+    return null;
   } catch (error) {
     console.error('Error fetching review from DB:', error);
     return null;
@@ -84,7 +93,12 @@ async function getRelatedReviewsFromDB(slug: string, categorySlug: string, limit
     .sort({ date: -1 })
     .limit(limit)
     .lean();
-    return reviews;
+    // ✅ Convert ObjectId to string for each review
+    return reviews.map(review => ({
+      ...review,
+      _id: review._id.toString(),
+      category: review.category?.toString ? review.category.toString() : review.category,
+    }));
   } catch (error) {
     console.error('Error fetching related reviews from DB:', error);
     return [];
@@ -96,7 +110,14 @@ async function getCategoryFromDB(slug: string): Promise<ICategory | null> {
   try {
     await dbConnect();
     const category = await Category.findOne({ slug }).lean();
-    return category;
+    if (category) {
+      // ✅ Convert ObjectId to string
+      return {
+        ...category,
+        _id: category._id.toString()
+      };
+    }
+    return null;
   } catch (error) {
     console.error('Error fetching category from DB:', error);
     return null;
@@ -110,7 +131,11 @@ async function getAllCategoriesFromDB(): Promise<ICategory[]> {
     const categories = await Category.find({ isActive: true })
       .sort({ order: 1 })
       .lean();
-    return categories;
+    // ✅ Convert ObjectId to string for each category
+    return categories.map(category => ({
+      ...category,
+      _id: category._id.toString()
+    }));
   } catch (error) {
     console.error('Error fetching categories from DB:', error);
     return [];
