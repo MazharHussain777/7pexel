@@ -122,21 +122,21 @@ async function getReviewsByCategoryFromDB(categorySlug: string): Promise<IReview
     return [];
   }
 }
-
 export async function generateStaticParams() {
   try {
     const categories = await getCategoriesFromDB();
-    
-    if (!categories || categories.length === 0) {
-      console.warn("⚠️ No categories found in database, skipping static generation");
-      return [];
-    }
-    
-    return categories.map((category) => ({
-      category: category.slug,
-    }));
+
+    return categories
+      .filter(
+        (category) =>
+          typeof category.slug === "string" &&
+          category.slug.trim().length > 0
+      )
+      .map((category) => ({
+        category: category.slug.trim(),
+      }));
   } catch (error) {
-    console.error("❌ Error in generateStaticParams:", error);
+    console.error("Error in generateStaticParams:", error);
     return [];
   }
 }

@@ -1,4 +1,3 @@
-// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -138,10 +137,15 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   generateEtags: true,
+  
+  // ✅ FIXED: Moved typedRoutes out of experimental
+  typedRoutes: true,
+  
+  // ✅ Keep only necessary experimental features
   experimental: {
-    typedRoutes: true,
     optimizeCss: true,
   },
+  
   typescript: {
     ignoreBuildErrors: true,
   },
