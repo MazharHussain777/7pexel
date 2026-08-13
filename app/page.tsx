@@ -415,7 +415,7 @@ export default async function Home() {
 
         <Newsletter />
       </main>
-      <Footer />
+     
     </>
   );
 }
