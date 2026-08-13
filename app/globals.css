@@ -1,0 +1,592 @@
+/* app/globals.css */
+@import "tailwindcss";
+
+@theme {
+  --color-green: #0F6B3E;
+  --color-green-bright: #1FA25A;
+  --color-green-deep: #0A3F26;
+  --color-lime: #8FA83E;
+  --color-bg: #FFFFFF;
+  --color-paper: #FBFDFB;
+  --color-ink: #12180F;
+  --color-ink-soft: #455040;
+  --color-line: rgba(15, 24, 15, 0.09);
+  --radius: 20px;
+  
+  --font-fraunces: var(--font-fraunces), serif;
+  --font-poppins: var(--font-poppins), sans-serif;
+  --font-jetbrains-mono: var(--font-jetbrains-mono), monospace;
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: var(--color-green);
+    color: #fff;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-poppins), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.55;
+    background-image: radial-gradient(circle, rgba(15, 107, 62, 0.07) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+
+  img,
+  svg {
+    display: block;
+  }
+}
+
+@layer utilities {
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  @media (max-width: 980px) {
+    .wrap {
+      padding: 0 24px;
+    }
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-paper);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-green);
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-green-deep);
+  }
+}
+
+/* ─── ARTICLE BODY STYLES ────────────────────────────── */
+@layer components {
+  .article-body {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #222c1e;
+  }
+
+  .article-body p {
+    margin-bottom: 1.4rem;
+    line-height: 1.85;
+  }
+
+  .article-body h3 {
+    font-family: var(--font-fraunces), serif;
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin-top: 2.2rem;
+    margin-bottom: 0.9rem;
+    letter-spacing: -0.01em;
+  }
+
+  .article-body blockquote {
+    font-family: var(--font-fraunces), serif;
+    font-weight: 500;
+    font-style: italic;
+    font-size: 1.35rem;
+    line-height: 1.5;
+    color: var(--color-green-deep);
+    border-left: 3px solid var(--color-green-bright);
+    padding: 0.25rem 0 0.25rem 1.4rem;
+    margin: 1.8rem 0;
+  }
+
+  .article-body ul {
+    list-style: disc;
+    margin-left: 1.4rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .article-body ul li {
+    margin-bottom: 0.3rem;
+  }
+
+  /* ─── BENCHMARK COMPARISON ────────────────────────────── */
+  .article-body .benchmark-comparison {
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1.8rem 0;
+  }
+
+  .article-body .benchmark-comparison h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .article-body .benchmark-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  @media (min-width: 640px) {
+    .article-body .benchmark-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .article-body .benchmark-card {
+    background: white;
+    border: 1px solid var(--color-line);
+    border-radius: 12px;
+    padding: 1rem;
+  }
+
+  .article-body .benchmark-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-ink-soft);
+    margin-bottom: 0.3rem;
+  }
+
+  .article-body .benchmark-bar {
+    width: 100%;
+    height: 6px;
+    background: #e8ede5;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .article-body .benchmark-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-green), var(--color-green-bright));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .article-body .benchmark-numbers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--color-ink-soft);
+  }
+
+  .article-body .benchmark-numbers .m4-score {
+    opacity: 0.7;
+  }
+
+  .article-body .benchmark-numbers .m5-score {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .article-body .benchmark-numbers .improvement {
+    font-weight: 700;
+    color: var(--color-green-bright);
+  }
+
+  /* ─── SPEC SHEET ─────────────────────────────────────── */
+  .article-body .spec-sheet {
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1.8rem 0;
+  }
+
+  .article-body .spec-sheet h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .article-body .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1.5rem;
+  }
+
+  @media (max-width: 480px) {
+    .article-body .spec-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .article-body .spec-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0;
+    border-bottom: 1px dashed var(--color-line);
+  }
+
+  .article-body .spec-item:last-child {
+    border-bottom: none;
+  }
+
+  .article-body .spec-label {
+    font-size: 0.8rem;
+    color: var(--color-ink-soft);
+    font-weight: 500;
+  }
+
+  .article-body .spec-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  /* ─── GALLERY GRID ───────────────────────────────────── */
+  .article-body .gallery-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.6rem;
+    margin: 1.8rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .article-body .gallery-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .article-body .gallery-item {
+    border-radius: 12px;
+    overflow: hidden;
+    background: #eef1e9;
+  }
+
+  .article-body .gallery-item img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .article-body .gallery-item:hover img {
+    transform: scale(1.03);
+  }
+
+  .article-body .gallery-caption {
+    display: block;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+    color: var(--color-ink-soft);
+    background: white;
+    text-align: center;
+  }
+
+  /* ─── PROS & CONS ────────────────────────────────────── */
+  .article-body .pros-cons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.8rem 0;
+  }
+
+  @media (max-width: 480px) {
+    .article-body .pros-cons {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .article-body .pros-cons .pros,
+  .article-body .pros-cons .cons {
+    background: var(--color-paper);
+    border-radius: 14px;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid var(--color-line);
+  }
+
+  .article-body .pros-cons h4 {
+    font-family: var(--font-fraunces), serif;
+    font-weight: 600;
+    font-size: 1rem;
+    margin: 0 0 0.6rem 0;
+  }
+
+  .article-body .pros-cons ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .article-body .pros-cons ul li {
+    padding: 0.2rem 0;
+    font-size: 0.92rem;
+    color: var(--color-ink-soft);
+    position: relative;
+    padding-left: 1.2rem;
+  }
+
+  .article-body .pros-cons .pros ul li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--color-green-bright);
+    font-weight: 700;
+  }
+
+  .article-body .pros-cons .cons ul li::before {
+    content: "✕";
+    position: absolute;
+    left: 0;
+    color: #c0392b;
+    font-weight: 700;
+  }
+
+  /* ─── CHECKLIST ──────────────────────────────────────── */
+  .article-body .checklist {
+    background: linear-gradient(135deg, #f0f7f2, #e8f0ea);
+    border-radius: 14px;
+    padding: 1.2rem 1.5rem;
+    margin: 1.8rem 0;
+    border-left: 4px solid var(--color-green-bright);
+  }
+
+  .article-body .checklist h3 {
+    margin-top: 0;
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+  }
+
+  .article-body .checklist-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .article-body .checklist-items li {
+    padding: 0.3rem 0;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    color: var(--color-ink);
+  }
+
+  .article-body .checklist-items .check-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: var(--color-green-bright);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  /* ─── FAQ SECTION ────────────────────────────────────── */
+  .article-body .faq-section {
+    margin: 1.8rem 0;
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .article-body .faq-section h3 {
+    margin: 0;
+    padding: 1rem 1.5rem;
+    background: var(--color-paper);
+    border-bottom: 1px solid var(--color-line);
+    font-size: 1.1rem;
+  }
+
+  .article-body .faq-item {
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .article-body .faq-item:last-child {
+    border-bottom: none;
+  }
+
+  .article-body .faq-question {
+    padding: 0.8rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background 0.2s ease;
+  }
+
+  .article-body .faq-question:hover {
+    background: var(--color-paper);
+  }
+
+  .article-body .faq-question::after {
+    content: "+";
+    font-size: 1.2rem;
+    color: var(--color-ink-soft);
+    transition: transform 0.3s ease;
+  }
+
+  .article-body .faq-item.open .faq-question::after {
+    transform: rotate(45deg);
+  }
+
+  .article-body .faq-answer {
+    padding: 0 1.5rem 1rem 1.5rem;
+    font-size: 0.92rem;
+    color: var(--color-ink-soft);
+    line-height: 1.7;
+    display: none;
+  }
+
+  .article-body .faq-item.open .faq-answer {
+    display: block;
+  }
+
+  /* ─── SPEC TABLE ─────────────────────────────────────── */
+  .article-body .spec-table {
+    background: var(--color-paper);
+    border: 1px solid var(--color-line);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin: 1.8rem 0;
+    overflow-x: auto;
+  }
+
+  .article-body .spec-table h3 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+  }
+
+  .article-body .spec-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  .article-body .spec-table th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    font-weight: 600;
+    color: var(--color-ink-soft);
+    border-bottom: 2px solid var(--color-line);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .article-body .spec-table td {
+    padding: 0.5rem 0.8rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+
+  .article-body .spec-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .article-body .spec-table .badge-green {
+    background: var(--color-green);
+    color: white;
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+  }
+
+  /* ─── SUCCESS MESSAGE FOR NEWSLETTER ──────────────────── */
+  .success-message.show {
+    display: flex !important;
+  }
+
+  /* ─── RESPONSIVE ADJUSTMENTS ────────────────────────── */
+  @media (max-width: 640px) {
+    .article-body {
+      font-size: 0.95rem;
+    }
+
+    .article-body blockquote {
+      font-size: 1.1rem;
+      padding-left: 1rem;
+    }
+
+    .article-body .spec-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .article-body .gallery-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .article-body .gallery-item img {
+      height: 180px;
+    }
+
+    .article-body .pros-cons {
+      grid-template-columns: 1fr;
+    }
+
+    .article-body .benchmark-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .article-body .spec-table {
+      padding: 1rem;
+    }
+
+    .article-body .spec-table table {
+      font-size: 0.8rem;
+    }
+
+    .article-body .spec-table th,
+    .article-body .spec-table td {
+      padding: 0.4rem 0.5rem;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .article-body .gallery-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+}

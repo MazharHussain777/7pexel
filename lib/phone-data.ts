@@ -1,0 +1,820 @@
+// lib/phone-data.ts
+
+export interface Phone {
+  brand: string;
+  model: string;
+  price: number;
+  year: number;
+  ram: number;
+  storage: number;
+  battery: number;
+  chipset: string;
+  display: string;
+  refresh_rate: number;
+  camera: string;
+  os: string;
+  charging: number;
+  connectivity: string[];
+  popularity: number;
+  rating: number;
+  image: string;
+}
+
+export const FULL_DB: Phone[] = [
+  // ─── APPLE ──────────────────────────────────────────────
+  {
+    brand: "Apple",
+    model: "iPhone 16 Pro Max",
+    price: 1199,
+    year: 2026,
+    ram: 8,
+    storage: 256,
+    battery: 4685,
+    chipset: "apple",
+    display: "large",
+    refresh_rate: 120,
+    camera: "48MP Triple",
+    os: "ios",
+    charging: 30,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 99,
+    rating: 4.9,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Apple",
+    model: "iPhone 16 Pro",
+    price: 1099,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 4350,
+    chipset: "apple",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "48MP Triple",
+    os: "ios",
+    charging: 27,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 95,
+    rating: 4.8,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Apple",
+    model: "iPhone 16 Plus",
+    price: 899,
+    year: 2026,
+    ram: 6,
+    storage: 128,
+    battery: 4674,
+    chipset: "apple",
+    display: "large",
+    refresh_rate: 60,
+    camera: "48MP Dual",
+    os: "ios",
+    charging: 25,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 88,
+    rating: 4.7,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Apple",
+    model: "iPhone 16",
+    price: 799,
+    year: 2026,
+    ram: 6,
+    storage: 128,
+    battery: 3561,
+    chipset: "apple",
+    display: "medium",
+    refresh_rate: 60,
+    camera: "48MP Dual",
+    os: "ios",
+    charging: 20,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 92,
+    rating: 4.6,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Apple",
+    model: "iPhone 15 Pro Max",
+    price: 1099,
+    year: 2025,
+    ram: 8,
+    storage: 256,
+    battery: 4441,
+    chipset: "apple",
+    display: "large",
+    refresh_rate: 120,
+    camera: "48MP Triple",
+    os: "ios",
+    charging: 27,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 90,
+    rating: 4.8,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Apple",
+    model: "iPhone 15 Pro",
+    price: 999,
+    year: 2025,
+    ram: 8,
+    storage: 128,
+    battery: 3650,
+    chipset: "apple",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "48MP Triple",
+    os: "ios",
+    charging: 20,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 93,
+    rating: 4.7,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Apple",
+    model: "iPhone SE 4",
+    price: 499,
+    year: 2025,
+    ram: 6,
+    storage: 64,
+    battery: 3050,
+    chipset: "apple",
+    display: "small",
+    refresh_rate: 60,
+    camera: "12MP Single",
+    os: "ios",
+    charging: 20,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 80,
+    rating: 4.3,
+    image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── SAMSUNG ────────────────────────────────────────────
+  {
+    brand: "Samsung",
+    model: "Galaxy S25 Ultra",
+    price: 1299,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5500,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "200MP Quad",
+    os: "android",
+    charging: 65,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 97,
+    rating: 4.8,
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Samsung",
+    model: "Galaxy S25 Plus",
+    price: 999,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5000,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 45,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 91,
+    rating: 4.7,
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Samsung",
+    model: "Galaxy S25",
+    price: 799,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 4800,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 25,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 89,
+    rating: 4.6,
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Samsung",
+    model: "Galaxy Z Fold 7",
+    price: 1899,
+    year: 2026,
+    ram: 16,
+    storage: 512,
+    battery: 5200,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 45,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 85,
+    rating: 4.5,
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Samsung",
+    model: "Galaxy Z Flip 7",
+    price: 1099,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 4000,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 25,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 83,
+    rating: 4.4,
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Samsung",
+    model: "Galaxy S24 Ultra",
+    price: 1199,
+    year: 2025,
+    ram: 12,
+    storage: 256,
+    battery: 5000,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "200MP Quad",
+    os: "android",
+    charging: 45,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 94,
+    rating: 4.7,
+    image: "https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── GOOGLE ─────────────────────────────────────────────
+  {
+    brand: "Google",
+    model: "Pixel 10 Pro",
+    price: 1099,
+    year: 2026,
+    ram: 12,
+    storage: 128,
+    battery: 5300,
+    chipset: "tensor",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 30,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 92,
+    rating: 4.7,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Google",
+    model: "Pixel 10",
+    price: 799,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 4800,
+    chipset: "tensor",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 27,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 88,
+    rating: 4.5,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Google",
+    model: "Pixel 10 Pro Fold",
+    price: 1799,
+    year: 2026,
+    ram: 16,
+    storage: 256,
+    battery: 5100,
+    chipset: "tensor",
+    display: "large",
+    refresh_rate: 120,
+    camera: "48MP Triple",
+    os: "android",
+    charging: 30,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 78,
+    rating: 4.3,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Google",
+    model: "Pixel 9 Pro",
+    price: 999,
+    year: 2025,
+    ram: 12,
+    storage: 128,
+    battery: 5050,
+    chipset: "tensor",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 27,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 90,
+    rating: 4.6,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── ONEPLUS ────────────────────────────────────────────
+  {
+    brand: "OnePlus",
+    model: "OnePlus 14",
+    price: 899,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5400,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 100,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 86,
+    rating: 4.6,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "OnePlus",
+    model: "OnePlus 14R",
+    price: 699,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 5000,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 80,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 80,
+    rating: 4.4,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "OnePlus",
+    model: "OnePlus 13",
+    price: 799,
+    year: 2025,
+    ram: 12,
+    storage: 256,
+    battery: 5000,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 100,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 84,
+    rating: 4.5,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── XIAOMI ─────────────────────────────────────────────
+  {
+    brand: "Xiaomi",
+    model: "Xiaomi 15 Pro",
+    price: 999,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5600,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 120,
+    connectivity: ["5g", "wifi7", "nfc", "bluetooth"],
+    popularity: 82,
+    rating: 4.5,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Xiaomi",
+    model: "Xiaomi 15",
+    price: 749,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 5200,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 90,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 78,
+    rating: 4.3,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Xiaomi",
+    model: "Xiaomi 14 Ultra",
+    price: 1199,
+    year: 2025,
+    ram: 16,
+    storage: 512,
+    battery: 5300,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Quad",
+    os: "android",
+    charging: 90,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 81,
+    rating: 4.4,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── OPPO ───────────────────────────────────────────────
+  {
+    brand: "Oppo",
+    model: "Oppo Find X8 Pro",
+    price: 899,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5100,
+    chipset: "mediatek",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 80,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 76,
+    rating: 4.4,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Oppo",
+    model: "Oppo Find X8",
+    price: 699,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 4800,
+    chipset: "mediatek",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 65,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 74,
+    rating: 4.2,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── VIVO ───────────────────────────────────────────────
+  {
+    brand: "Vivo",
+    model: "Vivo X200 Pro",
+    price: 899,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5400,
+    chipset: "mediatek",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 80,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 75,
+    rating: 4.3,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Vivo",
+    model: "Vivo X200",
+    price: 699,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 5000,
+    chipset: "mediatek",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 65,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 72,
+    rating: 4.1,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── NOTHING ────────────────────────────────────────────
+  {
+    brand: "Nothing",
+    model: "Nothing Phone 3",
+    price: 599,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 4700,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 45,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 84,
+    rating: 4.4,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Nothing",
+    model: "Nothing Phone 3 Pro",
+    price: 799,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 5000,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 120,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 65,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 79,
+    rating: 4.5,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Nothing",
+    model: "Nothing Phone 2",
+    price: 449,
+    year: 2024,
+    ram: 8,
+    storage: 128,
+    battery: 4700,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 45,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 82,
+    rating: 4.3,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+
+  // ─── MOTOROLA ───────────────────────────────────────────
+  {
+    brand: "Motorola",
+    model: "Motorola Razr 70",
+    price: 999,
+    year: 2026,
+    ram: 12,
+    storage: 256,
+    battery: 4200,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 30,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 73,
+    rating: 4.2,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Motorola",
+    model: "Motorola Edge 70",
+    price: 699,
+    year: 2026,
+    ram: 8,
+    storage: 128,
+    battery: 5000,
+    chipset: "snapdragon",
+    display: "large",
+    refresh_rate: 144,
+    camera: "50MP Triple",
+    os: "android",
+    charging: 68,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 70,
+    rating: 4.1,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+  {
+    brand: "Motorola",
+    model: "Motorola Razr 60",
+    price: 899,
+    year: 2025,
+    ram: 8,
+    storage: 128,
+    battery: 3800,
+    chipset: "snapdragon",
+    display: "medium",
+    refresh_rate: 120,
+    camera: "50MP Dual",
+    os: "android",
+    charging: 30,
+    connectivity: ["5g", "wifi6", "nfc", "bluetooth"],
+    popularity: 68,
+    rating: 4.0,
+    image: "https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&h=450&fit=crop&crop=center",
+  },
+];
+
+// ─── HELPERS ─────────────────────────────────────────────
+
+export function getBrandColor(brand: string): string {
+  const colors: Record<string, string> = {
+    Apple: "#555555",
+    Samsung: "#1428A0",
+    Google: "#4285F4",
+    OnePlus: "#D32F2F",
+    Xiaomi: "#FF6900",
+    Oppo: "#1A6B3C",
+    Vivo: "#415FFF",
+    Nothing: "#000000",
+    Motorola: "#5B76A2",
+  };
+  return colors[brand] || "#555555";
+}
+
+export function getBrandEmoji(brand: string): string {
+  const emojis: Record<string, string> = {
+    Apple: "🍎",
+    Samsung: "📱",
+    Google: "🔵",
+    OnePlus: "🔴",
+    Xiaomi: "🟠",
+    Oppo: "🟢",
+    Vivo: "🔷",
+    Nothing: "⬛",
+    Motorola: "🔶",
+  };
+  return emojis[brand] || "📱";
+}
+
+export function getBrandTheme(brand: string): { primary: string; secondary: string } {
+  const themes: Record<string, { primary: string; secondary: string }> = {
+    Apple: { primary: "#555555", secondary: "#888888" },
+    Samsung: { primary: "#1428A0", secondary: "#4A6CF7" },
+    Google: { primary: "#4285F4", secondary: "#34A853" },
+    OnePlus: { primary: "#D32F2F", secondary: "#F44336" },
+    Xiaomi: { primary: "#FF6900", secondary: "#FFB300" },
+    Oppo: { primary: "#1A6B3C", secondary: "#34C759" },
+    Vivo: { primary: "#415FFF", secondary: "#7B8FFF" },
+    Nothing: { primary: "#000000", secondary: "#666666" },
+    Motorola: { primary: "#5B76A2", secondary: "#8AA3C7" },
+  };
+  return themes[brand] || { primary: "#555555", secondary: "#888888" };
+}
+
+export function getPhoneSlug(model: string): string {
+  // Map model names to their correct slugs
+  const slugMap: Record<string, string> = {
+    // Apple
+    "iPhone 16 Pro Max": "apple-iphone-16-pro-max",
+    "iPhone 16 Pro": "apple-iphone-16-pro",
+    "iPhone 16 Plus": "apple-iphone-16-plus",
+    "iPhone 16": "apple-iphone-16",
+    "iPhone 15 Pro Max": "apple-iphone-15-pro-max",
+    "iPhone 15 Pro": "apple-iphone-15-pro",
+    "iPhone SE 4": "apple-iphone-se-4",
+    
+    // Samsung
+    "Galaxy S25 Ultra": "samsung-galaxy-s25-ultra",
+    "Galaxy S25 Plus": "samsung-galaxy-s25-plus",
+    "Galaxy S25": "samsung-galaxy-s25",
+    "Galaxy Z Fold 7": "samsung-galaxy-z-fold-7",
+    "Galaxy Z Flip 7": "samsung-galaxy-z-flip-7",
+    "Galaxy S24 Ultra": "samsung-galaxy-s24-ultra",
+    "Galaxy S24 Plus": "samsung-galaxy-s24-plus",
+    "Galaxy S24": "samsung-galaxy-s24",
+    
+    // Google
+    "Pixel 10 Pro": "google-pixel-10-pro",
+    "Pixel 10": "google-pixel-10",
+    "Pixel 10 Pro Fold": "google-pixel-10-pro-fold",
+    "Pixel 9 Pro": "google-pixel-9-pro",
+    "Pixel 9": "google-pixel-9",
+    
+    // OnePlus
+    "OnePlus 14": "oneplus-14",
+    "OnePlus 14R": "oneplus-14r",
+    "OnePlus 13": "oneplus-13",
+    
+    // Xiaomi
+    "Xiaomi 15 Pro": "xiaomi-15-pro",
+    "Xiaomi 15": "xiaomi-15",
+    "Xiaomi 14 Ultra": "xiaomi-14-ultra",
+    
+    // Oppo
+    "Oppo Find X8 Pro": "oppo-find-x8-pro",
+    "Oppo Find X8": "oppo-find-x8",
+    
+    // Vivo
+    "Vivo X200 Pro": "vivo-x200-pro",
+    "Vivo X200": "vivo-x200",
+    
+    // Nothing
+    "Nothing Phone 3": "nothing-phone-3",
+    "Nothing Phone 3 Pro": "nothing-phone-3-pro",
+    "Nothing Phone 2": "nothing-phone-2",
+    
+    // Motorola
+    "Motorola Razr 70": "motorola-razr-70",
+    "Motorola Edge 70": "motorola-edge-70",
+    "Motorola Razr 60": "motorola-razr-60",
+  };
+
+  // Return the mapped slug or generate a fallback
+  if (slugMap[model]) {
+    return slugMap[model];
+  }
+
+  // Fallback: convert to lowercase and replace spaces with hyphens
+  return model
+    .toLowerCase()
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
+}
+
+export function getPhoneBySlug(slug: string): Phone | null {
+  // Find phone by slug by checking if the slug matches the generated slug for each phone
+  for (const phone of FULL_DB) {
+    if (getPhoneSlug(phone.model) === slug) {
+      return phone;
+    }
+  }
+  return null;
+}
+
+export function getRelatedPhones(currentSlug: string, limit: number = 11): Phone[] {
+  const current = getPhoneBySlug(currentSlug);
+  if (!current) return [];
+  
+  // Get phones from the same brand or similar specs
+  const sameBrand = FULL_DB.filter(p => p.brand === current.brand && p.model !== current.model);
+  
+  // If we have enough from same brand, return those
+  if (sameBrand.length >= limit) {
+    return sameBrand.slice(0, limit);
+  }
+  
+  // Otherwise, add phones from similar categories
+  const otherPhones = FULL_DB
+    .filter(p => p.brand !== current.brand)
+    .sort((a, b) => {
+      // Prioritize by similar price range
+      const priceDiffA = Math.abs(a.price - current.price);
+      const priceDiffB = Math.abs(b.price - current.price);
+      return priceDiffA - priceDiffB;
+    });
+  
+  return [...sameBrand, ...otherPhones].slice(0, limit);
+}
