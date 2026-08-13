@@ -1,37 +1,13 @@
-// app/layout.tsx
-
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Poppins, JetBrains_Mono } from "next/font/google";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-// Font configurations
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-fraunces",
-});
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  display: "swap",
-  variable: "--font-poppins",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-  variable: "--font-jetbrains-mono",
-});
-
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
 
 // ============================================================
-// COMPLETE METADATA WITH FULL SEO OPTIMIZATION
+// METADATA
 // ============================================================
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -134,7 +110,7 @@ export const metadata: Metadata = {
 };
 
 // ============================================================
-// VIEWPORT CONFIGURATION
+// VIEWPORT
 // ============================================================
 export const viewport: Viewport = {
   width: 'device-width',
@@ -149,7 +125,7 @@ export const viewport: Viewport = {
 };
 
 // ============================================================
-// ROOT LAYOUT
+// ROOT LAYOUT - SIMPLEST VERSION
 // ============================================================
 export default function RootLayout({
   children,
@@ -157,9 +133,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${poppins.variable} ${jetbrainsMono.variable}`}>
+    <html lang="en">
       <head>
-        {/* ===== FONT AWESOME ===== */}
+        {/* ✅ LOAD FONTS FROM GOOGLE (SIMPLE & RELIABLE) */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Poppins:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+          rel="stylesheet"
+        />
+        
+        {/* Font Awesome */}
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
@@ -168,20 +152,16 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
         />
         
-        {/* ===== MOBILE META ===== */}
+        {/* Mobile Meta */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="mobile-web-app-capable" content="yes" />
         
-        {/* ===== SITEMAP LINKS ===== */}
+        {/* Sitemaps */}
         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
         <link rel="sitemap" type="application/xml" title="Compare Sitemap" href="/sitemap-compare.xml" />
         
-        {/* ===== PRELOAD FONTS ===== */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        
-        {/* ===== STRUCTURED DATA - Organization ===== */}
+        {/* Structured Data - Organization */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -209,7 +189,7 @@ export default function RootLayout({
           }}
         />
         
-        {/* ===== STRUCTURED DATA - Website ===== */}
+        {/* Structured Data - Website */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -228,7 +208,7 @@ export default function RootLayout({
           }}
         />
         
-        {/* ===== STRUCTURED DATA - Breadcrumb (Site-wide) ===== */}
+        {/* Structured Data - Breadcrumb */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
