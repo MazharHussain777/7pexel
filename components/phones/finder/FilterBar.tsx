@@ -5,16 +5,44 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { fetchBrands, fetchCategories, fetchPhoneYears } from "@/app/phones/finder/data/phone-db";
 
-export function FilterBar() {
+interface FilterBarProps {
+  brands?: string[];
+  categories?: string[];
+  years?: string[];
+  activeBrand?: string;
+  activeCategory?: string;
+  activeYear?: string;
+  activeSort?: string;
+}
+
+export function FilterBar({ 
+  brands: initialBrands = [],
+  categories: initialCategories = [],
+  years: initialYears = [],
+  activeBrand,
+  activeCategory,
+  activeYear,
+  activeSort
+}: FilterBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [openFilter, setOpenFilter] = useState<string | null>(null);
-  const [brands, setBrands] = useState<string[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [years, setYears] = useState<string[]>([]);
+  const [brands, setBrands] = useState<string[]>(initialBrands);
+  const [categories, setCategories] = useState<string[]>(initialCategories);
+  const [years, setYears] = useState<string[]>(initialYears);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If we have initial data, use it and don't fetch
+    if (initialBrands.length > 0 && initialCategories.length > 0 && initialYears.length > 0) {
+      setBrands(initialBrands);
+      setCategories(initialCategories);
+      setYears(initialYears);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise fetch from API
     const loadFilters = async () => {
       try {
         const [brandData, categoryData, yearData] = await Promise.all([
@@ -22,9 +50,9 @@ export function FilterBar() {
           fetchCategories(),
           fetchPhoneYears(),
         ]);
-        setBrands(brandData);
-        setCategories(categoryData);
-        setYears(yearData);
+        setBrands(Array.isArray(brandData) ? brandData : []);
+        setCategories(Array.isArray(categoryData) ? categoryData : []);
+        setYears(Array.isArray(yearData) ? yearData : []);
       } catch (error) {
         console.error('Error loading filters:', error);
       } finally {
@@ -32,7 +60,7 @@ export function FilterBar() {
       }
     };
     loadFilters();
-  }, []);
+  }, [initialBrands, initialCategories, initialYears]);
 
   const updateURL = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -48,72 +76,61 @@ export function FilterBar() {
     return searchParams.get(key) || 'all';
   };
 
-  // Filter definitions (pricing, category, and year filters removed)
+  // Filter definitions (ALL ICONS REMOVED)
   const filterDefs = [
     { 
       id: 'brand', 
-      label: 'Brand', 
-      icon: '🏷️',
+      label: 'Brand',
       options: brands.map(b => ({ value: b, label: b })) 
     },
     { 
       id: 'ram', 
-      label: 'RAM', 
-      icon: '🧠',
+      label: 'RAM',
       options: ['4GB', '6GB', '8GB', '12GB', '16GB', '24GB'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'storage', 
-      label: 'Storage', 
-      icon: '💾',
+      label: 'Storage',
       options: ['64GB', '128GB', '256GB', '512GB', '1TB'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'chipset', 
-      label: 'Chipset', 
-      icon: '⚡',
+      label: 'Chipset',
       options: ['Snapdragon', 'Apple', 'Tensor', 'MediaTek', 'Exynos', 'Dimensity'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'os', 
-      label: 'OS', 
-      icon: '📱',
+      label: 'OS',
       options: ['iOS', 'Android', 'HarmonyOS'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'display', 
-      label: 'Display Size', 
-      icon: '📺',
+      label: 'Display Size',
       options: ['Under 6.1"', '6.1-6.7"', '6.7+"'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'refresh_rate', 
-      label: 'Refresh Rate', 
-      icon: '🔄',
+      label: 'Refresh Rate',
       options: ['60Hz', '90Hz', '120Hz', '144Hz'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'battery', 
-      label: 'Battery', 
-      icon: '🔋',
+      label: 'Battery',
       options: ['Under 4000mAh', '4000-5000mAh', '5000mAh+'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'charging', 
-      label: 'Charging Speed', 
-      icon: '🔌',
+      label: 'Charging Speed',
       options: ['Under 25W', '25-50W', '50-100W', '100W+'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'camera', 
-      label: 'Camera', 
-      icon: '📸',
+      label: 'Camera',
       options: ['Dual', 'Triple', 'Quad', 'Penta'].map(v => ({ value: v, label: v })) 
     },
     { 
       id: 'connectivity', 
-      label: 'Connectivity', 
-      icon: '📶',
+      label: 'Connectivity',
       options: ['5G', 'WiFi 6', 'WiFi 7', 'NFC', 'Bluetooth 5.3'].map(v => ({ value: v, label: v })) 
     },
   ];
@@ -148,7 +165,6 @@ export function FilterBar() {
                 }`}
                 onClick={() => setOpenFilter(isOpen ? null : filter.id)}
               >
-                <span className="text-[0.9rem]">{filter.icon}</span>
                 <span>{filter.label}</span>
                 <span className={`text-[0.5rem] transition-transform duration-300 ${hasActive ? "text-white" : "text-[#2a3a2e]/50"} ${isOpen ? "rotate-180" : ""}`}>
                   ▾

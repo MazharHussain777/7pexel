@@ -7,7 +7,7 @@ interface SelectedBrandsBarProps {
   brands: string[];
   totalCount: number;
   onRemoveBrand: (brand: string) => void;
-  onClearAll: () => void;
+  onClearAll: () => void;a
 }
 
 export function SelectedBrandsBar({

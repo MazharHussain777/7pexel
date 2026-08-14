@@ -142,7 +142,7 @@ export function PhoneGrid({
         </div>
       </div>
 
-      {/* Phone Grid - From Database */}
+      {/* Phone Grid - From Database - ZOOM EFFECT REMOVED */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-2 md:gap-3">
         {visiblePhones.map((phone) => {
           const slug = phone.slug;
@@ -155,15 +155,15 @@ export function PhoneGrid({
             <Link
               key={phone._id || phone.slug}
               href={`/phones/finder/${slug}`}
-              className="group block border border-[#eef3ef] rounded-[8px] overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_28px_rgba(15,24,15,0.08)] hover:border-[var(--color-green)]"
+              className="group block border border-[#eef3ef] rounded-[8px] overflow-hidden bg-white transition-all duration-300 hover:border-[var(--color-green)]"
             >
-              {/* Image Area */}
+              {/* Image Area - ZOOM REMOVED from image */}
               <div className="relative w-full aspect-[3/4] overflow-hidden bg-[#f5f8f6]">
                 <Image
                   src={imageUrl}
                   alt={`${phone.brand} ${phone.model}`}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover"
                   sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
                   loading="lazy"
                   onError={(e) => {

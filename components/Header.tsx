@@ -14,6 +14,7 @@ interface HeaderProps {
 const NAV_ITEMS = [
   { href: "/phones", label: "Phones" },
   { href: "/laptops", label: "Laptops" },
+  { href: "/technology", label: "Technology" }, // ✅ ADDED
   { href: "/news", label: "News" },
   { href: "/reviews", label: "Reviews" },
   { href: "/guides", label: "Guides" },
@@ -280,7 +281,7 @@ export function Header({ className = "" }: HeaderProps) {
               aria-label="Main navigation"
             >
               {NAV_ITEMS.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
                 return (
                   <Link
                     key={item.href}
@@ -584,7 +585,7 @@ export function Header({ className = "" }: HeaderProps) {
         >
           <nav className="flex flex-col p-6 gap-1" aria-label="Mobile navigation">
             {NAV_ITEMS.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`);
               return (
                 <Link
                   key={item.href}

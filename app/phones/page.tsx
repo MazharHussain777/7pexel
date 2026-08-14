@@ -23,9 +23,10 @@ export default async function PhonesPage() {
   return (
     <>
       <Header />
-      <main className="wrap">
+      {/* ✅ Full width container - removed "wrap" class */}
+      <main className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 py-4 md:py-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] pt-4.5">
+        <div className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] pt-4.5 pb-2">
           <Link href="/" className="hover:text-[var(--color-green)] transition-colors">Home</Link>
           <span className="opacity-40">/</span>
           <span className="text-[var(--color-ink)] font-semibold">Phones</span>
@@ -48,8 +49,6 @@ export default async function PhonesPage() {
         <BuyingGuides />
         
         <LatestNews />
-        
-    
       </main>
       <Footer />
     </>

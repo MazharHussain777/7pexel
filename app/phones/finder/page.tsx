@@ -72,7 +72,7 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
   const params = await searchParams;
   
   const page = parseInt(params.page || '1');
-  const limit = parseInt(params.limit || '100'); // Show more phones
+  const limit = parseInt(params.limit || '100');
   const search = params.q || '';
   const brand = params.brand || undefined;
   const category = params.category || undefined;
@@ -84,7 +84,7 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
   const sort = params.sort || 'newest';
 
   // Fetch all data from database
-  const [phonesResult, brands, stats] = await Promise.all([
+  const [phonesResult, brandsResult, stats] = await Promise.all([
     getAllPhones({
       search,
       brand,
@@ -102,6 +102,9 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
     getPhoneStats(),
   ]);
 
+  // Ensure brands is always an array
+  const brands = Array.isArray(brandsResult) ? brandsResult : [];
+
   // Serialize phone data for client components
   const serializedPhones = phonesResult.data.map(serializePhone);
   const serializedResult = {
@@ -116,45 +119,52 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
   return (
     <>
       <Header />
-      <div className="max-w-[1440px] mx-auto bg-white rounded-[40px] shadow-[0_20px_60px_rgba(15,24,15,0.06)] px-6 md:px-10 py-6 md:py-7.5 pb-8 md:pb-11.5 border border-[rgba(15,24,15,0.05)] my-6 md:my-10">
-        {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] mb-6">
-          <Link href="/" className="hover:text-[var(--color-green)] transition-colors">Home</Link>
-          <span className="opacity-40">/</span>
-          <Link href="/phones" className="hover:text-[var(--color-green)] transition-colors">Phones</Link>
-          <span className="opacity-40">/</span>
-          <span className="text-[var(--color-ink)] font-semibold">Finder</span>
-        </nav>
+      {/* ✅ Full width container - removed max-w and padding restrictions */}
+      <div className="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6 bg-[#fbf8ff]">
+        <div className="w-full max-w-[1440px] mx-auto bg-white rounded-[40px] shadow-[0_20px_60px_rgba(15,24,15,0.06)] px-6 md:px-10 py-6 md:py-7.5 pb-8 md:pb-11.5 border border-[rgba(15,24,15,0.05)]">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] mb-6">
+            <Link href="/" className="hover:text-[var(--color-green)] transition-colors">
+              Home
+            </Link>
+            <span className="opacity-40">/</span>
+            <Link href="/phones" className="hover:text-[var(--color-green)] transition-colors">
+              Phones
+            </Link>
+            <span className="opacity-40">/</span>
+            <span className="text-[var(--color-ink)] font-semibold">Finder</span>
+          </nav>
 
-        <FinderHeader totalPhones={stats.published} totalBrands={brands.length} />
-        
-        <FinderSearch initialSearch={search} />
-        
-        <FilterBar 
-          brands={brands}
-          categories={stats.categories || []}
-          years={years}
-          activeBrand={brand}
-          activeCategory={category}
-          activeYear={year}
-          activeSort={sort}
-        />
-        
-        <PhoneGrid 
-          initialPhones={serializedResult.data}
-          initialTotal={serializedResult.total}
-          searchTerm={search}
-          filters={{ brand, category, year, featured, trending }}
-        />
-        
-        <Pagination 
-          currentPage={page}
-          totalPages={phonesResult.totalPages}
-          totalItems={phonesResult.total}
-          itemsPerPage={limit}
-        />
-        
-        <FinderFooter />
+          <FinderHeader totalPhones={stats.published} totalBrands={brands.length} />
+          
+          <FinderSearch initialSearch={search} />
+          
+          <FilterBar 
+            brands={brands}
+            categories={stats.categories || []}
+            years={years}
+            activeBrand={brand}
+            activeCategory={category}
+            activeYear={year}
+            activeSort={sort}
+          />
+          
+          <PhoneGrid 
+            initialPhones={serializedResult.data}
+            initialTotal={serializedResult.total}
+            searchTerm={search}
+            filters={{ brand, category, year, featured, trending }}
+          />
+          
+          <Pagination 
+            currentPage={page}
+            totalPages={phonesResult.totalPages}
+            totalItems={phonesResult.total}
+            itemsPerPage={limit}
+          />
+          
+          <FinderFooter />
+        </div>
       </div>
       <Footer />
     </>

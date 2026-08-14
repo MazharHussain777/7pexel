@@ -16,9 +16,9 @@ function formatDate(date: string): string {
 
 function getDifficultyColor(level: string): string {
   const colors: Record<string, string> = {
-    Beginner: "bg-green-500/10 text-green-600 border-green-200",
-    Intermediate: "bg-yellow-500/10 text-yellow-600 border-yellow-200",
-    Advanced: "bg-red-500/10 text-red-600 border-red-200",
+    Beginner: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+    Intermediate: "bg-amber-500/10 text-amber-600 border-amber-200",
+    Advanced: "bg-rose-500/10 text-rose-600 border-rose-200",
   };
   return colors[level] || "bg-gray-500/10 text-gray-600 border-gray-200";
 }
@@ -133,35 +133,66 @@ export function TechnologyClient() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fbfdfb]">
+    <div className="min-h-screen bg-[#eef4f2]">
       <Header />
 
       <main className="wrap py-6">
-        {/* ─── BREADCRUMB ──────────────────────────────── */}
-        <div className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] mb-4 flex-wrap">
-          <Link href="/" className="hover:text-[var(--color-green)] transition-colors">
-            Home
-          </Link>
-          <span className="opacity-40">/</span>
-          <span className="text-[var(--color-ink)] font-semibold">Technology</span>
-        </div>
+{/* ─── BREADCRUMB ──────────────────────────────── */}
+<nav className="flex items-center gap-2 text-[0.8rem] mb-6 flex-wrap mt-5" aria-label="Breadcrumb">
+  <Link 
+    href="/" 
+    className="text-[#5a7a6a] hover:text-[#011d24] transition-colors duration-200"
+  >
+    Home
+  </Link>
+  <span className="text-[#c5d8d2] select-none" aria-hidden="true">/</span>
+  <span className="text-[#011d24] font-semibold" aria-current="page">
+    Technology
+  </span>
+</nav>
 
         {/* ─── HERO SECTION ────────────────────────────── */}
-        <section className="relative rounded-[24px] overflow-hidden mb-10 bg-gradient-to-br from-[#0A3F26] via-[#0F6B3E] to-[#1FA25A] text-white">
+        <section className="relative rounded-[24px] overflow-hidden mb-10 text-white">
+          {/* ✅ #011d24 Gradient with flowing shimmer */}
+
+ <div className="absolute inset-0 bg-gradient-to-br from-[#011e21] via-[#011e21] via-[#033742] via-[#044a5a] via-[#011e21] via-[#011e21] to-[#011e21]" />
+          
+          {/* Flowing shimmer overlay */}
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#3a8b9a]/15 to-transparent animate-shimmer" />
+          <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-[#3a8b9a]/8 to-transparent animate-shimmer-reverse" />
+          
+          {/* Glow effects */}
+          <div className="absolute -top-[40%] -right-[20%] w-[60%] h-[80%] rounded-full bg-[#3a8b9a]/8 blur-[120px] pointer-events-none" />
+          <div className="absolute -bottom-[30%] -left-[10%] w-[50%] h-[70%] rounded-full bg-[#033742]/15 blur-[100px] pointer-events-none" />
+          <div className="absolute top-[10%] left-[30%] w-[40%] h-[50%] rounded-full bg-[#3a8b9a]/5 blur-[80px] pointer-events-none" />
+          
+          {/* Shining overlay lines */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(58,139,154,0.06)_0%,_transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(58,139,154,0.04)_0%,_transparent_50%)]" />
+          
+          {/* Flow lines */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-[20%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3a8b9a]/30 to-transparent" />
+            <div className="absolute top-[40%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3a8b9a]/20 to-transparent" />
+            <div className="absolute top-[60%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3a8b9a]/30 to-transparent" />
+          </div>
+          
           <div className="relative z-10 p-10 md:p-14">
             <div className="max-w-[800px]">
               <div className="flex items-center gap-3 mb-4">
                 <span className="text-4xl">💡</span>
-                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-white/15 px-4 py-1.5 rounded-full font-semibold">
+                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-white/15 px-4 py-1.5 rounded-full font-semibold backdrop-blur-sm border border-white/10">
                   Technology Hub
                 </span>
-                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#D4F26B] text-[var(--color-green-deep)] px-4 py-1.5 rounded-full font-semibold">
+                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#3a8b9a] text-white px-4 py-1.5 rounded-full font-semibold shadow-[0_0_30px_rgba(58,139,154,0.35)]">
                   🔥 {getTrendingCount()} Trending
                 </span>
               </div>
+              
               <h1 className="font-fraunces font-medium text-[clamp(2.5rem,5vw,4rem)] tracking-[-0.03em] leading-[1.08]">
-                Explore the Future of <em className="italic not-italic text-[#D4F26B]">Technology</em>
+                Explore the Future of <em className="italic not-italic text-[#3a8b9a]">Technology</em>
               </h1>
+              
               <p className="mt-4 text-white/85 text-[1.05rem] leading-[1.7] max-w-[600px]">
                 Your ultimate destination for tech news, in-depth reviews, smart buying guides, and expert insights. Stay ahead of the curve with 7pexel.
               </p>
@@ -177,7 +208,7 @@ export function TechnologyClient() {
                   placeholder="Search technology guides..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-5 py-4 pl-13 rounded-full border border-white/25 bg-white/10 backdrop-blur-sm text-white font-poppins text-[1rem] transition-all focus:outline-none focus:border-[#D4F26B] focus:bg-white/16 placeholder:text-white/55"
+                  className="w-full px-5 py-4 pl-13 rounded-full border border-white/25 bg-white/10 backdrop-blur-sm text-white font-poppins text-[1rem] transition-all focus:outline-none focus:border-[#3a8b9a] focus:bg-white/16 placeholder:text-white/55"
                 />
                 {searchQuery && (
                   <button
@@ -209,70 +240,78 @@ export function TechnologyClient() {
 
           {/* Decorative Elements */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" viewBox="0 0 800 400" preserveAspectRatio="none">
-            <circle cx="700" cy="60" r="220" stroke="rgba(255,255,255,0.06)" strokeWidth="1" fill="none" />
-            <circle cx="700" cy="60" r="280" stroke="rgba(255,255,255,0.04)" strokeWidth="1" fill="none" />
-            <circle cx="100" cy="350" r="150" stroke="rgba(255,255,255,0.05)" strokeWidth="1" fill="none" />
-            <path d="M50 200 L200 100 L350 180 L500 80 L650 160 L750 100" stroke="rgba(255,255,255,0.04)" strokeWidth="2" fill="none" />
+            <circle cx="700" cy="60" r="220" stroke="rgba(58,139,154,0.06)" strokeWidth="1" fill="none" />
+            <circle cx="700" cy="60" r="280" stroke="rgba(58,139,154,0.04)" strokeWidth="1" fill="none" />
+            <circle cx="100" cy="350" r="150" stroke="rgba(58,139,154,0.05)" strokeWidth="1" fill="none" />
+            <path d="M50 200 L200 100 L350 180 L500 80 L650 160 L750 100" stroke="rgba(58,139,154,0.04)" strokeWidth="2" fill="none" />
           </svg>
         </section>
-
-        {/* ─── CATEGORIES GRID ──────────────────────────── */}
-        <section className="mb-8">
-          <div className="flex justify-between items-baseline mb-5 flex-wrap gap-2.5">
-            <h2 className="font-fraunces font-medium text-[1.5rem] tracking-[-0.01em]">
-              Browse by <em className="italic not-italic text-[var(--color-green)]">Category</em>
-            </h2>
+{/* ─── CATEGORIES GRID ──────────────────────────── */}
+<section className="mb-10">
+  {/* Header */}
+  <div className="flex justify-between items-center mb-5">
+    <h2 className="font-fraunces text-[1.35rem] md:text-[1.5rem] font-semibold tracking-[-0.02em] text-[#011d24]">
+      Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
+    </h2>
+    
+    <Link
+      href="/technology/categories"
+      className="group flex items-center gap-1.5 text-[0.8rem] md:text-[0.85rem] font-semibold text-[#011d24]/60 hover:text-[#011d24] transition-all duration-300"
+    >
+      <span>View All</span>
+      <span className="transform transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110">→</span>
+    </Link>
+  </div>
+  
+  {/* Grid */}
+  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-3">
+    {techCategories.map((cat) => (
+      <Link
+        key={cat.id}
+        href={`/technology/category/${cat.slug}`}
+        className="group relative rounded-[12px] overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_10px_30px_rgba(1,29,36,0.15)] active:scale-[0.96]"
+        style={{ background: `linear-gradient(145deg, #011d24, ${cat.color})` }}
+      >
+        {/* Background layers */}
+        <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-90`} />
+        <div className="absolute w-[80px] h-[80px] rounded-full blur-[25px] opacity-20 bg-[#3a8b9a] -top-[15px] -right-[12px] transition-all duration-500 group-hover:scale-150 group-hover:opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Border glow on hover */}
+        <div className="absolute inset-0 rounded-[12px] border border-white/0 group-hover:border-white/20 transition-all duration-300" />
+        
+        {/* Content */}
+        <div className="relative z-10 px-3.5 py-3.5 min-h-[52px] flex items-center">
+          <span className="font-fraunces font-medium text-[0.8rem] md:text-[0.9rem] leading-tight tracking-[-0.01em] text-white truncate w-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
+            {cat.name}
+          </span>
+        </div>
+        
+        {/* Category count (optional - if you have this data) */}
+        {cat.count && (
+          <div className="absolute top-2 right-2 z-10">
+            <span className="text-[0.5rem] font-medium text-white/60 bg-white/10 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
+              {cat.count}
+            </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-            {techCategories.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/technology/category/${cat.slug}`}
-                className="relative rounded-[18px] overflow-hidden p-5.5 pb-5 min-h-[130px] flex flex-col justify-between text-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_36px_rgba(15,24,15,0.16)] group"
-                style={{ background: `linear-gradient(150deg, var(--color-green-deep), ${cat.color})` }}
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-90`} />
-                <div className="absolute w-[140px] h-[140px] rounded-full blur-[34px] opacity-40 bg-white -top-[40px] -right-[20px]" />
-                <div className="w-10 h-10 rounded-[12px] bg-white/16 backdrop-blur-sm border border-white/25 flex items-center justify-center relative z-10 mb-2">
-                  <span className="text-xl">{cat.icon}</span>
-                </div>
-                <div className="relative z-10">
-                  <div className="flex items-center gap-2">
-                    <h4 className="font-fraunces font-medium text-[1rem] mb-0.5">{cat.name}</h4>
-                    {cat.new && (
-                      <span className="text-[0.5rem] px-1.5 py-0.5 rounded-full bg-[#D4F26B] text-[var(--color-green-deep)] font-bold uppercase tracking-[0.05em]">
-                        NEW
-                      </span>
-                    )}
-                    {cat.trending && (
-                      <span className="text-[0.5rem] px-1.5 py-0.5 rounded-full bg-red-500/80 text-white font-bold uppercase tracking-[0.05em]">
-                        🔥
-                      </span>
-                    )}
-                  </div>
-                  <div className="font-jetbrains-mono text-[0.65rem] opacity-80 flex items-center gap-1.5">
-                    {cat.newCount > 0 && `${cat.newCount} new · `}{getCategoryCount(cat.id)} total
-                  </div>
-                </div>
-                <div className="absolute bottom-4 right-4 z-10 w-7 h-7 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center transition-transform duration-300 group-hover:translate-x-1 group-hover:bg-white/28">
-                  <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                    <path d="M5 12h14M13 6l6 6-6 6" />
-                  </svg>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        )}
+        
+        {/* Hover indicator bar */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-white/40 to-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+      </Link>
+    ))}
+  </div>
+</section>
 
         {/* ─── FEATURED GUIDES ────────────────────────────── */}
         {featuredGuides.length > 0 && (
           <section className="mb-12">
             <div className="flex items-center gap-3 mb-6">
               <span className="text-2xl">⭐</span>
-              <h2 className="font-fraunces font-medium text-[1.8rem] tracking-[-0.02em]">
-                Featured <em className="italic not-italic text-[var(--color-green)]">Guides</em>
+              <h2 className="font-fraunces font-medium text-[1.8rem] tracking-[-0.02em] text-[#011d24]">
+                Featured <em className="italic not-italic text-[#033742]">Guides</em>
               </h2>
-              <span className="text-[0.7rem] font-jetbrains-mono bg-[#D4F26B] text-[var(--color-green-deep)] px-3 py-1 rounded-full font-bold">
+              <span className="text-[0.7rem] font-jetbrains-mono bg-[#3a8b9a] text-white px-3 py-1 rounded-full font-bold">
                 Editor's Picks
               </span>
             </div>
@@ -282,9 +321,9 @@ export function TechnologyClient() {
                 <Link
                   key={guide.id}
                   href={`/technology/${guide.slug}`}
-                  className="group border border-[var(--color-line)] rounded-[16px] overflow-hidden bg-[var(--color-paper)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(15,24,15,0.10)] hover:border-[rgba(15,107,62,0.25)]"
+                  className="group border border-[#c5d8d2] rounded-[16px] overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
                 >
-                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#eef1e9]">
+                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
                     <Image
                       src={guide.image}
                       alt={guide.imageAlt || guide.title}
@@ -295,14 +334,14 @@ export function TechnologyClient() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
-                      <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[var(--color-green)] text-white font-bold uppercase tracking-[0.05em] font-jetbrains-mono">
+                      <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em] font-jetbrains-mono">
                         {getCategoryName(guide.category)}
                       </span>
                       <span className={`text-[0.55rem] px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.05em] font-jetbrains-mono border ${getDifficultyColor(guide.level)}`}>
                         {guide.level}
                       </span>
                       {guide.isTrending && (
-                        <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 font-bold uppercase tracking-[0.05em] font-jetbrains-mono border border-red-500/20">
+                        <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-500 font-bold uppercase tracking-[0.05em] font-jetbrains-mono border border-rose-500/20">
                           🔥 Trending
                         </span>
                       )}
@@ -315,22 +354,22 @@ export function TechnologyClient() {
                   </div>
                   <div className="p-4 pb-4.5">
                     <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[0.6rem] font-semibold text-[var(--color-ink-soft)]">{getCategoryIcon(guide.category)}</span>
-                      <span className="text-[0.55rem] font-medium text-[var(--color-ink-soft)]">{getCategoryName(guide.category)}</span>
+                      <span className="text-[0.6rem] font-semibold text-[#4a6a5a]">{getCategoryIcon(guide.category)}</span>
+                      <span className="text-[0.55rem] font-medium text-[#4a6a5a]">{getCategoryName(guide.category)}</span>
                     </div>
-                    <h3 className="font-fraunces font-medium text-[0.95rem] leading-[1.3] group-hover:text-[var(--color-green)] transition-colors line-clamp-2">
+                    <h3 className="font-fraunces font-medium text-[0.95rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
                       {guide.title}
                     </h3>
-                    <p className="text-[0.75rem] text-[var(--color-ink-soft)] mt-1.5 line-clamp-2">{guide.excerpt}</p>
-                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[var(--color-line)]">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[var(--color-green-deep)] to-[var(--color-green-bright)] flex items-center justify-center text-white font-semibold text-[0.55rem] flex-shrink-0">
+                    <p className="text-[0.75rem] text-[#4a6a5a] mt-1.5 line-clamp-2">{guide.excerpt}</p>
+                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[#c5d8d2]">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#011d24] to-[#033742] flex items-center justify-center text-white font-semibold text-[0.55rem] flex-shrink-0">
                         {guide.authorAvatar}
                       </div>
                       <div>
-                        <div className="text-[0.65rem] font-semibold">{guide.author}</div>
-                        <div className="text-[0.6rem] text-[var(--color-ink-soft)]">{formatDate(guide.date)}</div>
+                        <div className="text-[0.65rem] font-semibold text-[#011d24]">{guide.author}</div>
+                        <div className="text-[0.6rem] text-[#4a6a5a]">{formatDate(guide.date)}</div>
                       </div>
-                      <div className="ml-auto text-[0.6rem] text-[var(--color-ink-soft)] flex items-center gap-1">
+                      <div className="ml-auto text-[0.6rem] text-[#4a6a5a] flex items-center gap-1">
                         <span>📋 {guide.steps} steps</span>
                       </div>
                     </div>
@@ -348,8 +387,8 @@ export function TechnologyClient() {
               onClick={() => setActiveTab("trending")}
               className={`px-6 py-2.5 rounded-full font-semibold text-[0.9rem] transition-all ${
                 activeTab === "trending"
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "bg-[var(--color-paper)] text-[var(--color-ink-soft)] border border-[var(--color-line)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)]"
+                  ? "bg-[#011d24] text-white shadow-[0_4px_16px_rgba(1,29,36,0.25)]"
+                  : "bg-white text-[#4a6a5a] border border-[#c5d8d2] hover:border-[#033742] hover:text-[#011d24]"
               }`}
             >
               🔥 Trending ({filteredGuides.length})
@@ -358,8 +397,8 @@ export function TechnologyClient() {
               onClick={() => setActiveTab("all")}
               className={`px-6 py-2.5 rounded-full font-semibold text-[0.9rem] transition-all ${
                 activeTab === "all"
-                  ? "bg-[var(--color-ink)] text-white"
-                  : "bg-[var(--color-paper)] text-[var(--color-ink-soft)] border border-[var(--color-line)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)]"
+                  ? "bg-[#011d24] text-white shadow-[0_4px_16px_rgba(1,29,36,0.25)]"
+                  : "bg-white text-[#4a6a5a] border border-[#c5d8d2] hover:border-[#033742] hover:text-[#011d24]"
               }`}
             >
               📚 All Guides ({allGuides.length})
@@ -372,8 +411,8 @@ export function TechnologyClient() {
               onClick={() => setSelectedCategory("all")}
               className={`px-4 py-1.5 rounded-full border text-[0.75rem] font-semibold transition-all ${
                 selectedCategory === "all"
-                  ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
-                  : "border-[var(--color-line)] text-[var(--color-ink-soft)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)]"
+                  ? "bg-[#011d24] border-[#011d24] text-white"
+                  : "border-[#c5d8d2] text-[#4a6a5a] bg-white hover:border-[#033742] hover:text-[#011d24]"
               }`}
             >
               All Categories
@@ -387,22 +426,22 @@ export function TechnologyClient() {
                 }}
                 className={`px-4 py-1.5 rounded-full border text-[0.75rem] font-semibold transition-all ${
                   selectedCategory === cat.id
-                    ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
-                    : "border-[var(--color-line)] text-[var(--color-ink-soft)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)]"
+                    ? "bg-[#011d24] border-[#011d24] text-white"
+                    : "border-[#c5d8d2] text-[#4a6a5a] bg-white hover:border-[#033742] hover:text-[#011d24]"
                 }`}
               >
-                {cat.icon} {cat.label}
+                {cat.icon} {cat.name}
               </button>
             ))}
           </div>
 
           {/* View Toggle */}
           <div className="flex justify-end mb-6">
-            <div className="flex items-center gap-0.5 p-0.5 border-[1.5px] border-[var(--color-line)] rounded-full bg-[var(--color-paper)]">
+            <div className="flex items-center gap-0.5 p-0.5 border-[1.5px] border-[#c5d8d2] rounded-full bg-white">
               <button
                 onClick={() => setViewMode("grid")}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-semibold transition-all ${
-                  viewMode === "grid" ? "bg-[var(--color-green)] text-white" : "text-[var(--color-ink-soft)]"
+                  viewMode === "grid" ? "bg-[#011d24] text-white" : "text-[#4a6a5a]"
                 }`}
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -416,7 +455,7 @@ export function TechnologyClient() {
               <button
                 onClick={() => setViewMode("list")}
                 className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-semibold transition-all ${
-                  viewMode === "list" ? "bg-[var(--color-green)] text-white" : "text-[var(--color-ink-soft)]"
+                  viewMode === "list" ? "bg-[#011d24] text-white" : "text-[#4a6a5a]"
                 }`}
               >
                 <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -440,13 +479,13 @@ export function TechnologyClient() {
                   key={guide.id}
                   href={`/technology/${guide.slug}`}
                   className={viewMode === "grid"
-                    ? "group border border-[var(--color-line)] rounded-[16px] overflow-hidden bg-[var(--color-paper)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(15,24,15,0.10)] hover:border-[rgba(15,107,62,0.25)]"
-                    : "flex gap-4 p-4 border border-[var(--color-line)] rounded-[16px] bg-[var(--color-paper)] transition-all hover:border-[var(--color-green)] hover:shadow-[0_12px_24px_rgba(15,24,15,0.08)] group"
+                    ? "group border border-[#c5d8d2] rounded-[16px] overflow-hidden bg-white transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
+                    : "flex gap-4 p-4 border border-[#c5d8d2] rounded-[16px] bg-white transition-all hover:border-[#033742] hover:shadow-[0_12px_24px_rgba(1,29,36,0.08)] group"
                   }
                 >
                   {viewMode === "grid" ? (
                     <>
-                      <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#eef1e9]">
+                      <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
                         <Image
                           src={guide.image}
                           alt={guide.imageAlt || guide.title}
@@ -457,11 +496,11 @@ export function TechnologyClient() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                         <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 z-10">
-                          <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[var(--color-green)] text-white font-bold uppercase tracking-[0.05em]">
+                          <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
                             {getCategoryName(guide.category)}
                           </span>
                           {guide.isTrending && (
-                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-red-500 text-white font-bold uppercase tracking-[0.05em]">
+                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
                               🔥 Trending
                             </span>
                           )}
@@ -478,27 +517,27 @@ export function TechnologyClient() {
                           </span>
                         </div>
                         {guide.isFeatured && (
-                          <span className="absolute top-2.5 left-2.5 z-10 text-[0.5rem] px-2 py-0.5 rounded-full bg-[#D4F26B] text-[var(--color-green-deep)] font-bold uppercase tracking-[0.05em]">
+                          <span className="absolute top-2.5 left-2.5 z-10 text-[0.5rem] px-2 py-0.5 rounded-full bg-[#3a8b9a] text-white font-bold uppercase tracking-[0.05em]">
                             ⭐ Featured
                           </span>
                         )}
                       </div>
                       <div className="p-4">
-                        <h4 className="font-fraunces font-medium text-[1rem] leading-[1.3] group-hover:text-[var(--color-green)] transition-colors line-clamp-2">
+                        <h4 className="font-fraunces font-medium text-[1rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
                           {guide.title}
                         </h4>
-                        <p className="text-[0.75rem] text-[var(--color-ink-soft)] mt-1.5 line-clamp-2">{guide.excerpt}</p>
-                        <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[var(--color-line)]">
-                          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[var(--color-green-deep)] to-[var(--color-green-bright)] flex items-center justify-center text-white font-semibold text-[0.5rem] flex-shrink-0">
+                        <p className="text-[0.75rem] text-[#4a6a5a] mt-1.5 line-clamp-2">{guide.excerpt}</p>
+                        <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[#c5d8d2]">
+                          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#011d24] to-[#033742] flex items-center justify-center text-white font-semibold text-[0.5rem] flex-shrink-0">
                             {guide.authorAvatar}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-[0.6rem] font-semibold truncate">{guide.author}</div>
-                            <div className="text-[0.55rem] text-[var(--color-ink-soft)]">{formatDate(guide.date)}</div>
+                            <div className="text-[0.6rem] font-semibold text-[#011d24] truncate">{guide.author}</div>
+                            <div className="text-[0.55rem] text-[#4a6a5a]">{formatDate(guide.date)}</div>
                           </div>
-                          <div className="text-[0.55rem] text-[var(--color-ink-soft)] flex items-center gap-1">
+                          <div className="text-[0.55rem] text-[#4a6a5a] flex items-center gap-1">
                             {guide.tags.slice(0, 2).map(tag => (
-                              <span key={tag} className="bg-[var(--color-paper)] px-1.5 py-0.5 rounded border border-[var(--color-line)] text-[0.5rem]">
+                              <span key={tag} className="bg-[#eef4f2] px-1.5 py-0.5 rounded border border-[#c5d8d2] text-[0.5rem]">
                                 #{tag}
                               </span>
                             ))}
@@ -508,7 +547,7 @@ export function TechnologyClient() {
                     </>
                   ) : (
                     <>
-                      <div className="w-[180px] h-[120px] flex-shrink-0 rounded-[10px] overflow-hidden bg-[#eef1e9]">
+                      <div className="w-[180px] h-[120px] flex-shrink-0 rounded-[10px] overflow-hidden bg-[#e8f0ec]">
                         <Image
                           src={guide.image}
                           alt={guide.imageAlt || guide.title}
@@ -520,11 +559,11 @@ export function TechnologyClient() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[var(--color-green)] text-white font-bold uppercase tracking-[0.05em]">
+                          <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
                             {getCategoryName(guide.category)}
                           </span>
                           {guide.isTrending && (
-                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-red-500 text-white font-bold uppercase tracking-[0.05em]">
+                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
                               🔥 Trending
                             </span>
                           )}
@@ -532,25 +571,25 @@ export function TechnologyClient() {
                             {guide.level}
                           </span>
                           {guide.isFeatured && (
-                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[#D4F26B] text-[var(--color-green-deep)] font-bold uppercase tracking-[0.05em]">
+                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[#3a8b9a] text-white font-bold uppercase tracking-[0.05em]">
                               ⭐ Featured
                             </span>
                           )}
-                          <span className="text-[0.55rem] text-[var(--color-ink-soft)]">{guide.readTime}</span>
-                          <span className="text-[0.55rem] text-[var(--color-ink-soft)]">📋 {guide.steps}</span>
+                          <span className="text-[0.55rem] text-[#4a6a5a]">{guide.readTime}</span>
+                          <span className="text-[0.55rem] text-[#4a6a5a]">📋 {guide.steps}</span>
                         </div>
-                        <h4 className="font-fraunces font-medium text-[1.05rem] leading-[1.3] group-hover:text-[var(--color-green)] transition-colors line-clamp-2">
+                        <h4 className="font-fraunces font-medium text-[1.05rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
                           {guide.title}
                         </h4>
-                        <p className="text-[0.8rem] text-[var(--color-ink-soft)] mt-1 line-clamp-2">{guide.excerpt}</p>
-                        <div className="flex items-center gap-3 mt-2 text-[0.65rem] text-[var(--color-ink-soft)] flex-wrap">
-                          <span>{guide.author}</span>
+                        <p className="text-[0.8rem] text-[#4a6a5a] mt-1 line-clamp-2">{guide.excerpt}</p>
+                        <div className="flex items-center gap-3 mt-2 text-[0.65rem] text-[#4a6a5a] flex-wrap">
+                          <span className="text-[#011d24] font-medium">{guide.author}</span>
                           <span>·</span>
                           <span>{formatDate(guide.date)}</span>
                           <span>·</span>
                           <div className="flex gap-1">
                             {guide.tags.slice(0, 2).map(tag => (
-                              <span key={tag} className="bg-[var(--color-paper)] px-1.5 py-0.5 rounded border border-[var(--color-line)] text-[0.55rem]">
+                              <span key={tag} className="bg-[#eef4f2] px-1.5 py-0.5 rounded border border-[#c5d8d2] text-[0.55rem]">
                                 #{tag}
                               </span>
                             ))}
@@ -563,17 +602,17 @@ export function TechnologyClient() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12">
+            <div className="text-center py-12 bg-white rounded-[20px] border border-[#c5d8d2]">
               <span className="text-4xl">🔍</span>
-              <h3 className="mt-3 text-xl font-medium text-[var(--color-ink)]">No guides found</h3>
-              <p className="text-[0.95rem] text-[var(--color-ink-soft)] mt-1">Try adjusting your filters or search term.</p>
+              <h3 className="mt-3 text-xl font-medium text-[#011d24]">No guides found</h3>
+              <p className="text-[0.95rem] text-[#4a6a5a] mt-1">Try adjusting your filters or search term.</p>
               <button
                 onClick={() => {
                   setSelectedCategory("all");
                   setSearchQuery("");
                   setActiveTab("all");
                 }}
-                className="mt-4 px-6 py-2.5 rounded-full bg-[var(--color-green)] text-white font-semibold text-[0.85rem] transition-all hover:bg-[var(--color-green-deep)]"
+                className="mt-4 px-6 py-2.5 rounded-full bg-[#011d24] text-white font-semibold text-[0.85rem] transition-all hover:bg-[#033742] hover:shadow-[0_4px_16px_rgba(1,29,36,0.3)]"
               >
                 Clear all filters
               </button>
@@ -582,13 +621,17 @@ export function TechnologyClient() {
         </section>
 
         {/* ─── NEWSLETTER ────────────────────────────────── */}
-        <section className="bg-gradient-to-br from-[var(--color-green-deep)] to-[var(--color-green)] rounded-[20px] p-10 md:p-12 my-6 text-white relative overflow-hidden">
-          <div className="absolute w-[300px] h-[300px] rounded-full bg-white/5 -top-[80px] -right-[60px] pointer-events-none" />
-          <div className="absolute w-[200px] h-[200px] rounded-full bg-white/4 -bottom-[60px] -left-[40px] pointer-events-none" />
+        <section className="bg-gradient-to-br from-[#011d24] to-[#033742] rounded-[20px] p-10 md:p-12 my-6 text-white relative overflow-hidden">
+          <div className="absolute w-[300px] h-[300px] rounded-full bg-[#3a8b9a]/8 -top-[80px] -right-[60px] pointer-events-none" />
+          <div className="absolute w-[200px] h-[200px] rounded-full bg-[#3a8b9a]/5 -bottom-[60px] -left-[40px] pointer-events-none" />
+          
+          {/* Shining overlay */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(58,139,154,0.06)_0%,_transparent_60%)]" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#3a8b9a]/5 to-transparent animate-shimmer" />
           
           <div className="flex items-center justify-between flex-wrap gap-6 relative z-10">
             <div className="flex-1 min-w-[200px]">
-              <span className="inline-block font-jetbrains-mono text-[0.6rem] tracking-[0.08em] uppercase bg-white/15 px-3 py-0.75 rounded-full font-semibold mb-2.5">
+              <span className="inline-block font-jetbrains-mono text-[0.6rem] tracking-[0.08em] uppercase bg-white/15 px-3 py-0.75 rounded-full font-semibold mb-2.5 border border-white/10">
                 📬 Stay ahead
               </span>
               <h3 className="font-fraunces font-medium text-[1.6rem] leading-[1.3] mb-1">Subscribe to the 7pexel weekly</h3>
@@ -615,12 +658,12 @@ export function TechnologyClient() {
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="px-5 py-3.5 rounded-full border-none font-poppins text-[0.9rem] bg-white/92 text-[var(--color-ink)] outline-none min-w-[240px] transition-all focus:bg-white focus:shadow-[0_0_0_3px_rgba(255,255,255,0.3)]"
+                className="px-5 py-3.5 rounded-full border-none font-poppins text-[0.9rem] bg-white/92 text-[#011d24] outline-none min-w-[240px] transition-all focus:bg-white focus:shadow-[0_0_0_3px_rgba(58,139,154,0.3)]"
                 required
               />
               <button
                 type="submit"
-                className="px-8 py-3.5 rounded-full bg-white text-[var(--color-green-deep)] font-bold text-[0.9rem] transition-all duration-200 whitespace-nowrap flex items-center gap-2 hover:scale-[1.03] hover:shadow-[0_8px_24px_rgba(0,0,0,0.2)]"
+                className="px-8 py-3.5 rounded-full bg-[#3a8b9a] text-white font-bold text-[0.9rem] transition-all duration-200 whitespace-nowrap flex items-center gap-2 hover:scale-[1.03] hover:shadow-[0_8px_30px_rgba(58,139,154,0.4)]"
               >
                 Subscribe
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
@@ -642,7 +685,7 @@ export function TechnologyClient() {
         <div className="py-4 text-center">
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[var(--color-ink-soft)] hover:text-[var(--color-green)] transition-colors"
+            className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[#4a6a5a] hover:text-[#011d24] transition-colors"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
               <polyline points="18 15 12 9 6 15" />
