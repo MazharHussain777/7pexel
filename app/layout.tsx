@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Poppins, JetBrains_Mono } from "next/font/google";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
@@ -5,12 +6,12 @@ import { NewsletterProvider } from "@/contexts/NewsletterContext";
 import { Footer } from "@/components/Footer";
 import "./globals.css";
 
-// ✅ Font configurations - KEPT ORIGINAL, just added fallback
+// ✅ Font configurations
 const fraunces = Fraunces({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-fraunces",
-  fallback: ['serif'], // ✅ ADDED THIS
+  fallback: ['serif'],
 });
 
 const poppins = Poppins({
@@ -18,7 +19,7 @@ const poppins = Poppins({
   weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
   variable: "--font-poppins",
-  fallback: ['sans-serif'], // ✅ ADDED THIS
+  fallback: ['sans-serif'],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -26,7 +27,7 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500", "600"],
   display: "swap",
   variable: "--font-jetbrains-mono",
-  fallback: ['monospace'], // ✅ ADDED THIS
+  fallback: ['monospace'],
 });
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
@@ -169,6 +170,14 @@ export default function RootLayout({
           referrerPolicy="no-referrer"
         />
         
+        {/* ===== GOOGLE FONTS PRELOAD ===== */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link 
+          href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet" 
+        />
+        
         {/* ===== MOBILE META ===== */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -177,10 +186,6 @@ export default function RootLayout({
         {/* ===== SITEMAP LINKS ===== */}
         <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
         <link rel="sitemap" type="application/xml" title="Compare Sitemap" href="/sitemap-compare.xml" />
-        
-        {/* ===== PRELOAD FONTS ===== */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
         {/* ===== STRUCTURED DATA - Organization ===== */}
         <script
@@ -260,7 +265,8 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-white antialiased flex flex-col">
+      {/* ✅ ADDED font-poppins class to body */}
+      <body className="min-h-screen bg-white antialiased flex flex-col font-poppins">
         <SubscriptionProvider>
           <NewsletterProvider>
             <div className="flex flex-col min-h-screen">

@@ -1,26 +1,56 @@
 // app/technology/TechnologyClient.tsx
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { technologyGuidesData, techCategories, type TechnologyGuide } from "./data/technology-guides";
+import { trackPageView, trackEvent } from "@/lib/analytics";
+
+// ─── INTERFACES ─────────────────────────────────────────
+interface Category {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  color: string;
+  gradient: string;
+  icon: string;
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  isActive: boolean;
+  order: number;
+}
+
+interface Article {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  imageAlt: string;
+  categorySlug: string;
+  subCategorySlug: string;
+  author: string;
+  authorRole: string;
+  difficulty: string;
+  readTime: number;
+  steps: number;
+  tags: string[];
+  isFeatured: boolean;
+  isTrending: boolean;
+  isPublished: boolean;
+  publishedAt: string;
+  views: number;
+  likes: number;
+}
 
 // ─── HELPERS ─────────────────────────────────────────────
 function formatDate(date: string): string {
   const d = new Date(date);
   return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-}
-
-function getDifficultyColor(level: string): string {
-  const colors: Record<string, string> = {
-    Beginner: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
-    Intermediate: "bg-amber-500/10 text-amber-600 border-amber-200",
-    Advanced: "bg-rose-500/10 text-rose-600 border-rose-200",
-  };
-  return colors[level] || "bg-gray-500/10 text-gray-600 border-gray-200";
 }
 
 function getCategoryName(category: string): string {
@@ -33,144 +63,221 @@ function getCategoryName(category: string): string {
     cybersecurity: "Cybersecurity",
     "space-tech": "Space Tech",
     biotech: "Biotech & Health Tech",
-    "autonomous-vehicles": "Autonomous Vehicles",
-    "edge-computing": "Edge Computing & IoT",
-    neurotechnology: "Neurotechnology",
-    smartphones: "Smartphones",
-    laptops: "Laptops & Computers",
-    "smart-home": "Smart Home",
-    wearables: "Wearables",
-    audio: "Audio",
-    gaming: "Gaming",
-    cameras: "Cameras",
-    accessories: "Accessories",
-    tablets: "Tablets",
-    displays: "Monitors & Displays",
-    technology: "Technology",
   };
   return names[category] || category;
 }
 
-function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    ai: "🤖",
-    "generative-ai": "✨",
-    "quantum-computing": "⚛️",
-    "ar-vr": "🥽",
-    "green-tech": "🌱",
-    cybersecurity: "🔒",
-    "space-tech": "🚀",
-    biotech: "🧬",
-    "autonomous-vehicles": "🚗",
-    "edge-computing": "💻",
-    neurotechnology: "🧠",
-    smartphones: "📱",
-    laptops: "💻",
-    "smart-home": "🏠",
-    wearables: "⌚",
-    audio: "🎧",
-    gaming: "🎮",
-    cameras: "📸",
-    accessories: "🔌",
-    tablets: "📋",
-    displays: "🖥️",
-    technology: "💡",
-  };
-  return icons[category] || "📖";
-}
+// ─── CATEGORY CONFIG ─────────────────────────────────────
+const categoryConfig: Record<string, { icon: string; color: string; gradient: string }> = {
+  ai: {
+    icon: "🤖",
+    color: "#6C3CE1",
+    gradient: "from-[#4A1FA0] via-[#6C3CE1] to-[#4A1FA0]"
+  },
+  "generative-ai": {
+    icon: "✨",
+    color: "#F59E0B",
+    gradient: "from-[#D97706] via-[#F59E0B] to-[#D97706]"
+  },
+  "quantum-computing": {
+    icon: "⚛️",
+    color: "#06B6D4",
+    gradient: "from-[#0891B2] via-[#06B6D4] to-[#0891B2]"
+  },
+  "ar-vr": {
+    icon: "🥽",
+    color: "#EC4899",
+    gradient: "from-[#BE185D] via-[#EC4899] to-[#BE185D]"
+  },
+  "green-tech": {
+    icon: "🌱",
+    color: "#22C55E",
+    gradient: "from-[#16A34A] via-[#22C55E] to-[#16A34A]"
+  },
+  cybersecurity: {
+    icon: "🔒",
+    color: "#EF4444",
+    gradient: "from-[#DC2626] via-[#EF4444] to-[#DC2626]"
+  },
+  "space-tech": {
+    icon: "🚀",
+    color: "#8B5CF6",
+    gradient: "from-[#7C3AED] via-[#8B5CF6] to-[#7C3AED]"
+  },
+  biotech: {
+    icon: "🧬",
+    color: "#14B8A6",
+    gradient: "from-[#0D9488] via-[#14B8A6] to-[#0D9488]"
+  },
+};
+
+// ─── LAZY LOAD IMAGE COMPONENT ─────────────────────────
+const LazyImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <div className="relative w-full h-full overflow-hidden bg-[#e8f0ec]">
+      {!isLoaded && (
+        <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-[#e8f0ec] via-[#f0f5f3] to-[#e8f0ec]" />
+      )}
+      <img
+        src={src}
+        alt={alt}
+        className={`w-full h-full object-cover transition-all duration-700 ${
+          isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+        } ${className || ""}`}
+        loading="lazy"
+        onLoad={() => setIsLoaded(true)}
+        decoding="async"
+      />
+    </div>
+  );
+};
 
 // ─── MAIN COMPONENT ─────────────────────────────────────
 export function TechnologyClient() {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [activeTab, setActiveTab] = useState<"trending" | "all">("trending");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
 
-  // ─── GET GUIDES FROM DATA ─────────────────────────────
-  const allGuides = useMemo(() => {
-    return Object.values(technologyGuidesData);
+  // ─── TRACK PAGE VIEW ──────────────────────────────────
+  useEffect(() => {
+    trackPageView("/technology", "Technology Hub");
   }, []);
 
-  // ─── GET TRENDING GUIDES ──────────────────────────────
-  const trendingGuides = useMemo(() => {
-    return allGuides.filter(g => g.isTrending);
-  }, [allGuides]);
+  // ─── FETCH DATA FROM API ──────────────────────────────
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        
+        const [categoriesRes, articlesRes] = await Promise.all([
+          fetch('/api/technology/categories?activeOnly=true'),
+          fetch('/api/technology/articles?isPublished=true&limit=50')
+        ]);
+        
+        const categoriesData = await categoriesRes.json();
+        const articlesData = await articlesRes.json();
+        
+        if (categoriesData.success) {
+          setCategories(categoriesData.data || []);
+        } else {
+          setError(categoriesData.error || 'Failed to fetch categories');
+        }
+        
+        if (articlesData.success) {
+          setArticles(articlesData.data || []);
+        } else {
+          setError(articlesData.error || 'Failed to fetch articles');
+        }
+      } catch (err) {
+        setError('Network error. Please try again.');
+        console.error('Error fetching data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  // ─── GET FEATURED GUIDES ──────────────────────────────
-  const featuredGuides = useMemo(() => {
-    return allGuides.filter(g => g.isFeatured);
-  }, [allGuides]);
+    fetchData();
+  }, []);
 
-  // ─── FILTERED GUIDES ──────────────────────────────────
-  const filteredGuides = useMemo(() => {
-    let list = activeTab === "trending" ? trendingGuides : allGuides;
+  // ─── FILTERED ARTICLES ──────────────────────────────
+  const filteredArticles = useMemo(() => {
+    if (activeCategory === "all") return articles;
+    return articles.filter(a => a.categorySlug === activeCategory);
+  }, [articles, activeCategory]);
 
-    if (selectedCategory !== "all") {
-      list = list.filter(g => g.category === selectedCategory);
-    }
+  // ─── GET LATEST GUIDES ──────────────────────────────
+  const latestGuides = useMemo(() => {
+    return [...filteredArticles]
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+      .slice(0, 9);
+  }, [filteredArticles]);
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      list = list.filter(g =>
-        g.title.toLowerCase().includes(q) ||
-        g.excerpt.toLowerCase().includes(q) ||
-        g.tags.some(t => t.toLowerCase().includes(q))
-      );
-    }
+  const getCategoryIcon = (slug: string): string => categoryConfig[slug]?.icon || "📖";
+  const getCategoryColor = (slug: string): string => categoryConfig[slug]?.color || "#6C3CE1";
+  const getCategoryGradient = (slug: string): string => categoryConfig[slug]?.gradient || "from-[#6C3CE1] to-[#4A1FA0]";
 
-    return list;
-  }, [activeTab, selectedCategory, searchQuery, allGuides, trendingGuides]);
+  // ─── HANDLE CATEGORY CLICK ──────────────────────────
+  const handleCategoryClick = useCallback((slug: string) => {
+    setActiveCategory(slug);
+    trackEvent("category_filter", { category: slug });
+  }, []);
 
-  // ─── GET COUNT FOR CATEGORY ───────────────────────────
-  const getCategoryCount = (categoryId: string) => {
-    if (categoryId === "all") return allGuides.length;
-    return allGuides.filter(g => g.category === categoryId).length;
-  };
+  // ─── HANDLE ARTICLE CLICK ──────────────────────────
+  const handleArticleClick = useCallback((article: Article) => {
+    trackEvent("article_click", {
+      title: article.title,
+      category: article.categorySlug,
+      slug: article.slug
+    });
+  }, []);
 
-  // ─── GET TRENDING COUNT ───────────────────────────────
-  const getTrendingCount = () => {
-    return trendingGuides.length;
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#eef4f2]">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center">
+            <div className="w-12 h-12 border-4 border-[#033742] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-[#5a6f6a]">Loading technology guides...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#eef4f2]">
+        <Header />
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center max-w-md mx-auto p-6 bg-white rounded-xl shadow-sm">
+            <span className="text-4xl block mb-4">⚠️</span>
+            <h3 className="text-xl font-bold text-[#2c3e3a] mb-2">Something went wrong</h3>
+            <p className="text-[#5a6f6a]">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-[#033742] text-white rounded-full hover:bg-[#011d24] transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const activeCategories = categories.filter(cat => cat.isActive !== false);
 
   return (
     <div className="min-h-screen bg-[#eef4f2]">
       <Header />
 
       <main className="wrap py-6">
-{/* ─── BREADCRUMB ──────────────────────────────── */}
-<nav className="flex items-center gap-2 text-[0.8rem] mb-6 flex-wrap mt-5" aria-label="Breadcrumb">
-  <Link 
-    href="/" 
-    className="text-[#5a7a6a] hover:text-[#011d24] transition-colors duration-200"
-  >
-    Home
-  </Link>
-  <span className="text-[#c5d8d2] select-none" aria-hidden="true">/</span>
-  <span className="text-[#011d24] font-semibold" aria-current="page">
-    Technology
-  </span>
-</nav>
+        {/* ─── BREADCRUMB ──────────────────────────────── */}
+        <nav className="flex items-center gap-2 text-[0.8rem] mb-6 flex-wrap mt-5" aria-label="Breadcrumb">
+          <Link href="/" className="text-[#5a7a6a] hover:text-[#011d24] transition-colors duration-200">
+            Home
+          </Link>
+          <span className="text-[#c5d8d2] select-none" aria-hidden="true">/</span>
+          <span className="text-[#011d24] font-semibold" aria-current="page">Technology</span>
+        </nav>
 
         {/* ─── HERO SECTION ────────────────────────────── */}
         <section className="relative rounded-[24px] overflow-hidden mb-10 text-white">
-          {/* ✅ #011d24 Gradient with flowing shimmer */}
-
- <div className="absolute inset-0 bg-gradient-to-br from-[#011e21] via-[#011e21] via-[#033742] via-[#044a5a] via-[#011e21] via-[#011e21] to-[#011e21]" />
-          
-          {/* Flowing shimmer overlay */}
+          <div className="absolute inset-0 bg-gradient-to-br from-[#011e21] via-[#033742] via-[#044a5a] to-[#011e21]" />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#3a8b9a]/15 to-transparent animate-shimmer" />
           <div className="absolute inset-0 bg-gradient-to-bl from-transparent via-[#3a8b9a]/8 to-transparent animate-shimmer-reverse" />
           
-          {/* Glow effects */}
           <div className="absolute -top-[40%] -right-[20%] w-[60%] h-[80%] rounded-full bg-[#3a8b9a]/8 blur-[120px] pointer-events-none" />
           <div className="absolute -bottom-[30%] -left-[10%] w-[50%] h-[70%] rounded-full bg-[#033742]/15 blur-[100px] pointer-events-none" />
-          <div className="absolute top-[10%] left-[30%] w-[40%] h-[50%] rounded-full bg-[#3a8b9a]/5 blur-[80px] pointer-events-none" />
           
-          {/* Shining overlay lines */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(58,139,154,0.06)_0%,_transparent_60%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_rgba(58,139,154,0.04)_0%,_transparent_50%)]" />
           
-          {/* Flow lines */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-[20%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3a8b9a]/30 to-transparent" />
             <div className="absolute top-[40%] left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#3a8b9a]/20 to-transparent" />
@@ -185,7 +292,7 @@ export function TechnologyClient() {
                   Technology Hub
                 </span>
                 <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#3a8b9a] text-white px-4 py-1.5 rounded-full font-semibold shadow-[0_0_30px_rgba(58,139,154,0.35)]">
-                  🔥 {getTrendingCount()} Trending
+                  🔥 {articles.filter(g => g.isTrending).length} Trending
                 </span>
               </div>
               
@@ -196,426 +303,161 @@ export function TechnologyClient() {
               <p className="mt-4 text-white/85 text-[1.05rem] leading-[1.7] max-w-[600px]">
                 Your ultimate destination for tech news, in-depth reviews, smart buying guides, and expert insights. Stay ahead of the curve with 7pexel.
               </p>
-
-              {/* Search */}
-              <div className="mt-7 max-w-[540px] relative">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search technology guides..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-5 py-4 pl-13 rounded-full border border-white/25 bg-white/10 backdrop-blur-sm text-white font-poppins text-[1rem] transition-all focus:outline-none focus:border-[#3a8b9a] focus:bg-white/16 placeholder:text-white/55"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors text-xl"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-
-              {/* Stats */}
-              <div className="flex gap-8 flex-wrap mt-8">
-                <div>
-                  <div className="font-fraunces font-semibold text-3xl text-white">{allGuides.length}</div>
-                  <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">Total Guides</div>
-                </div>
-                <div className="border-l border-white/20 pl-8">
-                  <div className="font-fraunces font-semibold text-3xl text-white">{techCategories.length}</div>
-                  <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">Categories</div>
-                </div>
-                <div className="border-l border-white/20 pl-8">
-                  <div className="font-fraunces font-semibold text-3xl text-white">{allGuides.reduce((sum, g) => sum + g.steps, 0)}+</div>
-                  <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">Steps to Master</div>
-                </div>
-              </div>
             </div>
           </div>
-
-          {/* Decorative Elements */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" viewBox="0 0 800 400" preserveAspectRatio="none">
-            <circle cx="700" cy="60" r="220" stroke="rgba(58,139,154,0.06)" strokeWidth="1" fill="none" />
-            <circle cx="700" cy="60" r="280" stroke="rgba(58,139,154,0.04)" strokeWidth="1" fill="none" />
-            <circle cx="100" cy="350" r="150" stroke="rgba(58,139,154,0.05)" strokeWidth="1" fill="none" />
-            <path d="M50 200 L200 100 L350 180 L500 80 L650 160 L750 100" stroke="rgba(58,139,154,0.04)" strokeWidth="2" fill="none" />
-          </svg>
         </section>
-{/* ─── CATEGORIES GRID ──────────────────────────── */}
-<section className="mb-10">
-  {/* Header */}
-  <div className="flex justify-between items-center mb-5">
-    <h2 className="font-fraunces text-[1.35rem] md:text-[1.5rem] font-semibold tracking-[-0.02em] text-[#011d24]">
-      Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
-    </h2>
-    
-    <Link
-      href="/technology/categories"
-      className="group flex items-center gap-1.5 text-[0.8rem] md:text-[0.85rem] font-semibold text-[#011d24]/60 hover:text-[#011d24] transition-all duration-300"
-    >
-      <span>View All</span>
-      <span className="transform transition-transform duration-300 group-hover:translate-x-1 group-hover:scale-110">→</span>
-    </Link>
-  </div>
-  
-  {/* Grid */}
-  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2.5 md:gap-3">
-    {techCategories.map((cat) => (
-      <Link
-        key={cat.id}
-        href={`/technology/category/${cat.slug}`}
-        className="group relative rounded-[12px] overflow-hidden transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-[0_10px_30px_rgba(1,29,36,0.15)] active:scale-[0.96]"
-        style={{ background: `linear-gradient(145deg, #011d24, ${cat.color})` }}
-      >
-        {/* Background layers */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-90`} />
-        <div className="absolute w-[80px] h-[80px] rounded-full blur-[25px] opacity-20 bg-[#3a8b9a] -top-[15px] -right-[12px] transition-all duration-500 group-hover:scale-150 group-hover:opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/15 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
-        {/* Border glow on hover */}
-        <div className="absolute inset-0 rounded-[12px] border border-white/0 group-hover:border-white/20 transition-all duration-300" />
-        
-        {/* Content */}
-        <div className="relative z-10 px-3.5 py-3.5 min-h-[52px] flex items-center">
-          <span className="font-fraunces font-medium text-[0.8rem] md:text-[0.9rem] leading-tight tracking-[-0.01em] text-white truncate w-full drop-shadow-[0_1px_2px_rgba(0,0,0,0.2)]">
-            {cat.name}
-          </span>
-        </div>
-        
-        {/* Category count (optional - if you have this data) */}
-        {cat.count && (
-          <div className="absolute top-2 right-2 z-10">
-            <span className="text-[0.5rem] font-medium text-white/60 bg-white/10 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
-              {cat.count}
+
+        {/* ─── CATEGORIES GRID ──────────────────────────── */}
+        <section className="mb-12" aria-label="Technology Categories">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="font-fraunces text-[1.5rem] md:text-[1.75rem] font-semibold tracking-[-0.02em] text-[#011d24]">
+              Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
+            </h2>
+          </div>
+
+          {activeCategories.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-[#d8e2df]">
+              <p className="text-[#5a6f6a]">No categories available.</p>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+              <button
+                onClick={() => handleCategoryClick("all")}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+                  activeCategory === "all"
+                    ? "bg-[#033742] text-white border-[#033742] shadow-md"
+                    : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+                }`}
+              >
+                <span className="font-fraunces font-medium">All Categories</span>
+                <span className={`text-xs ${activeCategory === "all" ? "text-white/70" : "text-[#7a8f8a]"}`}>
+                  ({articles.length})
+                </span>
+              </button>
+
+              {activeCategories.map((cat) => (
+                <button
+                  key={cat._id}
+                  onClick={() => handleCategoryClick(cat.slug)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+                    activeCategory === cat.slug
+                      ? "bg-[#033742] text-white border-[#033742] shadow-md"
+                      : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+                  }`}
+                >
+                  <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
+                    {getCategoryIcon(cat.slug)}
+                  </span>
+                  <span className="font-fraunces font-medium capitalize">
+                    {cat.name}
+                  </span>
+                  <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
+                    ({articles.filter(a => a.categorySlug === cat.slug).length})
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ─── LATEST ARTICLES ──────────────────────────── */}
+        <section className="mb-12" aria-label="Latest Technology Articles">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-2xl">📰</span>
+            <h2 className="font-fraunces font-medium text-[1.8rem] tracking-[-0.02em] text-[#011d24]">
+              Latest <span className="text-[#033742]">Articles</span>
+            </h2>
+            <span className="text-[0.7rem] font-jetbrains-mono bg-[#033742]/10 text-[#033742] px-3 py-1 rounded-full font-semibold">
+              {latestGuides.length} Posts
             </span>
           </div>
-        )}
-        
-        {/* Hover indicator bar */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-white/40 to-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
-      </Link>
-    ))}
-  </div>
-</section>
 
-        {/* ─── FEATURED GUIDES ────────────────────────────── */}
-        {featuredGuides.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-2xl">⭐</span>
-              <h2 className="font-fraunces font-medium text-[1.8rem] tracking-[-0.02em] text-[#011d24]">
-                Featured <em className="italic not-italic text-[#033742]">Guides</em>
-              </h2>
-              <span className="text-[0.7rem] font-jetbrains-mono bg-[#3a8b9a] text-white px-3 py-1 rounded-full font-bold">
-                Editor's Picks
-              </span>
+          {latestGuides.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-[#d8e2df]">
+              <p className="text-[#5a6f6a]">No articles available yet.</p>
             </div>
-
+          ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredGuides.slice(0, 3).map((guide) => (
+              {latestGuides.map((guide, index) => (
                 <Link
-                  key={guide.id}
+                  key={guide._id}
                   href={`/technology/${guide.slug}`}
-                  className="group border border-[#c5d8d2] rounded-[16px] overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
+                  onClick={() => handleArticleClick(guide)}
+                  className="group bg-white rounded-[7px] overflow-hidden border border-[#c5d8d2] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
+                  prefetch={index < 3}
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
-                    <Image
+                    <LazyImage
                       src={guide.image}
                       alt={guide.imageAlt || guide.title}
-                      width={800}
-                      height={450}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                    
                     <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
-                      <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em] font-jetbrains-mono">
-                        {getCategoryName(guide.category)}
-                      </span>
-                      <span className={`text-[0.55rem] px-2 py-0.5 rounded-full font-bold uppercase tracking-[0.05em] font-jetbrains-mono border ${getDifficultyColor(guide.level)}`}>
-                        {guide.level}
+                      <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
+                        {getCategoryName(guide.categorySlug)}
                       </span>
                       {guide.isTrending && (
-                        <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-500 font-bold uppercase tracking-[0.05em] font-jetbrains-mono border border-rose-500/20">
+                        <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
                           🔥 Trending
                         </span>
                       )}
+                      {guide.isFeatured && (
+                        <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-[#3a8b9a] text-white font-bold uppercase tracking-[0.05em]">
+                          ★ Featured
+                        </span>
+                      )}
                     </div>
-                    <div className="absolute top-3 right-3 z-10 flex items-center gap-1">
-                      <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono">
-                        ⏱️ {guide.readTime}
+                    
+                    <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+                      <span className="text-[0.5rem] px-2 py-1 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono backdrop-blur-sm">
+                        ⏱️ {guide.readTime} min
                       </span>
+                      {guide.difficulty && (
+                        <span className={`text-[0.5rem] px-2 py-1 rounded-full text-white font-bold font-jetbrains-mono backdrop-blur-sm ${
+                          guide.difficulty === "Beginner" ? "bg-emerald-600/80" :
+                          guide.difficulty === "Intermediate" ? "bg-amber-600/80" :
+                          "bg-rose-600/80"
+                        }`}>
+                          {guide.difficulty}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="p-4 pb-4.5">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[0.6rem] font-semibold text-[#4a6a5a]">{getCategoryIcon(guide.category)}</span>
-                      <span className="text-[0.55rem] font-medium text-[#4a6a5a]">{getCategoryName(guide.category)}</span>
+                  
+                  <div className="p-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[0.6rem] font-medium text-[#4a6a5a]">{getCategoryName(guide.categorySlug)}</span>
+                      <span className="w-1 h-1 rounded-full bg-[#c5d8d2]" />
+                      <span className="text-[0.6rem] text-[#4a6a5a]">{formatDate(guide.publishedAt)}</span>
+                      <span className="w-1 h-1 rounded-full bg-[#c5d8d2]" />
+                      <span className="text-[0.6rem] text-[#4a6a5a]">👁️ {guide.views || 0}</span>
                     </div>
-                    <h3 className="font-fraunces font-medium text-[0.95rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
+                    
+                    <h3 className="font-fraunces font-medium text-[1.05rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
                       {guide.title}
                     </h3>
-                    <p className="text-[0.75rem] text-[#4a6a5a] mt-1.5 line-clamp-2">{guide.excerpt}</p>
-                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[#c5d8d2]">
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[#011d24] to-[#033742] flex items-center justify-center text-white font-semibold text-[0.55rem] flex-shrink-0">
-                        {guide.authorAvatar}
-                      </div>
-                      <div>
-                        <div className="text-[0.65rem] font-semibold text-[#011d24]">{guide.author}</div>
-                        <div className="text-[0.6rem] text-[#4a6a5a]">{formatDate(guide.date)}</div>
-                      </div>
-                      <div className="ml-auto text-[0.6rem] text-[#4a6a5a] flex items-center gap-1">
-                        <span>📋 {guide.steps} steps</span>
-                      </div>
+                    
+                    <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
+                      {guide.excerpt}
+                    </p>
+                    
+                    <div className="flex items-center gap-2 mt-3 flex-wrap">
+                      {guide.tags?.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag}
+                          className="text-[0.5rem] px-2 py-0.5 bg-[#eef4f2] text-[#4a6a5a] rounded-full font-medium"
+                        >
+                          #{tag.toLowerCase().replace(/\s/g, '-')}
+                        </span>
+                      ))}
+                      {guide.tags?.length > 3 && (
+                        <span className="text-[0.5rem] text-[#7a8f8a]">+{guide.tags.length - 3}</span>
+                      )}
                     </div>
                   </div>
                 </Link>
               ))}
-            </div>
-          </section>
-        )}
-
-        {/* ─── CONTENT TABS ────────────────────────────── */}
-        <section className="mb-6">
-          <div className="flex gap-2 mb-6">
-            <button
-              onClick={() => setActiveTab("trending")}
-              className={`px-6 py-2.5 rounded-full font-semibold text-[0.9rem] transition-all ${
-                activeTab === "trending"
-                  ? "bg-[#011d24] text-white shadow-[0_4px_16px_rgba(1,29,36,0.25)]"
-                  : "bg-white text-[#4a6a5a] border border-[#c5d8d2] hover:border-[#033742] hover:text-[#011d24]"
-              }`}
-            >
-              🔥 Trending ({filteredGuides.length})
-            </button>
-            <button
-              onClick={() => setActiveTab("all")}
-              className={`px-6 py-2.5 rounded-full font-semibold text-[0.9rem] transition-all ${
-                activeTab === "all"
-                  ? "bg-[#011d24] text-white shadow-[0_4px_16px_rgba(1,29,36,0.25)]"
-                  : "bg-white text-[#4a6a5a] border border-[#c5d8d2] hover:border-[#033742] hover:text-[#011d24]"
-              }`}
-            >
-              📚 All Guides ({allGuides.length})
-            </button>
-          </div>
-
-          {/* Category Filter */}
-          <div className="flex gap-2 flex-wrap mb-6">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`px-4 py-1.5 rounded-full border text-[0.75rem] font-semibold transition-all ${
-                selectedCategory === "all"
-                  ? "bg-[#011d24] border-[#011d24] text-white"
-                  : "border-[#c5d8d2] text-[#4a6a5a] bg-white hover:border-[#033742] hover:text-[#011d24]"
-              }`}
-            >
-              All Categories
-            </button>
-            {techCategories.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCategory(cat.id);
-                  setActiveTab("all");
-                }}
-                className={`px-4 py-1.5 rounded-full border text-[0.75rem] font-semibold transition-all ${
-                  selectedCategory === cat.id
-                    ? "bg-[#011d24] border-[#011d24] text-white"
-                    : "border-[#c5d8d2] text-[#4a6a5a] bg-white hover:border-[#033742] hover:text-[#011d24]"
-                }`}
-              >
-                {cat.icon} {cat.name}
-              </button>
-            ))}
-          </div>
-
-          {/* View Toggle */}
-          <div className="flex justify-end mb-6">
-            <div className="flex items-center gap-0.5 p-0.5 border-[1.5px] border-[#c5d8d2] rounded-full bg-white">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-semibold transition-all ${
-                  viewMode === "grid" ? "bg-[#011d24] text-white" : "text-[#4a6a5a]"
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
-                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
-                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
-                </svg>
-                Grid
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[0.75rem] font-semibold transition-all ${
-                  viewMode === "list" ? "bg-[#011d24] text-white" : "text-[#4a6a5a]"
-                }`}
-              >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <line x1="4" y1="6" x2="20" y2="6" />
-                  <line x1="4" y1="12" x2="20" y2="12" />
-                  <line x1="4" y1="18" x2="20" y2="18" />
-                </svg>
-                List
-              </button>
-            </div>
-          </div>
-
-          {/* ─── GUIDES GRID ────────────────────────────── */}
-          {filteredGuides.length > 0 ? (
-            <div className={viewMode === "grid" 
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" 
-              : "flex flex-col gap-4"
-            }>
-              {filteredGuides.map((guide) => (
-                <Link
-                  key={guide.id}
-                  href={`/technology/${guide.slug}`}
-                  className={viewMode === "grid"
-                    ? "group border border-[#c5d8d2] rounded-[16px] overflow-hidden bg-white transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
-                    : "flex gap-4 p-4 border border-[#c5d8d2] rounded-[16px] bg-white transition-all hover:border-[#033742] hover:shadow-[0_12px_24px_rgba(1,29,36,0.08)] group"
-                  }
-                >
-                  {viewMode === "grid" ? (
-                    <>
-                      <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
-                        <Image
-                          src={guide.image}
-                          alt={guide.imageAlt || guide.title}
-                          width={800}
-                          height={450}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          loading="lazy"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                        <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 z-10">
-                          <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
-                            {getCategoryName(guide.category)}
-                          </span>
-                          {guide.isTrending && (
-                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
-                              🔥 Trending
-                            </span>
-                          )}
-                          <span className={`text-[0.45rem] px-2 py-0.25 rounded-full font-bold uppercase tracking-[0.05em] border ${getDifficultyColor(guide.level)}`}>
-                            {guide.level}
-                          </span>
-                        </div>
-                        <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1">
-                          <span className="text-[0.5rem] px-1.5 py-0.5 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono">
-                            ⏱️ {guide.readTime}
-                          </span>
-                          <span className="text-[0.5rem] px-1.5 py-0.5 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono">
-                            📋 {guide.steps}
-                          </span>
-                        </div>
-                        {guide.isFeatured && (
-                          <span className="absolute top-2.5 left-2.5 z-10 text-[0.5rem] px-2 py-0.5 rounded-full bg-[#3a8b9a] text-white font-bold uppercase tracking-[0.05em]">
-                            ⭐ Featured
-                          </span>
-                        )}
-                      </div>
-                      <div className="p-4">
-                        <h4 className="font-fraunces font-medium text-[1rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
-                          {guide.title}
-                        </h4>
-                        <p className="text-[0.75rem] text-[#4a6a5a] mt-1.5 line-clamp-2">{guide.excerpt}</p>
-                        <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[#c5d8d2]">
-                          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#011d24] to-[#033742] flex items-center justify-center text-white font-semibold text-[0.5rem] flex-shrink-0">
-                            {guide.authorAvatar}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[0.6rem] font-semibold text-[#011d24] truncate">{guide.author}</div>
-                            <div className="text-[0.55rem] text-[#4a6a5a]">{formatDate(guide.date)}</div>
-                          </div>
-                          <div className="text-[0.55rem] text-[#4a6a5a] flex items-center gap-1">
-                            {guide.tags.slice(0, 2).map(tag => (
-                              <span key={tag} className="bg-[#eef4f2] px-1.5 py-0.5 rounded border border-[#c5d8d2] text-[0.5rem]">
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-[180px] h-[120px] flex-shrink-0 rounded-[10px] overflow-hidden bg-[#e8f0ec]">
-                        <Image
-                          src={guide.image}
-                          alt={guide.imageAlt || guide.title}
-                          width={180}
-                          height={120}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <span className="text-[0.55rem] px-2 py-0.5 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
-                            {getCategoryName(guide.category)}
-                          </span>
-                          {guide.isTrending && (
-                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
-                              🔥 Trending
-                            </span>
-                          )}
-                          <span className={`text-[0.45rem] px-2 py-0.25 rounded-full font-bold uppercase tracking-[0.05em] border ${getDifficultyColor(guide.level)}`}>
-                            {guide.level}
-                          </span>
-                          {guide.isFeatured && (
-                            <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[#3a8b9a] text-white font-bold uppercase tracking-[0.05em]">
-                              ⭐ Featured
-                            </span>
-                          )}
-                          <span className="text-[0.55rem] text-[#4a6a5a]">{guide.readTime}</span>
-                          <span className="text-[0.55rem] text-[#4a6a5a]">📋 {guide.steps}</span>
-                        </div>
-                        <h4 className="font-fraunces font-medium text-[1.05rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
-                          {guide.title}
-                        </h4>
-                        <p className="text-[0.8rem] text-[#4a6a5a] mt-1 line-clamp-2">{guide.excerpt}</p>
-                        <div className="flex items-center gap-3 mt-2 text-[0.65rem] text-[#4a6a5a] flex-wrap">
-                          <span className="text-[#011d24] font-medium">{guide.author}</span>
-                          <span>·</span>
-                          <span>{formatDate(guide.date)}</span>
-                          <span>·</span>
-                          <div className="flex gap-1">
-                            {guide.tags.slice(0, 2).map(tag => (
-                              <span key={tag} className="bg-[#eef4f2] px-1.5 py-0.5 rounded border border-[#c5d8d2] text-[0.55rem]">
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-white rounded-[20px] border border-[#c5d8d2]">
-              <span className="text-4xl">🔍</span>
-              <h3 className="mt-3 text-xl font-medium text-[#011d24]">No guides found</h3>
-              <p className="text-[0.95rem] text-[#4a6a5a] mt-1">Try adjusting your filters or search term.</p>
-              <button
-                onClick={() => {
-                  setSelectedCategory("all");
-                  setSearchQuery("");
-                  setActiveTab("all");
-                }}
-                className="mt-4 px-6 py-2.5 rounded-full bg-[#011d24] text-white font-semibold text-[0.85rem] transition-all hover:bg-[#033742] hover:shadow-[0_4px_16px_rgba(1,29,36,0.3)]"
-              >
-                Clear all filters
-              </button>
             </div>
           )}
         </section>
@@ -624,10 +466,7 @@ export function TechnologyClient() {
         <section className="bg-gradient-to-br from-[#011d24] to-[#033742] rounded-[20px] p-10 md:p-12 my-6 text-white relative overflow-hidden">
           <div className="absolute w-[300px] h-[300px] rounded-full bg-[#3a8b9a]/8 -top-[80px] -right-[60px] pointer-events-none" />
           <div className="absolute w-[200px] h-[200px] rounded-full bg-[#3a8b9a]/5 -bottom-[60px] -left-[40px] pointer-events-none" />
-          
-          {/* Shining overlay */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(58,139,154,0.06)_0%,_transparent_60%)]" />
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-[#3a8b9a]/5 to-transparent animate-shimmer" />
           
           <div className="flex items-center justify-between flex-wrap gap-6 relative z-10">
             <div className="flex-1 min-w-[200px]">
@@ -647,9 +486,10 @@ export function TechnologyClient() {
                 const btn = e.currentTarget.querySelector("button") as HTMLButtonElement;
                 const success = e.currentTarget.querySelector(".success-message") as HTMLDivElement;
                 if (input && input.value.trim() && input.value.includes("@")) {
+                  trackEvent("newsletter_subscribe", { email: input.value });
                   btn.style.display = "none";
                   input.style.display = "none";
-                  success.classList.add("show");
+                  if (success) success.classList.add("show", "flex");
                 } else {
                   alert("Please enter a valid email address");
                 }
@@ -660,6 +500,7 @@ export function TechnologyClient() {
                 placeholder="Enter your email address"
                 className="px-5 py-3.5 rounded-full border-none font-poppins text-[0.9rem] bg-white/92 text-[#011d24] outline-none min-w-[240px] transition-all focus:bg-white focus:shadow-[0_0_0_3px_rgba(58,139,154,0.3)]"
                 required
+                aria-label="Email address for newsletter"
               />
               <button
                 type="submit"
@@ -686,6 +527,7 @@ export function TechnologyClient() {
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[#4a6a5a] hover:text-[#011d24] transition-colors"
+            aria-label="Back to top"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
               <polyline points="18 15 12 9 6 15" />
@@ -694,8 +536,6 @@ export function TechnologyClient() {
           </button>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

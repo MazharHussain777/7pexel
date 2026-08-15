@@ -2,25 +2,69 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import {
-  technologyGuidesData,
-  techCategories,
-  getTechCategoryBySlug,
-  getTechCategoryCount,
-  getTechCategoryNewCount,
-  getTechCategoryIcon,
-  getTechCategoryName,
-  getGuidesByTechCategory,
-} from "../../data/technology-guides";
+import { CategoryHero } from "@/components/technology/CategoryHero";
+import { CategoryContent } from "./CategoryContent";
+
+// ─── FETCH CATEGORIES FROM API ──────────────────────────
+async function getCategory(slug: string) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/technology/categories/${slug}`, {
+      cache: 'no-store',
+    });
+    const data = await response.json();
+    if (data.success) {
+      return data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error fetching category:', error);
+    return null;
+  }
+}
+
+async function getAllCategories() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/technology/categories`, {
+      cache: 'no-store',
+    });
+    const data = await response.json();
+    if (data.success) {
+      return data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    return [];
+  }
+}
+
+async function getSubCategories(categorySlug: string) {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/technology/subcategories?category=${categorySlug}`, {
+      cache: 'no-store',
+    });
+    const data = await response.json();
+    if (data.success) {
+      return data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Error fetching subcategories:', error);
+    return [];
+  }
+}
 
 // ─── GENERATE STATIC PARAMS ────────────────────────────
 export async function generateStaticParams() {
-  return techCategories.map((category) => ({
-    category: category.slug,
-  }));
+  try {
+    const categories = await getAllCategories();
+    return categories.map((category: any) => ({
+      category: category.slug,
+    }));
+  } catch (error) {
+    return [];
+  }
 }
 
 // ─── METADATA ──────────────────────────────────────────
@@ -30,7 +74,7 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const { category } = await params;
-  const cat = getTechCategoryBySlug(category);
+  const cat = await getCategory(category);
 
   if (!cat) {
     return {
@@ -40,12 +84,12 @@ export async function generateMetadata({
   }
 
   return {
-    title: cat.metaTitle,
-    description: cat.metaDescription,
-    keywords: cat.keywords.join(", "),
+    title: cat.metaTitle || `${cat.name} Guides | 7pexel Technology`,
+    description: cat.metaDescription || cat.description,
+    keywords: cat.keywords?.join(", ") || "",
     openGraph: {
-      title: cat.metaTitle,
-      description: cat.metaDescription,
+      title: cat.metaTitle || `${cat.name} Guides | 7pexel Technology`,
+      description: cat.metaDescription || cat.description,
       type: "website",
       url: `https://7pexel.com/technology/category/${cat.slug}`,
       siteName: "7pexel",
@@ -60,8 +104,8 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: cat.metaTitle,
-      description: cat.metaDescription,
+      title: cat.metaTitle || `${cat.name} Guides | 7pexel Technology`,
+      description: cat.metaDescription || cat.description,
       images: ["https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&h=630&fit=crop"],
     },
     alternates: {
@@ -77,265 +121,97 @@ export default async function TechnologyCategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category } = await params;
-  const cat = getTechCategoryBySlug(category);
+  const cat = await getCategory(category);
 
   if (!cat) {
     notFound();
   }
 
-  const guides = getGuidesByTechCategory(cat.id);
-  const featuredGuides = guides.filter(g => g.isFeatured);
-  const trendingGuides = guides.filter(g => g.isTrending);
-
-  function formatDate(date: string): string {
-    return new Date(date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-  }
-
-  function getDifficultyColor(level: string): string {
-    const colors: Record<string, string> = {
-      Beginner: "bg-green-500/10 text-green-600 border-green-200",
-      Intermediate: "bg-yellow-500/10 text-yellow-600 border-yellow-200",
-      Advanced: "bg-red-500/10 text-red-600 border-red-200",
-    };
-    return colors[level] || "bg-gray-500/10 text-gray-600 border-gray-200";
-  }
+  const subCategories = await getSubCategories(category);
+  const allCategories = await getAllCategories();
 
   return (
-    <div className="min-h-screen bg-[#fbfdfb]">
+    <div className="min-h-screen bg-[#eef4f2]">
       <Header />
       <main>
         {/* ─── BREADCRUMB ──────────────────────────────── */}
-        <nav className="wrap py-4 md:py-5" aria-label="Breadcrumb">
-          <div className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] flex-wrap">
-            <Link href="/" className="hover:text-[var(--color-green)] transition-colors">Home</Link>
-            <span className="opacity-40 select-none">/</span>
-            <Link href="/technology" className="hover:text-[var(--color-green)] transition-colors">Technology</Link>
-            <span className="opacity-40 select-none">/</span>
-            <span className="text-[var(--color-ink)] font-semibold">{cat.name}</span>
-          </div>
-        </nav>
-
-        {/* ─── CATEGORY HERO ────────────────────────────── */}
-        <section
-          className="relative rounded-[24px] overflow-hidden mx-auto max-w-[91vw] mb-10 text-white"
-          style={{ background: `linear-gradient(150deg, var(--color-green-deep), ${cat.color})` }}
-        >
-          <div className={`absolute inset-0 bg-gradient-to-br ${cat.gradient} opacity-90`} />
-          <div className="relative z-10 p-10 md:p-14">
-            <div className="max-w-[800px]">
-              <div className="flex items-center gap-3 mb-4">
-                <span className="text-4xl">{cat.icon}</span>
-                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-white/15 px-4 py-1.5 rounded-full font-semibold">
-                  {cat.name} Guides
-                </span>
-                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#D4F26B] text-[var(--color-green-deep)] px-4 py-1.5 rounded-full font-semibold">
-                  {guides.length} Guides
-                </span>
-              </div>
-              <h1 className="font-fraunces font-medium text-[clamp(2.5rem,5vw,4rem)] tracking-[-0.03em] leading-[1.08]">
-                {cat.name} <em className="italic not-italic text-[#D4F26B]">Guides</em>
-              </h1>
-              <p className="mt-4 text-white/85 text-[1.05rem] leading-[1.7] max-w-[600px]">
-                {cat.description}
-              </p>
-
-              <div className="flex gap-8 flex-wrap mt-8">
-                <div>
-                  <div className="font-fraunces font-semibold text-3xl text-white">{guides.length}</div>
-                  <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">Total Guides</div>
-                </div>
-                {featuredGuides.length > 0 && (
-                  <div className="border-l border-white/20 pl-8">
-                    <div className="font-fraunces font-semibold text-3xl text-white">{featuredGuides.length}</div>
-                    <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">Featured</div>
-                  </div>
-                )}
-                {trendingGuides.length > 0 && (
-                  <div className="border-l border-white/20 pl-8">
-                    <div className="font-fraunces font-semibold text-3xl text-white">{trendingGuides.length}</div>
-                    <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">Trending</div>
-                  </div>
-                )}
-                <div className="border-l border-white/20 pl-8">
-                  <div className="font-fraunces font-semibold text-3xl text-white">{cat.newCount}</div>
-                  <div className="text-[0.65rem] uppercase tracking-[0.08em] text-white/70">New This Week</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" viewBox="0 0 800 400" preserveAspectRatio="none">
-            <circle cx="700" cy="60" r="220" stroke="rgba(255,255,255,0.06)" strokeWidth="1" fill="none" />
-            <circle cx="700" cy="60" r="280" stroke="rgba(255,255,255,0.04)" strokeWidth="1" fill="none" />
-          </svg>
-        </section>
-
-        {/* ─── QUICK NAV ────────────────────────────────── */}
-        <div className="wrap mb-6">
-          <div className="flex gap-2 flex-wrap">
-            <Link
-              href="/technology"
-              className="px-4 py-2 rounded-full border-[1.5px] border-[var(--color-line)] text-[0.78rem] font-semibold text-[var(--color-ink-soft)] bg-[var(--color-paper)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)] transition-all"
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 md:pt-8">
+          <nav className="flex items-center gap-2 text-[0.8rem] text-[#5a7a6a] flex-wrap" aria-label="Breadcrumb">
+            <Link 
+              href="/" 
+              className="hover:text-[#011d24] transition-colors duration-200"
             >
-              💡 All Technology
+              Home
             </Link>
-            {techCategories.map((c) => (
-              <Link
-                key={c.id}
-                href={`/technology/category/${c.slug}`}
-                className={`px-4 py-2 rounded-full border-[1.5px] text-[0.78rem] font-semibold transition-all ${
-                  c.id === cat.id
-                    ? "bg-[var(--color-ink)] border-[var(--color-ink)] text-white"
-                    : "border-[var(--color-line)] text-[var(--color-ink-soft)] bg-[var(--color-paper)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)]"
-                }`}
-              >
-                {c.icon} {c.name}
-              </Link>
-            ))}
-          </div>
+            <span className="text-[#c5d8d2] select-none" aria-hidden="true">/</span>
+            <Link 
+              href="/technology" 
+              className="hover:text-[#011d24] transition-colors duration-200"
+            >
+              Technology
+            </Link>
+            <span className="text-[#c5d8d2] select-none" aria-hidden="true">/</span>
+            <span className="text-[#011d24] font-semibold capitalize" aria-current="page">
+              {cat.name}
+            </span>
+          </nav>
         </div>
 
-        {/* ─── FEATURED GUIDES ──────────────────────────── */}
-        {featuredGuides.length > 0 && (
-          <div className="wrap mb-10">
-            <h2 className="font-fraunces font-medium text-[1.5rem] tracking-[-0.01em] mb-5">
-              Featured <em className="italic not-italic text-[var(--color-green)]">Guides</em>
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {featuredGuides.slice(0, 3).map((guide) => (
-                <Link
-                  key={guide.id}
-                  href={`/technology/${guide.slug}`}
-                  className="group border border-[var(--color-line)] rounded-[16px] overflow-hidden bg-[var(--color-paper)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(15,24,15,0.10)]"
-                >
-                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eef1e9]">
-                    <Image
-                      src={guide.image}
-                      alt={guide.imageAlt || guide.title}
-                      width={600}
-                      height={450}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    <span className="absolute top-2.5 right-2.5 text-[0.5rem] px-2 py-0.5 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono">
-                      ⏱️ {guide.readTime}
-                    </span>
-                    <span className="absolute bottom-2.5 left-2.5 text-[0.5rem] px-2 py-0.5 rounded-full bg-[var(--color-green)] text-white font-bold uppercase tracking-[0.05em]">
-                      {guide.readTime}
-                    </span>
-                  </div>
-                  <div className="p-4">
-                    <h4 className="font-fraunces font-medium text-[1rem] leading-[1.3] group-hover:text-[var(--color-green)] transition-colors line-clamp-2">
-                      {guide.title}
-                    </h4>
-                    <p className="text-[0.75rem] text-[var(--color-ink-soft)] mt-1.5 line-clamp-2">
-                      {guide.excerpt}
-                    </p>
-                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[var(--color-line)] text-[0.6rem] text-[var(--color-ink-soft)]">
-                      <span>{guide.author}</span>
-                      <span>·</span>
-                      <span>{formatDate(guide.date)}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* ─── HERO ──────────────────────────────────────── */}
+        <CategoryHero category={cat} />
 
-        {/* ─── ALL GUIDES ────────────────────────────────── */}
-        <div className="wrap py-4">
-          <div className="flex justify-between items-baseline mb-5 flex-wrap gap-2.5">
-            <h2 className="font-fraunces font-medium text-[1.5rem] tracking-[-0.01em]">
-              All <em className="italic not-italic text-[var(--color-green)]">{cat.name}</em> Guides
-            </h2>
-            <span className="text-[0.7rem] text-[var(--color-ink-soft)]">{guides.length} guides</span>
-          </div>
+        {/* ─── CLIENT CONTENT ───────────────────────────── */}
+        <CategoryContent
+          category={cat}
+          subCategories={subCategories}
+        />
 
-          {guides.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {guides.map((guide) => (
-                <Link
-                  key={guide.id}
-                  href={`/technology/${guide.slug}`}
-                  className="group border border-[var(--color-line)] rounded-[16px] overflow-hidden bg-[var(--color-paper)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(15,24,15,0.10)]"
-                >
-                  <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eef1e9]">
-                    <Image
-                      src={guide.image}
-                      alt={guide.imageAlt || guide.title}
-                      width={600}
-                      height={450}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                    <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1.5 z-10">
-                      {guide.isTrending && (
-                        <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-orange-500 text-white font-bold uppercase tracking-[0.05em]">
-                          🔥 Trending
-                        </span>
-                      )}
-                      {guide.isFeatured && (
-                        <span className="text-[0.5rem] px-2 py-0.5 rounded-full bg-[#D4F26B] text-[var(--color-green-deep)] font-bold uppercase tracking-[0.05em]">
-                          ⭐ Featured
-                        </span>
-                      )}
-                    </div>
-                    <span className="absolute top-2.5 right-2.5 z-10 text-[0.5rem] px-2 py-0.5 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono">
-                      ⏱️ {guide.readTime}
-                    </span>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className="text-[0.55rem] font-semibold uppercase tracking-[0.08em] text-[var(--color-green)]">
-                        {guide.categoryLabel}
-                      </span>
-                      <span className="w-px h-3 bg-[var(--color-line)]" />
-                      <span className="text-[0.55rem] text-[var(--color-ink-soft)]">{guide.level}</span>
-                    </div>
-                    <h4 className="font-fraunces font-medium text-[0.95rem] leading-[1.3] group-hover:text-[var(--color-green)] transition-colors line-clamp-2">
-                      {guide.title}
-                    </h4>
-                    <div className="flex items-center gap-2 mt-3 pt-2.5 border-t border-dashed border-[var(--color-line)] text-[0.6rem] text-[var(--color-ink-soft)]">
-                      <span>{guide.author}</span>
-                      <span>·</span>
-                      <span>{formatDate(guide.date)}</span>
-                      <span>·</span>
-                      <span>📋 {guide.steps}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-[var(--color-paper)] rounded-[20px] border border-[var(--color-line)]">
-              <span className="text-4xl">📝</span>
-              <h3 className="mt-3 text-xl font-medium text-[var(--color-ink)]">No guides yet</h3>
-              <p className="text-[0.95rem] text-[var(--color-ink-soft)] mt-1">
-                Check back soon for {cat.name} guides.
+        {/* ─── BOTTOM CATEGORY NAVIGATION ──────────────── */}
+        <section className="w-full bg-white border-t border-[#d8e2df] py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h3 className="text-sm font-semibold text-[#1a7a6a] uppercase tracking-wider mb-2">
+                Explore More
+              </h3>
+              <h2 className="text-3xl font-bold text-[#2c3e3a]">
+                Other Technology Categories
+              </h2>
+              <p className="text-[#5a6f6a] mt-2 max-w-2xl mx-auto">
+                Discover guides and resources from our curated technology collections
               </p>
+            </div>
+            
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {allCategories
+                .filter((c: any) => c.slug !== cat.slug && c.isActive !== false)
+                .map((category: any) => (
+                  <Link
+                    key={category._id}
+                    href={`/technology/category/${category.slug}`}
+                    className="group p-6 rounded-2xl border border-[#d8e2df] bg-[#f8faf9] hover:border-[#1a7a6a] hover:shadow-lg transition-all duration-300 text-center hover:-translate-y-1"
+                  >
+                    <span className="block text-lg font-bold text-[#2c3e3a] group-hover:text-[#1a7a6a] transition-colors">
+                      {category.name}
+                    </span>
+                    <div className="mt-3 w-8 h-0.5 bg-[#1a7a6a] mx-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                ))}
+            </div>
+
+            <div className="text-center mt-10">
               <Link
                 href="/technology"
-                className="inline-block mt-4 px-6 py-2.5 rounded-full bg-[var(--color-green)] text-white font-semibold text-[0.85rem] transition-all hover:bg-[var(--color-green-deep)]"
+                className="inline-flex items-center gap-2 text-[#1a7a6a] font-medium hover:underline transition-colors"
               >
-                View all technology
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Technology Hub
               </Link>
             </div>
-          )}
-        </div>
-
-        {/* ─── BACK TO ALL TECHNOLOGY ────────────────────── */}
-        <div className="wrap py-4 pb-8">
-          <Link
-            href="/technology"
-            className="inline-flex items-center gap-2 text-[0.85rem] font-semibold text-[var(--color-green)] hover:underline transition-colors"
-          >
-            ← Back to technology
-          </Link>
-        </div>
+          </div>
+        </section>
       </main>
-      <Footer />
     </div>
   );
 }
