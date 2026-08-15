@@ -307,58 +307,61 @@ export function TechnologyClient() {
           </div>
         </section>
 
-        {/* ─── CATEGORIES GRID ──────────────────────────── */}
-        <section className="mb-12" aria-label="Technology Categories">
-          <div className="flex justify-between items-center mb-5">
-            <h2 className="font-fraunces text-[1.5rem] md:text-[1.75rem] font-semibold tracking-[-0.02em] text-[#011d24]">
-              Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
-            </h2>
-          </div>
 
-          {activeCategories.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border border-[#d8e2df]">
-              <p className="text-[#5a6f6a]">No categories available.</p>
-            </div>
-          ) : (
-            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
-              <button
-                onClick={() => handleCategoryClick("all")}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
-                  activeCategory === "all"
-                    ? "bg-[#033742] text-white border-[#033742] shadow-md"
-                    : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
-                }`}
-              >
-                <span className="font-fraunces font-medium">All Categories</span>
-                <span className={`text-xs ${activeCategory === "all" ? "text-white/70" : "text-[#7a8f8a]"}`}>
-                  ({articles.length})
-                </span>
-              </button>
+{/* ─── CATEGORIES GRID ──────────────────────────── */}
+<section className="mb-12" aria-label="Technology Categories">
+  <div className="flex justify-between items-center mb-5">
+    <h2 className="font-fraunces text-[1.5rem] md:text-[1.75rem] font-semibold tracking-[-0.02em] text-[#011d24]">
+      Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
+    </h2>
+  </div>
 
-              {activeCategories.map((cat) => (
-                <button
-                  key={cat._id}
-                  onClick={() => handleCategoryClick(cat.slug)}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
-                    activeCategory === cat.slug
-                      ? "bg-[#033742] text-white border-[#033742] shadow-md"
-                      : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
-                  }`}
-                >
-                  <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
-                    {getCategoryIcon(cat.slug)}
-                  </span>
-                  <span className="font-fraunces font-medium capitalize">
-                    {cat.name}
-                  </span>
-                  <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
-                    ({articles.filter(a => a.categorySlug === cat.slug).length})
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </section>
+  {activeCategories.length === 0 ? (
+    <div className="text-center py-12 bg-white rounded-xl border border-[#d8e2df]">
+      <p className="text-[#5a6f6a]">No categories available.</p>
+    </div>
+  ) : (
+    <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+      {/* All Categories - navigates to technology home */}
+      <Link
+        href="/technology"
+        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+          activeCategory === "all"
+            ? "bg-[#033742] text-white border-[#033742] shadow-md"
+            : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+        }`}
+      >
+        <span className="font-fraunces font-medium">All Categories</span>
+        <span className={`text-xs ${activeCategory === "all" ? "text-white/70" : "text-[#7a8f8a]"}`}>
+          ({articles.length})
+        </span>
+      </Link>
+
+      {/* Individual Categories - navigate to category page */}
+      {activeCategories.map((cat) => (
+        <Link
+          key={cat._id}
+          href={`/technology/category/${cat.slug}`}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+            activeCategory === cat.slug
+              ? "bg-[#033742] text-white border-[#033742] shadow-md"
+              : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+          }`}
+        >
+          <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
+            {getCategoryIcon(cat.slug)}
+          </span>
+          <span className="font-fraunces font-medium capitalize">
+            {cat.name}
+          </span>
+          <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
+            ({articles.filter(a => a.categorySlug === cat.slug).length})
+          </span>
+        </Link>
+      ))}
+    </div>
+  )}
+</section>
 
         {/* ─── LATEST ARTICLES ──────────────────────────── */}
         <section className="mb-12" aria-label="Latest Technology Articles">
