@@ -2,7 +2,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata, Viewport } from "next";
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { getPhoneBySlug, getRelatedPhones, getAllPhones } from "@/lib/phone-service";
 import { PhoneHero } from "@/components/phones/finder/PhoneHero";
 import { PhoneSpecs } from "@/components/phones/finder/PhoneSpecs";
@@ -10,7 +9,6 @@ import { RelatedPhones } from "@/components/phones/finder/RelatedPhones";
 import { PhoneJsonLd } from "@/components/phones/finder/PhoneJsonLd";
 import Link from "next/link";
 
-// Helper to serialize MongoDB document
 function serializePhone(phone: any) {
   if (!phone) return null;
   return {
@@ -64,7 +62,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: '#0F6B3E',
+  themeColor: '#FF6B00',
 };
 
 export async function generateMetadata({
@@ -125,7 +123,6 @@ export default async function PhoneDetailPage({
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
   const pageUrl = `${siteUrl}/phones/finder/${slug}`;
 
-  // Serialize the phone data for client components
   const serializedPhone = serializePhone(phone);
   const serializedRelated = relatedPhones.map(p => serializePhone(p));
 
@@ -134,21 +131,21 @@ export default async function PhoneDetailPage({
       <Header />
       <PhoneJsonLd phone={serializedPhone} pageUrl={pageUrl} siteUrl={siteUrl} />
 
-      <div className="min-h-screen bg-[#fbf8ff] w-full">
+      <div className="min-h-screen bg-white w-full">
         <main className="w-full mx-0 px-0 py-6 md:py-12">
           <h1 className="sr-only">
             {phone.brand} {phone.model} ({phone.year}) – Complete Specifications, Camera Review, Battery Life & Performance | 7pexel
           </h1>
 
           <div className="w-full px-4 md:px-6 lg:px-8">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[0.8rem] text-[var(--color-ink-soft)] mb-6">
-              <Link href="/" className="text-[var(--color-green)] hover:underline">Home</Link>
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[0.8rem] text-[#8B7355] mb-6">
+              <Link href="/" className="text-[#FF6B00] hover:underline font-medium">Home</Link>
               <span className="opacity-40" aria-hidden="true">/</span>
-              <Link href="/phones" className="text-[var(--color-green)] hover:underline">Phones</Link>
+              <Link href="/phones" className="text-[#FF6B00] hover:underline font-medium">Phones</Link>
               <span className="opacity-40" aria-hidden="true">/</span>
-              <Link href="/phones/finder" className="text-[var(--color-green)] hover:underline">Finder</Link>
+              <Link href="/phones/finder" className="text-[#FF6B00] hover:underline font-medium">Finder</Link>
               <span className="opacity-40" aria-hidden="true">/</span>
-              <span className="font-medium truncate max-w-[200px]" aria-current="page">
+              <span className="font-medium truncate max-w-[200px] text-[#4A3520]" aria-current="page">
                 {phone.brand} {phone.model}
               </span>
             </nav>
@@ -167,7 +164,6 @@ export default async function PhoneDetailPage({
           </div>
         </main>
       </div>
-      <Footer />
     </>
   );
 }

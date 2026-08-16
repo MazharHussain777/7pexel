@@ -3,7 +3,6 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Header } from "@/components/Header";
 import { trackPageView, trackEvent } from "@/lib/analytics";
 
@@ -32,10 +31,12 @@ interface Article {
   image: string;
   imageAlt: string;
   categorySlug: string;
-  subCategorySlug: string;
+  subCategorySlug: string | null;
   author: string;
   authorRole: string;
-  difficulty: string;
+  authorAvatar?: string;
+  authorBio?: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
   readTime: number;
   steps: number;
   tags: string[];
@@ -45,29 +46,22 @@ interface Article {
   publishedAt: string;
   views: number;
   likes: number;
-}
-
-// ─── HELPERS ─────────────────────────────────────────────
-function formatDate(date: string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-}
-
-function getCategoryName(category: string): string {
-  const names: Record<string, string> = {
-    ai: "Artificial Intelligence",
-    "generative-ai": "Generative AI",
-    "quantum-computing": "Quantum Computing",
-    "ar-vr": "AR/VR & Metaverse",
-    "green-tech": "Green Tech & Sustainability",
-    cybersecurity: "Cybersecurity",
-    "space-tech": "Space Tech",
-    biotech: "Biotech & Health Tech",
+  shares?: number;
+  comments?: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  keywords?: string[];
+  canonicalUrl?: string;
+  categoryId?: {
+    _id: string;
+    name: string;
+    slug: string;
+    color: string;
+    icon: string;
   };
-  return names[category] || category;
 }
 
-// ─── CATEGORY CONFIG ─────────────────────────────────────
+// ─── CATEGORY CONFIG ───────────────────────────────────
 const categoryConfig: Record<string, { icon: string; color: string; gradient: string }> = {
   ai: {
     icon: "🤖",
@@ -111,7 +105,26 @@ const categoryConfig: Record<string, { icon: string; color: string; gradient: st
   },
 };
 
-// ─── LAZY LOAD IMAGE COMPONENT ─────────────────────────
+function formatDate(date: string): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+}
+
+function getCategoryName(slug: string): string {
+  const names: Record<string, string> = {
+    ai: "Artificial Intelligence",
+    "generative-ai": "Generative AI",
+    "quantum-computing": "Quantum Computing",
+    "ar-vr": "AR/VR & Metaverse",
+    "green-tech": "Green Tech & Sustainability",
+    cybersecurity: "Cybersecurity",
+    "space-tech": "Space Tech",
+    biotech: "Biotech & Health Tech",
+  };
+  return names[slug] || slug;
+}
+
+// ─── LAZY LOAD IMAGE ───────────────────────────────────
 const LazyImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -147,7 +160,7 @@ export function TechnologyClient() {
     trackPageView("/technology", "Technology Hub");
   }, []);
 
-  // ─── FETCH DATA FROM API ──────────────────────────────
+  // ─── FETCH DATA ──────────────────────────────────────
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -189,24 +202,24 @@ export function TechnologyClient() {
     return articles.filter(a => a.categorySlug === activeCategory);
   }, [articles, activeCategory]);
 
-  // ─── GET LATEST GUIDES ──────────────────────────────
   const latestGuides = useMemo(() => {
     return [...filteredArticles]
       .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
       .slice(0, 9);
   }, [filteredArticles]);
 
-  const getCategoryIcon = (slug: string): string => categoryConfig[slug]?.icon || "📖";
-  const getCategoryColor = (slug: string): string => categoryConfig[slug]?.color || "#6C3CE1";
-  const getCategoryGradient = (slug: string): string => categoryConfig[slug]?.gradient || "from-[#6C3CE1] to-[#4A1FA0]";
+  const featuredGuides = useMemo(() => {
+    return [...filteredArticles]
+      .filter(a => a.isFeatured)
+      .slice(0, 3);
+  }, [filteredArticles]);
 
-  // ─── HANDLE CATEGORY CLICK ──────────────────────────
+  // ─── HANDLERS ─────────────────────────────────────────
   const handleCategoryClick = useCallback((slug: string) => {
     setActiveCategory(slug);
     trackEvent("category_filter", { category: slug });
   }, []);
 
-  // ─── HANDLE ARTICLE CLICK ──────────────────────────
   const handleArticleClick = useCallback((article: Article) => {
     trackEvent("article_click", {
       title: article.title,
@@ -215,6 +228,7 @@ export function TechnologyClient() {
     });
   }, []);
 
+  // ─── LOADING STATE ──────────────────────────────────
   if (loading) {
     return (
       <div className="min-h-screen bg-[#eef4f2]">
@@ -307,61 +321,60 @@ export function TechnologyClient() {
           </div>
         </section>
 
+        {/* ─── CATEGORIES GRID ──────────────────────────── */}
+        <section className="mb-12" aria-label="Technology Categories">
+          <div className="flex justify-between items-center mb-5">
+            <h2 className="font-fraunces text-[1.5rem] md:text-[1.75rem] font-semibold tracking-[-0.02em] text-[#011d24]">
+              Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
+            </h2>
+          </div>
 
-{/* ─── CATEGORIES GRID ──────────────────────────── */}
-<section className="mb-12" aria-label="Technology Categories">
-  <div className="flex justify-between items-center mb-5">
-    <h2 className="font-fraunces text-[1.5rem] md:text-[1.75rem] font-semibold tracking-[-0.02em] text-[#011d24]">
-      Browse by <span className="text-[#033742] underline decoration-[#3a8b9a]/30 underline-offset-4">Category</span>
-    </h2>
-  </div>
+          {activeCategories.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-[#d8e2df]">
+              <p className="text-[#5a6f6a]">No categories available.</p>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
+              <Link
+                href="/technology"
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+                  activeCategory === "all"
+                    ? "bg-[#033742] text-white border-[#033742] shadow-md"
+                    : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+                }`}
+                onClick={() => handleCategoryClick("all")}
+              >
+                <span className="font-fraunces font-medium">All Categories</span>
+                <span className={`text-xs ${activeCategory === "all" ? "text-white/70" : "text-[#7a8f8a]"}`}>
+                  ({articles.length})
+                </span>
+              </Link>
 
-  {activeCategories.length === 0 ? (
-    <div className="text-center py-12 bg-white rounded-xl border border-[#d8e2df]">
-      <p className="text-[#5a6f6a]">No categories available.</p>
-    </div>
-  ) : (
-    <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
-      {/* All Categories - navigates to technology home */}
-      <Link
-        href="/technology"
-        className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
-          activeCategory === "all"
-            ? "bg-[#033742] text-white border-[#033742] shadow-md"
-            : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
-        }`}
-      >
-        <span className="font-fraunces font-medium">All Categories</span>
-        <span className={`text-xs ${activeCategory === "all" ? "text-white/70" : "text-[#7a8f8a]"}`}>
-          ({articles.length})
-        </span>
-      </Link>
-
-      {/* Individual Categories - navigate to category page */}
-      {activeCategories.map((cat) => (
-        <Link
-          key={cat._id}
-          href={`/technology/category/${cat.slug}`}
-          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
-            activeCategory === cat.slug
-              ? "bg-[#033742] text-white border-[#033742] shadow-md"
-              : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
-          }`}
-        >
-          <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
-            {getCategoryIcon(cat.slug)}
-          </span>
-          <span className="font-fraunces font-medium capitalize">
-            {cat.name}
-          </span>
-          <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
-            ({articles.filter(a => a.categorySlug === cat.slug).length})
-          </span>
-        </Link>
-      ))}
-    </div>
-  )}
-</section>
+              {activeCategories.map((cat) => (
+                <Link
+                  key={cat._id}
+                  href={`/technology/category/${cat.slug}`}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+                    activeCategory === cat.slug
+                      ? "bg-[#033742] text-white border-[#033742] shadow-md"
+                      : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+                  }`}
+                  onClick={() => handleCategoryClick(cat.slug)}
+                >
+                  <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
+                    {categoryConfig[cat.slug]?.icon || "📖"}
+                  </span>
+                  <span className="font-fraunces font-medium capitalize">
+                    {cat.name}
+                  </span>
+                  <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
+                    ({articles.filter(a => a.categorySlug === cat.slug).length})
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* ─── LATEST ARTICLES ──────────────────────────── */}
         <section className="mb-12" aria-label="Latest Technology Articles">
@@ -396,9 +409,9 @@ export function TechnologyClient() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10 flex-wrap">
                       <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
-                        {getCategoryName(guide.categorySlug)}
+                        {guide.categoryId?.name || getCategoryName(guide.categorySlug)}
                       </span>
                       {guide.isTrending && (
                         <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
@@ -430,7 +443,9 @@ export function TechnologyClient() {
                   
                   <div className="p-5">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-[0.6rem] font-medium text-[#4a6a5a]">{getCategoryName(guide.categorySlug)}</span>
+                      <span className="text-[0.6rem] font-medium text-[#4a6a5a]">
+                        {guide.categoryId?.name || getCategoryName(guide.categorySlug)}
+                      </span>
                       <span className="w-1 h-1 rounded-full bg-[#c5d8d2]" />
                       <span className="text-[0.6rem] text-[#4a6a5a]">{formatDate(guide.publishedAt)}</span>
                       <span className="w-1 h-1 rounded-full bg-[#c5d8d2]" />
@@ -464,6 +479,52 @@ export function TechnologyClient() {
             </div>
           )}
         </section>
+
+        {/* ─── FEATURED ARTICLES ────────────────────────── */}
+        {featuredGuides.length > 0 && (
+          <section className="mb-12" aria-label="Featured Technology Articles">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="text-2xl">⭐</span>
+              <h2 className="font-fraunces font-medium text-[1.8rem] tracking-[-0.02em] text-[#011d24]">
+                Featured <span className="text-[#033742]">Articles</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {featuredGuides.map((guide) => (
+                <Link
+                  key={guide._id}
+                  href={`/technology/${guide.slug}`}
+                  onClick={() => handleArticleClick(guide)}
+                  className="group bg-white rounded-[7px] overflow-hidden border border-[#c5d8d2] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
+                >
+                  <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
+                    <LazyImage
+                      src={guide.image}
+                      alt={guide.imageAlt || guide.title}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-[0.6rem] px-3 py-1.5 rounded-full bg-[#033742]/90 text-white font-bold uppercase tracking-[0.08em] backdrop-blur-sm">
+                        ⭐ Featured
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="p-5">
+                    <h3 className="font-fraunces font-medium text-[1.1rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
+                      {guide.title}
+                    </h3>
+                    
+                    <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
+                      {guide.excerpt}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ─── NEWSLETTER ────────────────────────────────── */}
         <section className="bg-gradient-to-br from-[#011d24] to-[#033742] rounded-[20px] p-10 md:p-12 my-6 text-white relative overflow-hidden">

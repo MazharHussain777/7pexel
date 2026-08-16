@@ -33,7 +33,6 @@ export function FilterBar({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // If we have initial data, use it and don't fetch
     if (initialBrands.length > 0 && initialCategories.length > 0 && initialYears.length > 0) {
       setBrands(initialBrands);
       setCategories(initialCategories);
@@ -42,7 +41,6 @@ export function FilterBar({
       return;
     }
 
-    // Otherwise fetch from API
     const loadFilters = async () => {
       try {
         const [brandData, categoryData, yearData] = await Promise.all([
@@ -76,7 +74,6 @@ export function FilterBar({
     return searchParams.get(key) || 'all';
   };
 
-  // Filter definitions (ALL ICONS REMOVED)
   const filterDefs = [
     { 
       id: 'brand', 
@@ -137,10 +134,10 @@ export function FilterBar({
 
   if (loading) {
     return (
-      <div className="relative mb-7 pb-4.5 border-b border-[rgba(15,24,15,0.06)]">
+      <div className="relative mb-7 pb-4.5 border-b border-[#E8E8E8]">
         <div className="flex flex-wrap gap-2 gap-x-3">
           {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="h-10 w-24 bg-gray-200 rounded-full animate-pulse" />
+            <div key={i} className="h-10 w-24 bg-[#F5F5F5] rounded-full animate-pulse" />
           ))}
         </div>
       </div>
@@ -148,7 +145,7 @@ export function FilterBar({
   }
 
   return (
-    <div className="relative mb-7 pb-4.5 border-b border-[rgba(15,24,15,0.06)]">
+    <div className="relative mb-7 pb-4.5 border-b border-[#E8E8E8]">
       <div className="flex flex-wrap gap-2 gap-x-3">
         {filterDefs.map((filter) => {
           const isOpen = openFilter === filter.id;
@@ -158,19 +155,19 @@ export function FilterBar({
           return (
             <div key={filter.id} className="relative inline-block">
               <button
-                className={`bg-transparent border-[1.5px] border-[#dee8e2] px-4 py-2.25 rounded-[60px] text-[0.75rem] font-semibold cursor-pointer transition-all duration-300 flex items-center gap-1.5 whitespace-nowrap font-poppins bg-white hover:bg-[#f0f7f3] hover:border-[#b3cebe] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(15,24,15,0.06)] ${
+                className={`border-[1.5px] px-4 py-2.25 rounded-[60px] text-[0.75rem] font-semibold cursor-pointer transition-all duration-300 flex items-center gap-1.5 whitespace-nowrap font-poppins hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(255,107,0,0.12)] ${
                   hasActive 
-                    ? "bg-[var(--color-green)] border-[var(--color-green)] text-white shadow-[0_4px_16px_rgba(15,107,62,0.20)]" 
-                    : "text-[#2a3a2e]"
+                    ? "bg-[#FF6B00] border-[#FF6B00] text-white shadow-[0_4px_16px_rgba(255,107,0,0.30)] hover:bg-[#E55D00] hover:border-[#E55D00]" 
+                    : "bg-white border-[#E8E8E8] text-[#4A3520] hover:bg-[#FFF5EB] hover:border-[#FF6B00]"
                 }`}
                 onClick={() => setOpenFilter(isOpen ? null : filter.id)}
               >
                 <span>{filter.label}</span>
-                <span className={`text-[0.5rem] transition-transform duration-300 ${hasActive ? "text-white" : "text-[#2a3a2e]/50"} ${isOpen ? "rotate-180" : ""}`}>
+                <span className={`text-[0.5rem] transition-transform duration-300 ${hasActive ? "text-white" : "text-[#4A3520]/50"} ${isOpen ? "rotate-180" : ""}`}>
                   ▾
                 </span>
                 {hasActive && (
-                  <span className="bg-white/20 text-white rounded-full px-2 py-0.5 text-[0.5rem] font-bold leading-[1.7] inline-block max-w-[80px] truncate border border-white/10">
+                  <span className="bg-white/25 text-white rounded-full px-2.5 py-0.5 text-[0.5rem] font-bold leading-[1.7] inline-block max-w-[100px] truncate border border-white/20 shadow-sm">
                     {activeValue}
                   </span>
                 )}
@@ -179,38 +176,44 @@ export function FilterBar({
               {isOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setOpenFilter(null)} />
-                  <div className="absolute top-[calc(100%+10px)] left-0 bg-white border border-[#e8f0eb] rounded-[20px] p-4 min-w-[180px] max-w-[280px] shadow-[0_20px_60px_rgba(15,24,15,0.12)] z-50 opacity-100 translate-y-0 scale-100 backdrop-blur-sm bg-white/98 max-h-[300px] overflow-y-auto">
-                    <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-[#e8f0eb] rotate-45 rounded-[4px]" />
+                  <div className="absolute top-[calc(100%+10px)] left-0 bg-white border border-[#E8E8E8] rounded-[20px] p-4 min-w-[180px] max-w-[280px] shadow-[0_20px_60px_rgba(0,0,0,0.12)] z-50 opacity-100 translate-y-0 scale-100 backdrop-blur-sm bg-white/98 max-h-[300px] overflow-y-auto">
+                    <div className="absolute -top-2 left-6 w-4 h-4 bg-white border-l border-t border-[#E8E8E8] rotate-45 rounded-[4px]" />
                     
                     <div className="grid grid-cols-1 gap-0.5">
+                      {/* All option */}
                       <div
-                        key={`${filter.id}-all`}
-                        className={`px-3.5 py-1.75 rounded-[10px] text-[0.75rem] font-medium text-[#2a3a2e] cursor-pointer transition-all duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-[#eaf3ed] ${
-                          !hasActive ? "bg-[var(--color-green)] text-white" : ""
+                        className={`px-3.5 py-1.75 rounded-[10px] text-[0.75rem] font-medium cursor-pointer transition-all duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-[#FFF5EB] ${
+                          !hasActive 
+                            ? "bg-[#FF6B00] text-white shadow-[0_2px_12px_rgba(255,107,0,0.20)]" 
+                            : "text-[#4A3520]"
                         }`}
                         onClick={() => {
                           updateURL(filter.id, 'all');
                           setOpenFilter(null);
                         }}
                       >
-                        <span className={`text-[0.6rem] transition-all duration-200 ${!hasActive ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}>✓</span>
+                        <span className={`text-[0.6rem] transition-all duration-200 ${!hasActive ? "opacity-100 scale-100 text-white" : "opacity-0 scale-50"}`}>✓</span>
                         All {filter.label}
                       </div>
+                      
+                      {/* Filter options */}
                       {filter.options.map((opt, index) => {
                         const isActive = activeValue === opt.value;
                         const uniqueKey = `${filter.id}-${opt.value}-${index}`;
                         return (
                           <div
                             key={uniqueKey}
-                            className={`px-3.5 py-1.75 rounded-[10px] text-[0.75rem] font-medium text-[#2a3a2e] cursor-pointer transition-all duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-[#eaf3ed] hover:translate-x-0.5 ${
-                              isActive ? "bg-[var(--color-green)] text-white shadow-[0_2px_12px_rgba(15,107,62,0.15)]" : ""
+                            className={`px-3.5 py-1.75 rounded-[10px] text-[0.75rem] font-medium cursor-pointer transition-all duration-200 flex items-center gap-2 whitespace-nowrap hover:bg-[#FFF5EB] hover:translate-x-0.5 ${
+                              isActive 
+                                ? "bg-[#FF6B00] text-white shadow-[0_2px_12px_rgba(255,107,0,0.20)]" 
+                                : "text-[#4A3520]"
                             }`}
                             onClick={() => {
                               updateURL(filter.id, opt.value);
                               setOpenFilter(null);
                             }}
                           >
-                            <span className={`text-[0.6rem] transition-all duration-200 ${isActive ? "opacity-100 scale-100" : "opacity-0 scale-50"}`}>✓</span>
+                            <span className={`text-[0.6rem] transition-all duration-200 ${isActive ? "opacity-100 scale-100 text-white" : "opacity-0 scale-50"}`}>✓</span>
                             {opt.label}
                           </div>
                         );
@@ -224,7 +227,7 @@ export function FilterBar({
         })}
       </div>
 
-      {/* Clear All Filters Button */}
+      {/* Clear All Filters Button - More Visible */}
       {Array.from(searchParams.keys()).some(key => key !== 'q' && key !== 'page' && key !== 'limit') && (
         <div className="mt-3 flex justify-end">
           <button
@@ -235,9 +238,9 @@ export function FilterBar({
               if (searchTerm) newParams.set('q', searchTerm);
               router.push(`/phones/finder?${newParams.toString()}`, { scroll: false });
             }}
-            className="text-[0.7rem] font-medium text-[var(--color-ink-soft)] hover:text-[var(--color-green)] transition-colors flex items-center gap-1.5"
+            className="text-[0.7rem] font-medium text-[#8B7355] hover:text-[#FF6B00] transition-colors flex items-center gap-1.5 hover:bg-[#FFF5EB] px-3 py-1.5 rounded-full"
           >
-            <span>✕</span>
+            <span className="text-[#FF6B00] font-bold">✕</span>
             Clear all filters
           </button>
         </div>

@@ -2,6 +2,9 @@
 import { MetadataRoute } from "next";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import { Phone } from "@/lib/models/Phone";
+import TechnologyArticle from "@/lib/models/TechnologyArticle";
+import TechnologyCategory from "@/lib/models/TechnologyCategory";
+import TechnologySubCategory from "@/lib/models/TechnologySubCategory";
 
 interface PhoneType {
   slug: string;
@@ -20,103 +23,102 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ============= STATIC PAGES =============
   const staticPages = [
-    {
-      url: baseUrl,
-      lastModified: currentDate,
-      changeFrequency: 'daily' as const,
-      priority: 1.0,
-    },
-    // ✅ ADDED: Phone Finder page
-    {
-      url: `${baseUrl}/phone-finder`,
-      lastModified: currentDate,
-      changeFrequency: 'daily' as const,
-      priority: 0.98,
-    },
-    // ✅ ADDED: Compare page
-    {
-      url: `${baseUrl}/compare`,
-      lastModified: currentDate,
-      changeFrequency: 'daily' as const,
-      priority: 0.95,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/author`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: currentDate,
-      changeFrequency: 'monthly' as const,
-      priority: 0.5,
-    },
+    { url: baseUrl, lastModified: currentDate, changeFrequency: 'daily' as const, priority: 1.0 },
+    { url: `${baseUrl}/phone-finder`, lastModified: currentDate, changeFrequency: 'daily' as const, priority: 0.98 },
+    { url: `${baseUrl}/compare`, lastModified: currentDate, changeFrequency: 'daily' as const, priority: 0.95 },
+    // ✅ ADDED: Technology Hub
+    { url: `${baseUrl}/technology`, lastModified: currentDate, changeFrequency: 'daily' as const, priority: 0.97 },
+    { url: `${baseUrl}/about`, lastModified: currentDate, changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${baseUrl}/author`, lastModified: currentDate, changeFrequency: 'monthly' as const, priority: 0.7 },
+    { url: `${baseUrl}/contact`, lastModified: currentDate, changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${baseUrl}/privacy`, lastModified: currentDate, changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: `${baseUrl}/terms`, lastModified: currentDate, changeFrequency: 'monthly' as const, priority: 0.5 },
   ];
 
-  // ============= FETCH ALL PHONES FROM DATABASE =============
-  let phones: PhoneType[] = [];
+  // ============= FETCH TECHNOLOGY ARTICLES =============
+  let techArticles: any[] = [];
+  let techCategories: any[] = [];
+  let techSubCategories: any[] = [];
+
   try {
     await connectToDatabase();
-    phones = await Phone.find(
-      {}, 
-      { 
-        slug: 1, 
-        updatedAt: 1, 
-        brand: 1, 
-        name: 1,
-        year: 1,
-        isFlagship: 1 
-      }
+    
+    // Fetch all published technology articles
+    techArticles = await TechnologyArticle.find(
+      { isPublished: true },
+      { slug: 1, updatedAt: 1, categorySlug: 1, title: 1 }
     ).lean();
     
+    // Fetch all active categories
+    techCategories = await TechnologyCategory.find(
+      { isActive: true },
+      { slug: 1, updatedAt: 1, name: 1 }
+    ).lean();
+    
+    // Fetch all active subcategories
+    techSubCategories = await TechnologySubCategory.find(
+      { isActive: true },
+      { slug: 1, updatedAt: 1, categorySlug: 1, name: 1 }
+    ).lean();
+    
+    console.log(`📱 Found ${techArticles.length} technology articles`);
+    console.log(`📂 Found ${techCategories.length} technology categories`);
+    console.log(`📂 Found ${techSubCategories.length} technology subcategories`);
+  } catch (error) {
+    console.error('❌ Error fetching technology data for sitemap:', error);
+  }
+
+  // ============= TECHNOLOGY CATEGORY PAGES =============
+  const categoryPages: MetadataRoute.Sitemap = techCategories.map((cat) => ({
+    url: `${baseUrl}/technology/category/${cat.slug}`,
+    lastModified: cat.updatedAt ? new Date(cat.updatedAt) : currentDate,
+    changeFrequency: 'daily' as const,
+    priority: 0.92,
+  }));
+
+  // ============= TECHNOLOGY ARTICLE PAGES =============
+  const articlePages: MetadataRoute.Sitemap = techArticles.map((article) => ({
+    url: `${baseUrl}/technology/${article.slug}`,
+    lastModified: article.updatedAt ? new Date(article.updatedAt) : currentDate,
+    changeFrequency: 'weekly' as const,
+    priority: 0.9,
+  }));
+
+  // ============= TECHNOLOGY SUB-CATEGORY PAGES =============
+  const subCategoryPages: MetadataRoute.Sitemap = techSubCategories.map((sub) => ({
+    url: `${baseUrl}/technology/category/${sub.categorySlug}/sub/${sub.slug}`,
+    lastModified: sub.updatedAt ? new Date(sub.updatedAt) : currentDate,
+    changeFrequency: 'daily' as const,
+    priority: 0.88,
+  }));
+
+  // ============= PHONE PAGES =============
+  let phones: PhoneType[] = [];
+  try {
+    phones = await Phone.find(
+      {}, 
+      { slug: 1, updatedAt: 1, brand: 1, name: 1, year: 1, isFlagship: 1 }
+    ).lean();
     console.log(`📱 Found ${phones.length} phones in database`);
   } catch (error) {
     console.error('❌ Error fetching phones for sitemap:', error);
   }
 
-  // ============= INDIVIDUAL PHONE PAGES =============
-  const phonePages: MetadataRoute.Sitemap = phones.map((phone: PhoneType) => ({
+  const phonePages: MetadataRoute.Sitemap = phones.map((phone) => ({
     url: `${baseUrl}/phone-finder/${phone.slug}`,
     lastModified: phone.updatedAt ? new Date(phone.updatedAt) : currentDate,
     changeFrequency: 'weekly' as const,
     priority: 0.9,
   }));
 
-  console.log(`📄 Generated ${phonePages.length} phone pages`);
-
-  // ============= COMPARISON PAGES - ALL 2-PHONE COMBINATIONS =============
+  // ============= COMPARISON PAGES =============
   const comparePages: MetadataRoute.Sitemap = [];
-  
   const maxPhones = Math.min(phones.length, 50);
   const topPhones = phones.slice(0, maxPhones);
 
-  console.log(`🔄 Generating comparisons for ${topPhones.length} phones (${(topPhones.length * (topPhones.length - 1)) / 2} combinations)`);
-
   for (let i = 0; i < topPhones.length; i++) {
     for (let j = i + 1; j < topPhones.length; j++) {
-      const p1 = topPhones[i];
-      const p2 = topPhones[j];
-      const slugs = [p1.slug, p2.slug];
-      
+      const slugs = [topPhones[i].slug, topPhones[j].slug];
       comparePages.push({
         url: `${baseUrl}/compare?phones=${slugs.join(",")}`,
         lastModified: currentDate,
@@ -126,86 +128,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  console.log(`✅ Generated ${comparePages.length} comparison pages`);
-
-  // ============= POPULAR BRAND 3-PHONE COMPARISONS =============
-  const threePhonePages: MetadataRoute.Sitemap = [];
-  const brands = ["samsung", "apple", "google", "oneplus", "xiaomi", "vivo", "oppo", "nothing", "sony", "motorola"];
-  
-  for (const brand of brands) {
-    const brandPhones = phones.filter(p => 
-      p.brand?.toLowerCase().includes(brand)
-    );
-    const top3 = brandPhones.slice(0, 3);
-    if (top3.length >= 3) {
-      const slugs = top3.map(p => p.slug);
-      threePhonePages.push({
-        url: `${baseUrl}/compare?phones=${slugs.join(",")}`,
-        lastModified: currentDate,
-        changeFrequency: 'weekly' as const,
-        priority: 0.85,
-      });
-    }
-  }
-
-  // ============= FLAGSHIP COMPARISONS =============
-  const flagshipPages: MetadataRoute.Sitemap = [];
-  const flagshipPhones = phones.filter(p => p.isFlagship === true);
-  
-  if (flagshipPhones.length >= 2) {
-    const topFlagships = flagshipPhones.slice(0, 15);
-    for (let i = 0; i < topFlagships.length; i++) {
-      for (let j = i + 1; j < topFlagships.length; j++) {
-        const slugs = [topFlagships[i].slug, topFlagships[j].slug];
-        flagshipPages.push({
-          url: `${baseUrl}/compare?phones=${slugs.join(",")}`,
-          lastModified: currentDate,
-          changeFrequency: 'weekly' as const,
-          priority: 0.92,
-        });
-      }
-    }
-  }
-
-  // ============= YEAR-BASED COMPARISONS =============
-  const yearPages: MetadataRoute.Sitemap = [];
-  const years = [...new Set(phones.map(p => p.year).filter(Boolean))];
-  
-  for (const year of years) {
-    const yearPhones = phones.filter(p => p.year === year);
-    if (yearPhones.length >= 2) {
-      const topYear = yearPhones.slice(0, 5);
-      for (let i = 0; i < topYear.length; i++) {
-        for (let j = i + 1; j < topYear.length; j++) {
-          const slugs = [topYear[i].slug, topYear[j].slug];
-          yearPages.push({
-            url: `${baseUrl}/compare?phones=${slugs.join(",")}`,
-            lastModified: currentDate,
-            changeFrequency: 'weekly' as const,
-            priority: 0.88,
-          });
-        }
-      }
-    }
-  }
-
   // ============= COMBINE ALL PAGES =============
   const allPages = [
     ...staticPages,
     ...phonePages,
     ...comparePages,
-    ...threePhonePages,
-    ...flagshipPages,
-    ...yearPages,
+    ...categoryPages,
+    ...articlePages,
+    ...subCategoryPages,
   ];
 
   console.log(`📊 Total sitemap entries: ${allPages.length}`);
   console.log(`   - Static: ${staticPages.length}`);
   console.log(`   - Phone pages: ${phonePages.length}`);
-  console.log(`   - 2-Phone comparisons: ${comparePages.length}`);
-  console.log(`   - 3-Phone comparisons: ${threePhonePages.length}`);
-  console.log(`   - Flagship comparisons: ${flagshipPages.length}`);
-  console.log(`   - Year comparisons: ${yearPages.length}`);
+  console.log(`   - Comparisons: ${comparePages.length}`);
+  console.log(`   - Tech Categories: ${categoryPages.length}`);
+  console.log(`   - Tech Articles: ${articlePages.length}`);
+  console.log(`   - Tech Subcategories: ${subCategoryPages.length}`);
 
   return allPages;
 }

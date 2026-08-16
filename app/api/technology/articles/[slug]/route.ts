@@ -2,8 +2,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import TechnologyArticle from '@/lib/models/TechnologyArticle';
+import TechnologyCategory from '@/lib/models/TechnologyCategory';
+import mongoose from 'mongoose';
 
-// GET article by slug
+// ─── GET ARTICLE BY SLUG ──────────────────────────────
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -12,9 +14,10 @@ export async function GET(
     await connectToDatabase();
     const { slug } = await params;
     
+    // Find the article
     const article = await TechnologyArticle.findOne({ slug, isPublished: true })
-      .populate('categoryId', 'name slug')
-      .populate('subCategoryId', 'name slug');
+      .populate('categoryId', 'name slug description color icon metaTitle metaDescription')
+      .populate('subCategoryId', 'name slug description color icon metaTitle metaDescription');
     
     if (!article) {
       return NextResponse.json(
@@ -24,19 +27,56 @@ export async function GET(
     }
     
     // Increment views
-    article.views += 1;
-    await article.save();
+    await TechnologyArticle.findByIdAndUpdate(
+      article._id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
     
-    return NextResponse.json({ success: true, data: article });
+    // Get fresh article data with populated fields
+    const freshArticle = await TechnologyArticle.findById(article._id)
+      .populate('categoryId', 'name slug description color icon metaTitle metaDescription')
+      .populate('subCategoryId', 'name slug description color icon metaTitle metaDescription');
+    
+    // Get related articles
+    const relatedArticles = await TechnologyArticle.find({
+      categorySlug: article.categorySlug,
+      _id: { $ne: article._id },
+      isPublished: true,
+    })
+      .sort({ publishedAt: -1 })
+      .limit(4)
+      .populate('categoryId', 'name slug color icon');
+    
+    // Get popular articles in same category
+    const popularArticles = await TechnologyArticle.find({
+      categorySlug: article.categorySlug,
+      _id: { $ne: article._id },
+      isPublished: true,
+    })
+      .sort({ views: -1, publishedAt: -1 })
+      .limit(4)
+      .populate('categoryId', 'name slug color icon');
+    
+    return NextResponse.json({
+      success: true,
+      data: {
+        article: freshArticle,
+        relatedArticles,
+        popularArticles,
+      },
+    });
+    
   } catch (error: any) {
+    console.error('Error fetching article:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error.message || 'Failed to fetch article' },
       { status: 500 }
     );
   }
 }
 
-// PUT - Update article by slug
+// ─── UPDATE ARTICLE BY SLUG ────────────────────────────
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -54,25 +94,78 @@ export async function PUT(
         { status: 404 }
       );
     }
-
+    
+    // Handle category change
+    if (body.categorySlug && body.categorySlug !== article.categorySlug) {
+      const category = await TechnologyCategory.findOne({
+        slug: body.categorySlug,
+        isActive: true,
+      });
+      
+      if (!category) {
+        return NextResponse.json(
+          { 
+            success: false, 
+            error: `Category with slug '${body.categorySlug}' not found` 
+          },
+          { status: 404 }
+        );
+      }
+      
+      body.categoryId = category._id;
+      body.categorySlug = category.slug;
+    }
+    
+    // Handle subcategory change
+    if (body.subCategorySlug) {
+      const subCategory = await TechnologySubCategory.findOne({
+        slug: body.subCategorySlug,
+        isActive: true,
+      });
+      if (subCategory) {
+        body.subCategoryId = subCategory._id;
+      }
+    }
+    
+    // Handle slug update (ensure uniqueness)
+    if (body.slug && body.slug !== article.slug) {
+      const existing = await TechnologyArticle.findOne({ slug: body.slug });
+      if (existing) {
+        return NextResponse.json(
+          { success: false, error: `Article with slug '${body.slug}' already exists` },
+          { status: 409 }
+        );
+      }
+    }
+    
+    // Update the article
     const updatedArticle = await TechnologyArticle.findByIdAndUpdate(
       article._id,
-      body,
-      { new: true, runValidators: true }
+      { $set: body },
+      { 
+        new: true, 
+        runValidators: true,
+      }
     )
-    .populate('categoryId', 'name slug')
-    .populate('subCategoryId', 'name slug');
+      .populate('categoryId', 'name slug color icon')
+      .populate('subCategoryId', 'name slug color icon');
     
-    return NextResponse.json({ success: true, data: updatedArticle });
+    return NextResponse.json({
+      success: true,
+      data: updatedArticle,
+      message: 'Article updated successfully',
+    });
+    
   } catch (error: any) {
+    console.error('Error updating article:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 400 }
+      { success: false, error: error.message || 'Failed to update article' },
+      { status: 500 }
     );
   }
 }
 
-// DELETE - Delete article by slug
+// ─── DELETE ARTICLE BY SLUG ────────────────────────────
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -89,22 +182,38 @@ export async function DELETE(
         { status: 404 }
       );
     }
-
+    
+    // Decrement category article count
+    try {
+      const TechnologyCategory = mongoose.model('TechnologyCategory');
+      await TechnologyCategory.findByIdAndUpdate(article.categoryId, {
+        $inc: { articleCount: -1 },
+      });
+    } catch (error) {
+      console.error('Error updating category count:', error);
+    }
+    
     await TechnologyArticle.findByIdAndDelete(article._id);
     
     return NextResponse.json({
       success: true,
-      data: { message: 'Article deleted successfully' },
+      data: { 
+        message: 'Article deleted successfully',
+        slug: article.slug,
+        title: article.title,
+      },
     });
+    
   } catch (error: any) {
+    console.error('Error deleting article:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error.message || 'Failed to delete article' },
       { status: 500 }
     );
   }
 }
 
-// PATCH - Increment article views by slug
+// ─── PATCH - Increment Actions ──────────────────────────
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -112,6 +221,7 @@ export async function PATCH(
   try {
     await connectToDatabase();
     const { slug } = await params;
+    const body = await request.json();
     
     const article = await TechnologyArticle.findOne({ slug, isPublished: true });
     
@@ -122,13 +232,61 @@ export async function PATCH(
       );
     }
     
-    article.views += 1;
-    await article.save();
+    let updatedArticle;
     
-    return NextResponse.json({ success: true, data: article });
+    // Handle specific actions
+    switch (body.action) {
+      case 'incrementViews':
+        updatedArticle = await TechnologyArticle.findByIdAndUpdate(
+          article._id,
+          { $inc: { views: 1 } },
+          { new: true }
+        );
+        break;
+      case 'incrementLikes':
+        updatedArticle = await TechnologyArticle.findByIdAndUpdate(
+          article._id,
+          { $inc: { likes: 1 } },
+          { new: true }
+        );
+        break;
+      case 'incrementShares':
+        updatedArticle = await TechnologyArticle.findByIdAndUpdate(
+          article._id,
+          { $inc: { shares: 1 } },
+          { new: true }
+        );
+        break;
+      case 'incrementComments':
+        updatedArticle = await TechnologyArticle.findByIdAndUpdate(
+          article._id,
+          { $inc: { comments: 1 } },
+          { new: true }
+        );
+        break;
+      default:
+        // Generic update
+        updatedArticle = await TechnologyArticle.findByIdAndUpdate(
+          article._id,
+          { $set: body },
+          { new: true }
+        );
+    }
+    
+    const finalArticle = await TechnologyArticle.findById(article._id)
+      .populate('categoryId', 'name slug color icon')
+      .populate('subCategoryId', 'name slug color icon');
+    
+    return NextResponse.json({
+      success: true,
+      data: finalArticle,
+      message: 'Article updated successfully',
+    });
+    
   } catch (error: any) {
+    console.error('Error updating article:', error);
     return NextResponse.json(
-      { success: false, error: error.message },
+      { success: false, error: error.message || 'Failed to update article' },
       { status: 500 }
     );
   }

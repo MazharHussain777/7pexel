@@ -6,30 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { 
-  fetchCompareItems, 
-  fetchCompareCategories, 
-  fetchCompareStats,
-  fetchTopRatedCompareItems,
-  fetchPopularCompareItems,
-} from "./data/compare-db";
-import { CompareItem } from "@/lib/compare-service";
-
-// ─── HELPERS ─────────────────────────────────────────────
-function getStars(rating: number): string {
-  const full = Math.floor(rating);
-  const half = rating - full >= 0.5 ? 1 : 0;
-  const empty = 5 - full - half;
-  return "⭐".repeat(full) + (half ? "½" : "") + "☆".repeat(empty);
-}
-
-function getRatingColor(rating: number): string {
-  if (rating >= 4.5) return "text-emerald-600";
-  if (rating >= 4.0) return "text-green-500";
-  if (rating >= 3.5) return "text-yellow-500";
-  if (rating >= 3.0) return "text-orange-500";
-  return "text-red-500";
-}
+import { fetchPhones } from "@/app/phones/finder/data/phone-db";
+import { IPhone } from "@/models/Phone";
 
 const CATEGORY_ICONS: Record<string, string> = {
   phones: "📱",
@@ -44,78 +22,157 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
-  phones: "from-blue-500 to-indigo-600",
-  laptops: "from-purple-500 to-purple-700",
-  auto: "from-emerald-500 to-green-700",
+  phones: "from-[#99032B] to-[#B8043A]",
+  laptops: "from-[#B8043A] to-[#D10545]",
+  auto: "from-[#D10545] to-[#E80650]",
 };
+
+// ─── COMPLETE PHONE SPECS MAPPING ──────────────────────
+interface PhoneSpec {
+  label: string;
+  key: string;
+  group: string;
+  format?: (value: any) => string;
+}
+
+const PHONE_SPECS: PhoneSpec[] = [
+  // Display
+  { label: "Display Size", key: "displaySize", group: "📱 Display" },
+  { label: "Display Type", key: "display", group: "📱 Display" },
+  { label: "Refresh Rate", key: "refreshRate", group: "📱 Display" },
+  { label: "Display Resolution", key: "displayResolution", group: "📱 Display" },
+  { label: "Screen Protection", key: "screenProtection", group: "📱 Display" },
+  { label: "HDR Support", key: "hdrSupport", group: "📱 Display" },
+  { label: "Brightness", key: "brightness", group: "📱 Display" },
+  
+  // Performance
+  { label: "Chipset", key: "chipset", group: "⚡ Performance" },
+  { label: "Processor", key: "processor", group: "⚡ Performance" },
+  { label: "GPU", key: "gpu", group: "⚡ Performance" },
+  { label: "RAM", key: "ram", group: "⚡ Performance" },
+  { label: "Storage", key: "storage", group: "⚡ Performance" },
+  { label: "Expandable Storage", key: "expandableStorage", group: "⚡ Performance" },
+  { label: "Operating System", key: "os", group: "⚡ Performance" },
+  { label: "OS Version", key: "osVersion", group: "⚡ Performance" },
+  
+  // Camera
+  { label: "Main Camera", key: "camera", group: "📷 Camera" },
+  { label: "Camera Details", key: "cameraDetails", group: "📷 Camera" },
+  { label: "Front Camera", key: "frontCamera", group: "📷 Camera" },
+  { label: "Video Recording", key: "videoRecording", group: "📷 Camera" },
+  { label: "Camera Features", key: "cameraFeatures", group: "📷 Camera" },
+  { label: "OIS Support", key: "oisSupport", group: "📷 Camera" },
+  { label: "Night Mode", key: "nightMode", group: "📷 Camera" },
+  { label: "HDR Mode", key: "hdrMode", group: "📷 Camera" },
+  
+  // Battery
+  { label: "Battery Capacity", key: "battery", group: "🔋 Battery" },
+  { label: "Battery Type", key: "batteryType", group: "🔋 Battery" },
+  { label: "Wired Charging", key: "charging", group: "🔋 Battery" },
+  { label: "Wireless Charging", key: "wirelessCharging", group: "🔋 Battery" },
+  { label: "Reverse Charging", key: "reverseCharging", group: "🔋 Battery" },
+  { label: "Battery Life", key: "batteryLife", group: "🔋 Battery" },
+  { label: "Fast Charging", key: "fastCharging", group: "🔋 Battery" },
+  
+  // Design & Build
+  { label: "Weight", key: "weight", group: "🎨 Design" },
+  { label: "Dimensions", key: "dimensions", group: "🎨 Design" },
+  { label: "Colors", key: "colors", group: "🎨 Design", format: (v: string[]) => v?.join(" · ") || "—" },
+  { label: "Build Material", key: "buildMaterial", group: "🎨 Design" },
+  { label: "Water Resistance", key: "waterResistance", group: "🎨 Design" },
+  { label: "Dust Resistance", key: "dustResistance", group: "🎨 Design" },
+  { label: "IP Rating", key: "ipRating", group: "🎨 Design" },
+  { label: "Year", key: "year", group: "🎨 Design" },
+  
+  // Connectivity
+  { label: "5G", key: "connectivity", group: "📶 Connectivity", format: (v: string) => v?.includes("5G") ? "✅ Yes" : "❌ No" },
+  { label: "Wi-Fi", key: "wifi", group: "📶 Connectivity" },
+  { label: "Bluetooth", key: "bluetooth", group: "📶 Connectivity" },
+  { label: "NFC", key: "nfc", group: "📶 Connectivity", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "USB Type", key: "usbType", group: "📶 Connectivity" },
+  { label: "SIM Type", key: "simType", group: "📶 Connectivity" },
+  { label: "Dual SIM", key: "dualSim", group: "📶 Connectivity", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "eSIM Support", key: "esimSupport", group: "📶 Connectivity", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  
+  // Security
+  { label: "Fingerprint Sensor", key: "fingerprint", group: "🔒 Security" },
+  { label: "Face Unlock", key: "faceUnlock", group: "🔒 Security" },
+  { label: "Security Features", key: "securityFeatures", group: "🔒 Security" },
+  
+  // Audio
+  { label: "Speakers", key: "speakers", group: "🔊 Audio" },
+  { label: "Audio Jack", key: "audioJack", group: "🔊 Audio", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "Audio Codec", key: "audioCodec", group: "🔊 Audio" },
+  
+  // Sensors
+  { label: "Accelerometer", key: "accelerometer", group: "📡 Sensors", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "Gyroscope", key: "gyroscope", group: "📡 Sensors", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "Proximity Sensor", key: "proximitySensor", group: "📡 Sensors", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "Barometer", key: "barometer", group: "📡 Sensors", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "Compass", key: "compass", group: "📡 Sensors", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+  { label: "Heart Rate Sensor", key: "heartRateSensor", group: "📡 Sensors", format: (v: boolean) => v ? "✅ Yes" : "❌ No" },
+];
+
+const SPEC_GROUPS = [
+  "📱 Display",
+  "⚡ Performance",
+  "📷 Camera",
+  "🔋 Battery",
+  "🎨 Design",
+  "📶 Connectivity",
+  "🔒 Security",
+  "🔊 Audio",
+  "📡 Sensors",
+];
 
 // ─── MAIN COMPONENT ─────────────────────────────────────
 export default function ComparePage() {
-  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedCategory, setSelectedCategory] = useState("phones");
+  const [selectedBrand, setSelectedBrand] = useState("all");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
-  const [items, setItems] = useState<CompareItem[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [phones, setPhones] = useState<IPhone[]>([]);
+  const [brands, setBrands] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
-  const [total, setTotal] = useState(0);
-  const [stats, setStats] = useState<any>(null);
-  const [topRated, setTopRated] = useState<CompareItem[]>([]);
-  const [popular, setPopular] = useState<CompareItem[]>([]);
 
-  // ─── FETCH DATA ────────────────────────────────────────
-  const loadData = useCallback(async () => {
+  // ─── FETCH PHONES DATA ────────────────────────────────
+  const loadPhones = useCallback(async () => {
     setLoading(true);
     try {
-      const [itemsResult, categoriesResult, statsResult, topRatedResult, popularResult] = await Promise.all([
-        fetchCompareItems({ 
-          category: selectedCategory === 'all' ? undefined : selectedCategory, 
-          limit: 100 
-        }),
-        fetchCompareCategories(),
-        fetchCompareStats(),
-        fetchTopRatedCompareItems(6),
-        fetchPopularCompareItems(6),
-      ]);
-      setItems(itemsResult.data);
-      setTotal(itemsResult.total);
-      setCategories(['all', ...categoriesResult]);
-      setStats(statsResult);
-      setTopRated(topRatedResult);
-      setPopular(popularResult);
+      const result = await fetchPhones({ 
+        category: selectedCategory === 'all' ? undefined : selectedCategory,
+        limit: 100 
+      });
+      
+      const phoneData = result.data || [];
+      setPhones(phoneData);
+      
+      const uniqueBrands = [...new Set(phoneData.map((p: IPhone) => p.brand))].sort();
+      setBrands(['all', ...uniqueBrands]);
     } catch (error) {
-      console.error('Error loading compare data:', error);
+      console.error('Error loading phones:', error);
     } finally {
       setLoading(false);
     }
   }, [selectedCategory]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadPhones();
+  }, [loadPhones]);
 
-  // ─── FILTERED ITEMS ────────────────────────────────────
-  const filteredItems = useMemo(() => {
-    let list = items;
-    
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      list = list.filter(
-        item =>
-          item.name.toLowerCase().includes(q) ||
-          item.brand.toLowerCase().includes(q) ||
-          item.categoryLabel.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q)
-      );
+  // ─── FILTERED PHONES ──────────────────────────────────
+  const filteredPhones = useMemo(() => {
+    let list = phones;
+    if (selectedBrand !== 'all') {
+      list = list.filter(p => p.brand === selectedBrand);
     }
-    
     return list;
-  }, [items, searchQuery]);
+  }, [phones, selectedBrand]);
 
-  // ─── SELECTED ITEMS DATA ──────────────────────────────
-  const selectedItemsData = useMemo(() => {
-    return items.filter(item => selectedItems.includes(item.id));
-  }, [items, selectedItems]);
+  // ─── SELECTED PHONES DATA ─────────────────────────────
+  const selectedPhonesData = useMemo(() => {
+    return phones.filter(p => selectedItems.includes(p.slug || p._id?.toString() || ''));
+  }, [phones, selectedItems]);
 
   // ─── TOGGLE SELECTION ──────────────────────────────────
   const toggleSelection = (id: string) => {
@@ -124,7 +181,7 @@ export default function ComparePage() {
         return prev.filter(i => i !== id);
       }
       if (prev.length >= 4) {
-        alert("You can compare up to 4 items at a time");
+        alert("You can compare up to 4 phones at a time");
         return prev;
       }
       return [...prev, id];
@@ -136,34 +193,28 @@ export default function ComparePage() {
     setSelectedItems([]);
   };
 
-  // ─── GET ALL UNIQUE SPECS ─────────────────────────────
-  const allSpecs = useMemo(() => {
-    if (selectedItemsData.length === 0) return [];
-    const specKeys = new Set<string>();
-    selectedItemsData.forEach(item => {
-      if (item.specs) {
-        Object.keys(item.specs).forEach(key => specKeys.add(key));
-      }
-    });
-    return Array.from(specKeys);
-  }, [selectedItemsData]);
+  // ─── GET VALUE FROM PHONE ─────────────────────────────
+  const getPhoneValue = (phone: IPhone, spec: PhoneSpec): string => {
+    const value = phone[spec.key as keyof IPhone];
+    if (value === null || value === undefined || value === "") return "—";
+    if (spec.format) return spec.format(value);
+    if (Array.isArray(value)) return value.join(" · ");
+    return String(value);
+  };
 
   // ─── SELECT TOP 4 ──────────────────────────────────────
   const selectTop4 = () => {
-    const top = filteredItems
-      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-      .slice(0, 4)
-      .map(item => item.id);
+    const top = filteredPhones.slice(0, 4).map(p => p.slug || p._id?.toString() || '');
     setSelectedItems(top);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#fbfdfb]">
+      <div className="min-h-screen bg-[#FFF8F5]">
         <Header />
         <main className="wrap py-20 text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[var(--color-green)] border-t-transparent mb-4" />
-          <p className="text-[var(--color-ink-soft)]">Loading compare items...</p>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#99032B] border-t-transparent mb-4" />
+          <p className="text-[#6d4a4a]">Loading phones...</p>
         </main>
         <Footer />
       </div>
@@ -171,19 +222,19 @@ export default function ComparePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbfdfb]">
+    <div className="min-h-screen bg-[#FFF8F5]">
       <Header />
 
       <main className="wrap py-6">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] mb-4 flex-wrap">
-          <Link href="/" className="hover:text-[var(--color-green)] transition-colors">Home</Link>
+        <div className="flex items-center gap-2 text-[0.8rem] text-[#8B7355] mb-4 flex-wrap">
+          <Link href="/" className="hover:text-[#99032B] transition-colors">Home</Link>
           <span className="opacity-40">/</span>
-          <span className="text-[var(--color-ink)] font-semibold">Compare</span>
+          <span className="text-[#4A3520] font-semibold">Compare</span>
         </div>
 
         {/* Hero */}
-        <section className="relative rounded-[24px] overflow-hidden mb-8 bg-gradient-to-br from-[#0A3F26] via-[#0F6B3E] to-[#1FA25A] text-white">
+        <section className="relative rounded-[24px] overflow-hidden mb-8 bg-gradient-to-br from-[#66021D] via-[#99032B] to-[#B8043A] text-white">
           <div className="relative z-10 p-10 md:p-14">
             <div className="max-w-[700px]">
               <div className="flex items-center gap-3 mb-4">
@@ -191,39 +242,16 @@ export default function ComparePage() {
                 <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-white/15 px-4 py-1.5 rounded-full font-semibold">
                   Side-by-Side
                 </span>
-                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#D4F26B] text-[var(--color-green-deep)] px-4 py-1.5 rounded-full font-semibold">
-                  {total} Products
+                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#FF6B6B] text-white px-4 py-1.5 rounded-full font-semibold">
+                  {phones.length} Phones
                 </span>
               </div>
               <h1 className="font-fraunces font-medium text-[clamp(2.5rem,5vw,4rem)] tracking-[-0.03em] leading-[1.08]">
-                Compare <em className="italic not-italic text-[#D4F26B]">Products</em> Side-by-Side
+                Compare <em className="italic not-italic text-[#FF6B6B]">Phones</em> Side-by-Side
               </h1>
               <p className="mt-4 text-white/85 text-[1.05rem] leading-[1.7] max-w-[600px]">
-                Select up to 4 products from Phones, Laptops, and Auto to compare specs, prices, pros, and cons.
+                Select up to 4 phones to compare all specifications.
               </p>
-
-              {/* Search */}
-              <div className="mt-7 max-w-[500px] relative">
-                <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="11" cy="11" r="7" />
-                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search products to compare..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-5 py-4 pl-13 rounded-full border border-white/25 bg-white/10 backdrop-blur-sm text-white font-poppins text-[1rem] transition-all focus:outline-none focus:border-[#D4F26B] focus:bg-white/16 placeholder:text-white/55"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors text-xl"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
             </div>
           </div>
           <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20" viewBox="0 0 800 400" preserveAspectRatio="none">
@@ -232,62 +260,40 @@ export default function ComparePage() {
           </svg>
         </section>
 
-        {/* Stats Bar */}
-        {stats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div className="bg-white border border-[var(--color-line)] rounded-[12px] p-4 text-center">
-              <div className="text-2xl font-bold text-[var(--color-green)]">{stats.total}</div>
-              <div className="text-[0.7rem] text-[var(--color-ink-soft)]">Total Products</div>
-            </div>
-            <div className="bg-white border border-[var(--color-line)] rounded-[12px] p-4 text-center">
-              <div className="text-2xl font-bold text-[var(--color-green)]">{stats.categories?.length || 0}</div>
-              <div className="text-[0.7rem] text-[var(--color-ink-soft)]">Categories</div>
-            </div>
-            <div className="bg-white border border-[var(--color-line)] rounded-[12px] p-4 text-center">
-              <div className="text-2xl font-bold text-[var(--color-green)]">{stats.brands?.length || 0}</div>
-              <div className="text-[0.7rem] text-[var(--color-ink-soft)]">Brands</div>
-            </div>
-            <div className="bg-white border border-[var(--color-line)] rounded-[12px] p-4 text-center">
-              <div className="text-2xl font-bold text-[var(--color-green)]">{stats.avgRating?.toFixed(1) || 0}</div>
-              <div className="text-[0.7rem] text-[var(--color-ink-soft)]">Avg Rating</div>
-            </div>
-          </div>
-        )}
-
         {/* Selection Bar */}
         {selectedItems.length > 0 && (
-          <section className="mb-8 p-5 border-2 border-[var(--color-green)] rounded-[16px] bg-green-50/50">
+          <section className="mb-8 p-5 border-2 border-[#99032B] rounded-[16px] bg-[#FFF5F0]">
             <div className="flex justify-between items-center flex-wrap gap-4">
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="font-semibold text-[0.9rem]">Comparing:</span>
-                {selectedItemsData.map((item) => (
+                <span className="font-semibold text-[0.9rem] text-[#4A3520]">Comparing:</span>
+                {selectedPhonesData.map((phone) => (
                   <span
-                    key={item.id}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[var(--color-line)] text-[0.8rem] shadow-sm"
+                    key={phone._id?.toString() || phone.slug}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#E8D5C4] text-[0.8rem] shadow-sm"
                   >
-                    <span className="text-sm">{item.categoryIcon}</span>
-                    <span className="font-medium">{item.name}</span>
+                    <span className="text-sm">📱</span>
+                    <span className="font-medium text-[#4A3520]">{phone.brand} {phone.model}</span>
                     <button
-                      onClick={() => toggleSelection(item.id)}
-                      className="text-[var(--color-ink-soft)] hover:text-red-500 transition-colors ml-1"
+                      onClick={() => toggleSelection(phone.slug || phone._id?.toString() || '')}
+                      className="text-[#8B7355] hover:text-[#99032B] transition-colors ml-1"
                     >
                       ✕
                     </button>
                   </span>
                 ))}
-                <span className="text-[0.7rem] text-[var(--color-ink-soft)]">({selectedItems.length}/4)</span>
+                <span className="text-[0.7rem] text-[#8B7355]">({selectedItems.length}/4)</span>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={clearSelections}
-                  className="px-4 py-2 rounded-full border border-[var(--color-line)] text-[0.8rem] font-semibold hover:border-red-500 hover:text-red-500 transition-colors"
+                  className="px-4 py-2 rounded-full border border-[#E8D5C4] text-[0.8rem] font-semibold text-[#8B7355] hover:border-[#99032B] hover:text-[#99032B] transition-colors"
                 >
                   Clear All
                 </button>
                 {selectedItems.length >= 2 && (
                   <button
                     onClick={() => setViewMode("table")}
-                    className="px-4 py-2 rounded-full bg-[var(--color-green)] text-white font-semibold text-[0.8rem] transition-all hover:bg-[var(--color-green-deep)] shadow-lg hover:shadow-xl"
+                    className="px-4 py-2 rounded-full bg-[#99032B] text-white font-semibold text-[0.8rem] transition-all duration-300 hover:bg-[#B8043A] hover:scale-105 hover:shadow-[0_8px_30px_rgba(153,3,43,0.4)] active:scale-95"
                   >
                     Compare Now →
                   </button>
@@ -297,179 +303,124 @@ export default function ComparePage() {
           </section>
         )}
 
-        {/* Category Filters */}
+        {/* Category & Brand Filters */}
         <section className="mb-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[0.75rem] font-semibold text-[var(--color-ink-soft)] mr-1">Filter:</span>
-            {categories.map((cat) => {
-              const label = cat === 'all' ? 'All Products' : CATEGORY_LABELS[cat] || cat;
-              const icon = cat === 'all' ? '📋' : CATEGORY_ICONS[cat] || '📦';
-              const isActive = selectedCategory === cat;
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="text-[0.75rem] font-semibold text-[#8B7355] mr-1">Category:</span>
+            <button
+              onClick={() => setSelectedCategory("phones")}
+              className={`px-4 py-2 rounded-full font-semibold text-[0.8rem] transition-all duration-300 ${
+                selectedCategory === "phones"
+                  ? "bg-[#99032B] text-white shadow-md scale-105"
+                  : "bg-white text-[#8B7355] border border-[#E8D5C4] hover:border-[#99032B] hover:text-[#4A3520] hover:shadow-sm hover:scale-105"
+              }`}
+            >
+              📱 Phones
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 mt-3">
+            <span className="text-[0.75rem] font-semibold text-[#8B7355] mr-1">Brand:</span>
+            {brands.map((brand) => {
+              const label = brand === 'all' ? 'All Brands' : brand;
+              const isActive = selectedBrand === brand;
               return (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-4 py-2 rounded-full font-semibold text-[0.8rem] transition-all ${
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={`px-4 py-2 rounded-full font-semibold text-[0.8rem] transition-all duration-300 ${
                     isActive
-                      ? "bg-[var(--color-ink)] text-white shadow-md"
-                      : "bg-[var(--color-paper)] text-[var(--color-ink-soft)] border border-[var(--color-line)] hover:border-[var(--color-green)] hover:text-[var(--color-ink)] hover:shadow-sm"
+                      ? "bg-[#99032B] text-white shadow-md scale-105"
+                      : "bg-white text-[#8B7355] border border-[#E8D5C4] hover:border-[#99032B] hover:text-[#4A3520] hover:shadow-sm hover:scale-105"
                   }`}
                 >
-                  {icon} {label}
+                  {label}
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* Top Rated & Popular */}
-        {selectedCategory === 'all' && viewMode === "grid" && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {topRated.length > 0 && (
-              <div className="border border-[var(--color-line)] rounded-[16px] p-5 bg-white">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">🏆</span>
-                  <h3 className="font-fraunces font-medium text-[1.1rem]">Top Rated</h3>
-                </div>
-                <div className="space-y-3">
-                  {topRated.slice(0, 3).map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-[8px] hover:bg-[var(--color-paper)] transition-colors cursor-pointer" onClick={() => toggleSelection(item.id)}>
-                      <div className="w-12 h-12 rounded-[8px] overflow-hidden bg-[#eef1e9] flex-shrink-0 relative">
-                        <Image src={item.image} alt={item.name} fill className="object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[0.6rem] font-semibold text-[var(--color-ink-soft)]">{item.brand}</span>
-                          <span className="text-[0.5rem]">{getStars(item.rating)}</span>
-                        </div>
-                        <h4 className="text-[0.85rem] font-medium truncate">{item.name}</h4>
-                      </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleSelection(item.id); }}
-                        className={`text-[0.6rem] font-semibold px-3 py-1 rounded-full transition-colors ${
-                          selectedItems.includes(item.id) ? 'bg-red-100 text-red-600' : 'bg-[var(--color-green)] text-white hover:bg-[var(--color-green-deep)]'
-                        }`}
-                      >
-                        {selectedItems.includes(item.id) ? 'Remove' : 'Add'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {popular.length > 0 && (
-              <div className="border border-[var(--color-line)] rounded-[16px] p-5 bg-white">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-xl">🔥</span>
-                  <h3 className="font-fraunces font-medium text-[1.1rem]">Most Popular</h3>
-                </div>
-                <div className="space-y-3">
-                  {popular.slice(0, 3).map((item) => (
-                    <div key={item.id} className="flex items-center gap-3 p-2 rounded-[8px] hover:bg-[var(--color-paper)] transition-colors cursor-pointer" onClick={() => toggleSelection(item.id)}>
-                      <div className="w-12 h-12 rounded-[8px] overflow-hidden bg-[#eef1e9] flex-shrink-0 relative">
-                        <Image src={item.image} alt={item.name} fill className="object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[0.6rem] font-semibold text-[var(--color-ink-soft)]">{item.brand}</span>
-                          <span className="text-[0.5rem]">{getStars(item.rating)}</span>
-                        </div>
-                        <h4 className="text-[0.85rem] font-medium truncate">{item.name}</h4>
-                      </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); toggleSelection(item.id); }}
-                        className={`text-[0.6rem] font-semibold px-3 py-1 rounded-full transition-colors ${
-                          selectedItems.includes(item.id) ? 'bg-red-100 text-red-600' : 'bg-[var(--color-green)] text-white hover:bg-[var(--color-green-deep)]'
-                        }`}
-                      >
-                        {selectedItems.includes(item.id) ? 'Remove' : 'Add'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Product Grid */}
         {viewMode === "grid" && (
           <section>
             <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
               <div className="flex items-center gap-3">
-                <span className="text-[0.85rem] text-[var(--color-ink-soft)]">
-                  {filteredItems.length} products found
+                <span className="text-[0.85rem] text-[#8B7355]">
+                  {filteredPhones.length} phones found
                 </span>
-                {filteredItems.length > 0 && (
+                {filteredPhones.length > 0 && (
                   <button
                     onClick={selectTop4}
-                    className="text-[0.7rem] text-[var(--color-green)] hover:underline font-medium"
+                    className="text-[0.7rem] text-[#99032B] hover:underline font-medium transition-all duration-300 hover:scale-105"
                   >
                     Select Top 4
                   </button>
                 )}
               </div>
-              <span className="text-[0.7rem] text-[var(--color-ink-soft)]">
+              <span className="text-[0.7rem] text-[#8B7355]">
                 Select up to 4 to compare
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredItems.map((item) => {
-                const isSelected = selectedItems.includes(item.id);
-                const categoryColor = CATEGORY_COLORS[item.category] || "from-gray-500 to-gray-700";
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
+              {filteredPhones.map((phone) => {
+                const id = phone.slug || phone._id?.toString() || '';
+                const isSelected = selectedItems.includes(id);
+                const imageUrl = phone.image || '/images/placeholder-phone.jpg';
                 
                 return (
                   <div
-                    key={item.id}
-                    className={`group border rounded-[16px] overflow-hidden bg-white transition-all duration-300 ${
+                    key={id}
+                    className={`group border rounded-[12px] overflow-hidden bg-white transition-all duration-300 ${
                       isSelected
-                        ? "border-[var(--color-green)] shadow-[0_0_0_2px_rgba(15,107,62,0.3)] shadow-lg"
-                        : "border-[var(--color-line)] hover:shadow-[0_12px_24px_rgba(15,24,15,0.10)] hover:-translate-y-1"
+                        ? "border-[#99032B] shadow-[0_0_0_2px_rgba(153,3,43,0.3)] shadow-lg scale-[1.02]"
+                        : "border-[#E8D5C4] hover:shadow-[0_8px_20px_rgba(153,3,43,0.10)] hover:-translate-y-1 hover:scale-[1.02]"
                     }`}
                   >
-                    <div className="relative w-full aspect-[4/3] overflow-hidden bg-[#eef1e9]">
+                    <div className="relative w-full aspect-[3/4] overflow-hidden bg-white">
                       <Image
-                        src={item.image}
-                        alt={item.name}
+                        src={imageUrl}
+                        alt={`${phone.brand} ${phone.model}`}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        className="object-contain p-3 transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 14vw"
+                        priority={false}
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/images/placeholder-phone.jpg';
+                        }}
                       />
-                      <div className={`absolute inset-0 bg-gradient-to-t ${categoryColor} opacity-0 group-hover:opacity-20 transition-opacity duration-300`} />
-                      <span className="absolute top-2.5 left-2.5 text-[0.5rem] px-2 py-0.5 rounded-full bg-black/70 text-white font-bold backdrop-blur-sm">
-                        {item.categoryIcon} {item.categoryLabel}
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#99032B] to-[#B8043A] opacity-0 group-hover:opacity-10 transition-opacity duration-300 pointer-events-none" />
+                      <span className="absolute top-2 left-2 text-[0.4rem] px-1.5 py-0.5 rounded-full bg-black/70 text-white font-bold backdrop-blur-sm">
+                        📱
                       </span>
                       {isSelected && (
-                        <span className="absolute top-2.5 right-2.5 text-[0.5rem] px-2 py-0.5 rounded-full bg-[var(--color-green)] text-white font-bold shadow-lg animate-pulse">
-                          ✓ Selected
+                        <span className="absolute top-2 right-2 text-[0.4rem] px-1.5 py-0.5 rounded-full bg-[#99032B] text-white font-bold shadow-lg animate-pulse">
+                          ✓
                         </span>
                       )}
-                      <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 text-[0.5rem] text-white bg-black/50 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                        <span>{getStars(item.rating)}</span>
-                        <span className="font-bold">{item.rating}</span>
-                      </div>
                     </div>
-                    <div className="p-4">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-[0.6rem] font-semibold text-[var(--color-ink-soft)]">{item.brand}</span>
-                        <span className="text-[0.6rem] font-bold text-[var(--color-green)]">{item.price}</span>
+                    
+                    <div className="p-2 text-center">
+                      <div className="text-[0.45rem] font-semibold text-[#8B7355] truncate mb-0.5">
+                        {phone.brand}
                       </div>
-                      <h4 className="font-fraunces font-medium text-[1rem] leading-[1.3] group-hover:text-[var(--color-green)] transition-colors line-clamp-1">
-                        {item.name}
+                      <h4 className="font-fraunces font-medium text-[0.7rem] leading-[1.2] text-[#4A3520] group-hover:text-[#99032B] transition-colors line-clamp-1">
+                        {phone.model}
                       </h4>
-                      <p className="text-[0.7rem] text-[var(--color-ink-soft)] mt-1 line-clamp-2">
-                        {item.description}
-                      </p>
+                      <div className="text-[0.5rem] text-[#8B7355] mt-0.5">
+                        {phone.year} · {phone.ram}GB · {phone.storage}GB
+                      </div>
                       <button
-                        onClick={() => toggleSelection(item.id)}
-                        className={`w-full mt-3 py-2.5 rounded-full font-semibold text-[0.85rem] transition-all ${
+                        onClick={() => toggleSelection(id)}
+                        className={`w-full mt-1.5 py-1.5 rounded-full font-semibold text-[0.6rem] transition-all duration-300 ${
                           isSelected
-                            ? "bg-red-50 text-red-600 border border-red-200 hover:bg-red-100"
-                            : "bg-[var(--color-green)] text-white hover:bg-[var(--color-green-deep)] shadow-md hover:shadow-lg"
+                            ? "bg-[#FFF0ED] text-[#99032B] border border-[#E8C4B8] hover:bg-[#FFE8E0] hover:scale-105 active:scale-95"
+                            : "bg-[#99032B] text-white hover:bg-[#B8043A] hover:scale-105 hover:shadow-[0_4px_15px_rgba(153,3,43,0.3)] active:scale-95 shadow-md"
                         }`}
                       >
-                        {isSelected ? "Remove from Compare" : "Add to Compare"}
+                        {isSelected ? "Remove" : "Compare"}
                       </button>
                     </div>
                   </div>
@@ -477,14 +428,14 @@ export default function ComparePage() {
               })}
             </div>
 
-            {filteredItems.length === 0 && (
-              <div className="text-center py-16 bg-white rounded-[20px] border border-[var(--color-line)]">
+            {filteredPhones.length === 0 && (
+              <div className="text-center py-16 bg-white rounded-[20px] border border-[#E8D5C4]">
                 <span className="text-4xl">🔍</span>
-                <h3 className="mt-3 text-xl font-medium text-[var(--color-ink)]">No products found</h3>
-                <p className="text-[0.95rem] text-[var(--color-ink-soft)] mt-1">Try adjusting your filters or search term.</p>
+                <h3 className="mt-3 text-xl font-medium text-[#4A3520]">No phones found</h3>
+                <p className="text-[0.95rem] text-[#8B7355] mt-1">Try adjusting your filters.</p>
                 <button
-                  onClick={() => { setSearchQuery(""); setSelectedCategory("all"); }}
-                  className="mt-4 px-6 py-2.5 rounded-full bg-[var(--color-green)] text-white font-semibold text-[0.85rem] transition-all hover:bg-[var(--color-green-deep)]"
+                  onClick={() => { setSelectedBrand("all"); }}
+                  className="mt-4 px-6 py-2.5 rounded-full bg-[#99032B] text-white font-semibold text-[0.85rem] transition-all duration-300 hover:bg-[#B8043A] hover:scale-105 active:scale-95"
                 >
                   Reset Filters
                 </button>
@@ -493,57 +444,61 @@ export default function ComparePage() {
           </section>
         )}
 
-        {/* Comparison Table */}
+        {/* Comparison Table - All Phone Specs */}
         {viewMode === "table" && selectedItems.length >= 2 && (
           <section className="mt-6">
             <div className="flex justify-between items-center mb-4 flex-wrap gap-2">
-              <h2 className="font-fraunces font-medium text-[1.5rem] tracking-[-0.01em]">
-                Comparison <em className="italic not-italic text-[var(--color-green)]">Table</em>
+              <h2 className="font-fraunces font-medium text-[1.5rem] tracking-[-0.01em] text-[#4A3520]">
+                Comparison <em className="italic not-italic text-[#99032B]">Table</em>
               </h2>
               <div className="flex gap-2">
                 <button
                   onClick={() => setViewMode("grid")}
-                  className="px-4 py-2 rounded-full border border-[var(--color-line)] text-[0.8rem] font-semibold hover:border-[var(--color-green)] hover:text-[var(--color-green)] transition-colors"
+                  className="px-4 py-2 rounded-full border border-[#E8D5C4] text-[0.8rem] font-semibold text-[#8B7355] hover:border-[#99032B] hover:text-[#99032B] transition-all duration-300 hover:scale-105 active:scale-95"
                 >
                   ← Back to products
                 </button>
                 <button
                   onClick={clearSelections}
-                  className="px-4 py-2 rounded-full border border-red-200 text-red-600 text-[0.8rem] font-semibold hover:bg-red-50 transition-colors"
+                  className="px-4 py-2 rounded-full border border-[#E8C4B8] text-[#99032B] text-[0.8rem] font-semibold hover:bg-[#FFF0ED] transition-all duration-300 hover:scale-105 active:scale-95"
                 >
                   Clear All
                 </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto bg-white rounded-[16px] border border-[var(--color-line)] shadow-sm">
+            <div className="overflow-x-auto bg-white rounded-[16px] border border-[#E8D5C4] shadow-sm">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-gradient-to-r from-[var(--color-paper)] to-white border-b-2 border-[var(--color-line)]">
-                    <th className="p-5 text-left font-fraunces font-semibold text-[0.9rem] min-w-[140px] sticky left-0 bg-[var(--color-paper)]">
-                      Features
+                  <tr className="bg-gradient-to-r from-[#FFF5F0] to-white border-b-2 border-[#E8D5C4]">
+                    <th className="p-5 text-left font-fraunces font-semibold text-[0.9rem] text-[#4A3520] min-w-[160px] sticky left-0 bg-[#FFF5F0] z-10">
+                      Specifications
                     </th>
-                    {selectedItemsData.map((item, index) => (
-                      <th key={item.id} className="p-4 text-center min-w-[220px]">
+                    {selectedPhonesData.map((phone, index) => (
+                      <th key={phone._id?.toString() || phone.slug} className="p-4 text-center min-w-[200px]">
                         <div className="flex flex-col items-center">
-                          <div className="relative w-20 h-20 rounded-[12px] overflow-hidden mb-2 bg-[#eef1e9] shadow-md">
+                          <div className="relative w-20 h-24 rounded-[12px] overflow-hidden mb-2 bg-white shadow-md transition-all duration-300 hover:scale-105">
                             <Image
-                              src={item.image}
-                              alt={item.name}
+                              src={phone.image || '/images/placeholder-phone.jpg'}
+                              alt={`${phone.brand} ${phone.model}`}
                               fill
-                              className="object-cover"
+                              className="object-contain p-1"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = '/images/placeholder-phone.jpg';
+                              }}
                             />
-                            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[var(--color-green)] text-white text-[0.5rem] font-bold flex items-center justify-center shadow-lg">
+                            <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#99032B] text-white text-[0.5rem] font-bold flex items-center justify-center shadow-lg">
                               {index + 1}
                             </div>
                           </div>
-                          <span className="text-[0.6rem] font-semibold text-[var(--color-ink-soft)]">{item.brand}</span>
-                          <span className="font-fraunces font-medium text-[1rem]">{item.name}</span>
-                          <span className="text-[0.7rem]">{getStars(item.rating)}</span>
-                          <span className="text-[0.9rem] font-bold text-[var(--color-green-deep)] mt-1">{item.price}</span>
+                          <span className="text-[0.55rem] font-semibold text-[#8B7355]">{phone.brand}</span>
+                          <span className="font-fraunces font-medium text-[0.9rem] text-[#4A3520]">{phone.model}</span>
+                          <span className="text-[0.6rem] text-[#8B7355]">{phone.year}</span>
+                          <span className="text-[0.7rem] font-bold text-[#99032B] mt-0.5">${phone.price || "N/A"}</span>
                           <button
-                            onClick={() => toggleSelection(item.id)}
-                            className="mt-2 text-[0.6rem] text-red-500 hover:underline transition-colors"
+                            onClick={() => toggleSelection(phone.slug || phone._id?.toString() || '')}
+                            className="mt-1 text-[0.5rem] text-[#99032B] hover:underline transition-all duration-300 hover:scale-105"
                           >
                             Remove
                           </button>
@@ -553,85 +508,90 @@ export default function ComparePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="border-b border-[var(--color-line)] bg-white hover:bg-[var(--color-paper)] transition-colors">
-                    <td className="p-4 font-semibold text-[0.85rem] sticky left-0 bg-white hover:bg-[var(--color-paper)]">Rating</td>
-                    {selectedItemsData.map((item) => (
-                      <td key={item.id} className="p-4 text-center">
-                        <span className="text-[1.1rem]">{getStars(item.rating)}</span>
-                        <span className={`block text-[0.8rem] font-bold ${getRatingColor(item.rating)}`}>{item.rating}/5</span>
-                      </td>
-                    ))}
+                  {SPEC_GROUPS.map((group) => {
+                    const groupSpecs = PHONE_SPECS.filter(s => s.group === group);
+                    const hasData = groupSpecs.some(spec => 
+                      selectedPhonesData.some(phone => getPhoneValue(phone, spec) !== "—")
+                    );
+                    
+                    if (!hasData) return null;
+                    
+                    return (
+                      <>
+                        <tr className="bg-[#FFF5F0] border-b border-[#E8D5C4]">
+                          <td colSpan={selectedPhonesData.length + 1} className="p-3 pl-5 font-bold text-[0.9rem] text-[#99032B]">
+                            {group}
+                          </td>
+                        </tr>
+                        
+                        {groupSpecs.map((spec) => (
+                          <tr key={spec.key} className="border-b border-[#E8D5C4] bg-white hover:bg-[#FFF5F0] transition-colors duration-200">
+                            <td className="p-4 pl-5 font-medium text-[0.8rem] text-[#4A3520] sticky left-0 bg-white hover:bg-[#FFF5F0] z-5">
+                              {spec.label}
+                            </td>
+                            {selectedPhonesData.map((phone) => {
+                              const value = getPhoneValue(phone, spec);
+                              const isHighlight = value !== "—" && value !== "❌ No" && value !== "No";
+                              
+                              return (
+                                <td key={phone._id?.toString() || phone.slug} className="p-4 text-center">
+                                  {value !== "—" ? (
+                                    <span className={`px-2.5 py-1 rounded-lg text-[0.75rem] transition-all duration-300 inline-block ${
+                                      isHighlight 
+                                        ? "bg-[#FFF5F0] border border-[#E8D5C4] hover:bg-[#99032B] hover:text-white hover:scale-105 hover:shadow-lg cursor-default" 
+                                        : "text-[#B8A898]"
+                                    }`}>
+                                      {value}
+                                    </span>
+                                  ) : (
+                                    <span className="text-[#D5C8C0] text-[0.75rem]">—</span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </>
+                    );
+                  })}
+
+                  {/* Pros */}
+                  <tr className="bg-[#F0F8F0] border-b border-[#E8D5C4]">
+                    <td colSpan={selectedPhonesData.length + 1} className="p-3 pl-5 font-bold text-[0.9rem] text-[#2D7D3A]">
+                      ✅ Pros
+                    </td>
                   </tr>
-
-                  <tr className="border-b border-[var(--color-line)] bg-[var(--color-paper)] hover:bg-[var(--color-paper)] transition-colors">
-                    <td className="p-4 font-semibold text-[0.85rem] sticky left-0 bg-[var(--color-paper)]">Price</td>
-                    {selectedItemsData.map((item) => (
-                      <td key={item.id} className="p-4 text-center font-bold text-[1.1rem] text-[var(--color-green-deep)]">
-                        {item.price}
-                      </td>
-                    ))}
-                  </tr>
-
-                  <tr className="border-b border-[var(--color-line)] bg-white hover:bg-[var(--color-paper)] transition-colors">
-                    <td className="p-4 font-semibold text-[0.85rem] sticky left-0 bg-white hover:bg-[var(--color-paper)]">Category</td>
-                    {selectedItemsData.map((item) => (
-                      <td key={item.id} className="p-4 text-center">
-                        <span className="text-[0.8rem] px-3 py-1 rounded-full bg-[var(--color-paper)] border border-[var(--color-line)]">
-                          {item.categoryIcon} {item.categoryLabel}
-                        </span>
-                      </td>
-                    ))}
-                  </tr>
-
-                  <tr className="border-b border-[var(--color-line)] bg-[var(--color-paper)] hover:bg-[var(--color-paper)] transition-colors">
-                    <td className="p-4 font-semibold text-[0.85rem] sticky left-0 bg-[var(--color-paper)]">Description</td>
-                    {selectedItemsData.map((item) => (
-                      <td key={item.id} className="p-4 text-center text-[0.8rem] text-[var(--color-ink-soft)] leading-relaxed">
-                        {item.description}
-                      </td>
-                    ))}
-                  </tr>
-
-                  {allSpecs.map((specKey) => (
-                    <tr key={specKey} className="border-b border-[var(--color-line)] bg-white hover:bg-[var(--color-paper)] transition-colors">
-                      <td className="p-4 font-semibold text-[0.85rem] sticky left-0 bg-white hover:bg-[var(--color-paper)]">
-                        {specKey}
-                      </td>
-                      {selectedItemsData.map((item) => (
-                        <td key={item.id} className="p-4 text-center text-[0.85rem]">
-                          {item.specs?.[specKey] ? (
-                            <span className="px-2 py-1 rounded bg-[var(--color-paper)] border border-[var(--color-line)]">
-                              {item.specs[specKey]}
-                            </span>
-                          ) : (
-                            <span className="text-[var(--color-ink-soft)]">—</span>
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-
-                  <tr className="border-b border-[var(--color-line)] bg-[var(--color-paper)] hover:bg-[var(--color-paper)] transition-colors">
-                    <td className="p-4 font-semibold text-[0.85rem] text-green-600 sticky left-0 bg-[var(--color-paper)]">✅ Pros</td>
-                    {selectedItemsData.map((item) => (
-                      <td key={item.id} className="p-4 text-center">
-                        <ul className="text-[0.75rem] text-left list-disc list-inside text-[var(--color-ink-soft)] space-y-0.5">
-                          {item.pros?.map((pro: string, i: number) => (
-                            <li key={i} className="hover:text-[var(--color-green)] transition-colors">{pro}</li>
-                          ))}
+                  <tr className="border-b border-[#E8D5C4] bg-white hover:bg-[#F5FFF5] transition-colors duration-200">
+                    <td className="p-4 pl-5 font-medium text-[0.8rem] text-[#4A3520] sticky left-0 bg-white hover:bg-[#F5FFF5] z-5">
+                      Advantages
+                    </td>
+                    {selectedPhonesData.map((phone) => (
+                      <td key={phone._id?.toString() || phone.slug} className="p-4 text-center">
+                        <ul className="text-[0.7rem] text-left list-disc list-inside text-[#4A3520] space-y-0.5">
+                          {phone.pros?.map((pro: string, i: number) => (
+                            <li key={i} className="hover:text-[#2D7D3A] transition-colors duration-300">{pro}</li>
+                          )) || <li className="text-[#B8A898]">—</li>}
                         </ul>
                       </td>
                     ))}
                   </tr>
 
-                  <tr className="bg-white hover:bg-[var(--color-paper)] transition-colors">
-                    <td className="p-4 font-semibold text-[0.85rem] text-red-600 sticky left-0 bg-white hover:bg-[var(--color-paper)]">❌ Cons</td>
-                    {selectedItemsData.map((item) => (
-                      <td key={item.id} className="p-4 text-center">
-                        <ul className="text-[0.75rem] text-left list-disc list-inside text-[var(--color-ink-soft)] space-y-0.5">
-                          {item.cons?.map((con: string, i: number) => (
-                            <li key={i} className="hover:text-red-600 transition-colors">{con}</li>
-                          ))}
+                  {/* Cons */}
+                  <tr className="bg-[#FFF5F0] border-b border-[#E8D5C4]">
+                    <td colSpan={selectedPhonesData.length + 1} className="p-3 pl-5 font-bold text-[0.9rem] text-[#99032B]">
+                      ❌ Cons
+                    </td>
+                  </tr>
+                  <tr className="bg-white hover:bg-[#FFF5F0] transition-colors duration-200">
+                    <td className="p-4 pl-5 font-medium text-[0.8rem] text-[#4A3520] sticky left-0 bg-white hover:bg-[#FFF5F0] z-5">
+                      Disadvantages
+                    </td>
+                    {selectedPhonesData.map((phone) => (
+                      <td key={phone._id?.toString() || phone.slug} className="p-4 text-center">
+                        <ul className="text-[0.7rem] text-left list-disc list-inside text-[#4A3520] space-y-0.5">
+                          {phone.cons?.map((con: string, i: number) => (
+                            <li key={i} className="hover:text-[#99032B] transition-colors duration-300">{con}</li>
+                          )) || <li className="text-[#B8A898]">—</li>}
                         </ul>
                       </td>
                     ))}
@@ -640,18 +600,18 @@ export default function ComparePage() {
               </table>
             </div>
 
-            <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-white rounded-[12px] border border-[var(--color-line)]">
+            <div className="mt-4 p-4 bg-gradient-to-r from-[#FFF5F0] to-white rounded-[12px] border border-[#E8D5C4]">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <span className="font-semibold text-[0.9rem]">📊 Comparison Summary</span>
-                  <span className="text-[0.75rem] text-[var(--color-ink-soft)] ml-3">
-                    {selectedItems.length} products compared
+                  <span className="font-semibold text-[0.9rem] text-[#4A3520]">📊 Comparison Summary</span>
+                  <span className="text-[0.75rem] text-[#8B7355] ml-3">
+                    {selectedItems.length} phones compared · {PHONE_SPECS.length} specifications
                   </span>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={() => window.print()}
-                    className="px-4 py-2 rounded-full border border-[var(--color-line)] text-[0.8rem] font-semibold hover:border-[var(--color-green)] hover:text-[var(--color-green)] transition-colors flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-full border border-[#E8D5C4] text-[0.8rem] font-semibold text-[#8B7355] hover:border-[#99032B] hover:text-[#99032B] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5"
                   >
                     🖨️ Print
                   </button>
@@ -661,7 +621,7 @@ export default function ComparePage() {
                       navigator.clipboard?.writeText(url);
                       alert("Link copied to clipboard!");
                     }}
-                    className="px-4 py-2 rounded-full border border-[var(--color-line)] text-[0.8rem] font-semibold hover:border-[var(--color-green)] hover:text-[var(--color-green)] transition-colors flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-full border border-[#E8D5C4] text-[0.8rem] font-semibold text-[#8B7355] hover:border-[#99032B] hover:text-[#99032B] transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5"
                   >
                     🔗 Share
                   </button>
@@ -672,17 +632,17 @@ export default function ComparePage() {
         )}
 
         {viewMode === "table" && selectedItems.length < 2 && (
-          <div className="text-center py-16 bg-white rounded-[20px] border border-[var(--color-line)]">
+          <div className="text-center py-16 bg-white rounded-[20px] border border-[#E8D5C4]">
             <span className="text-4xl">📊</span>
-            <h3 className="mt-3 text-xl font-medium text-[var(--color-ink)]">Select at least 2 products to compare</h3>
-            <p className="text-[0.95rem] text-[var(--color-ink-soft)] mt-1">
-              Go back and select 2-4 products to see a side-by-side comparison.
+            <h3 className="mt-3 text-xl font-medium text-[#4A3520]">Select at least 2 phones to compare</h3>
+            <p className="text-[0.95rem] text-[#8B7355] mt-1">
+              Go back and select 2-4 phones to see a side-by-side comparison.
             </p>
             <button
               onClick={() => setViewMode("grid")}
-              className="mt-4 px-6 py-2.5 rounded-full bg-[var(--color-green)] text-white font-semibold text-[0.85rem] transition-all hover:bg-[var(--color-green-deep)] shadow-md hover:shadow-lg"
+              className="mt-4 px-6 py-2.5 rounded-full bg-[#99032B] text-white font-semibold text-[0.85rem] transition-all duration-300 hover:bg-[#B8043A] hover:scale-105 hover:shadow-[0_8px_30px_rgba(153,3,43,0.4)] active:scale-95"
             >
-              Browse Products
+              Browse Phones
             </button>
           </div>
         )}

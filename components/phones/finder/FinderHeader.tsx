@@ -9,13 +9,12 @@ interface FinderHeaderProps {
 export function FinderHeader({ totalPhones = 0, totalBrands = 0 }: FinderHeaderProps) {
   return (
     <>
-      {/* Header - Breadcrumb REMOVED from here */}
       <div className="flex justify-between items-center flex-wrap gap-4 mb-3">
         <h1 className="font-fraunces font-medium text-[2.2rem] tracking-[-0.02em] flex items-center gap-2.5">
           <span className="text-[1.8rem]">🔍</span>
-          Phone <em className="italic not-italic text-[var(--color-green)]">Finder</em>
+          Phone <em className="italic not-italic text-[#FF6B00]">Finder</em>
         </h1>
-        <span className="text-[0.75rem] bg-[#e9f3ed] text-[var(--color-green)] px-4.5 py-1.5 rounded-[40px] font-semibold tracking-[0.01em]">
+        <span className="text-[0.75rem] bg-[#FFF5EB] text-[#FF6B00] px-4.5 py-1.5 rounded-[40px] font-semibold tracking-[0.01em] border border-[#FFE4C4]">
           📱 {totalPhones}+ models · {totalBrands} brands
         </span>
       </div>

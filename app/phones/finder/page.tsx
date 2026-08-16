@@ -1,6 +1,5 @@
 // app/phones/finder/page.tsx
 import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { FinderHeader } from "@/components/phones/finder/FinderHeader";
 import { FinderSearch } from "@/components/phones/finder/FinderSearch";
 import { FilterBar } from "@/components/phones/finder/FilterBar";
@@ -26,7 +25,6 @@ interface PageProps {
   }>;
 }
 
-// Helper function to serialize MongoDB documents
 function serializePhone(phone: any) {
   if (!phone) return null;
   return {
@@ -83,7 +81,6 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
   const trending = params.trending === 'true';
   const sort = params.sort || 'newest';
 
-  // Fetch all data from database
   const [phonesResult, brandsResult, stats] = await Promise.all([
     getAllPhones({
       search,
@@ -102,10 +99,7 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
     getPhoneStats(),
   ]);
 
-  // Ensure brands is always an array
   const brands = Array.isArray(brandsResult) ? brandsResult : [];
-
-  // Serialize phone data for client components
   const serializedPhones = phonesResult.data.map(serializePhone);
   const serializedResult = {
     data: serializedPhones,
@@ -113,31 +107,29 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
     totalPages: phonesResult.totalPages,
   };
 
-  // Get unique years from database for filter
   const years = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
 
   return (
     <>
       <Header />
-      {/* ✅ Full width container - removed max-w and padding restrictions */}
-      <div className="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6 bg-[#fbf8ff]">
-        <div className="w-full max-w-[1440px] mx-auto bg-white rounded-[40px] shadow-[0_20px_60px_rgba(15,24,15,0.06)] px-6 md:px-10 py-6 md:py-7.5 pb-8 md:pb-11.5 border border-[rgba(15,24,15,0.05)]">
+      <div className="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6 bg-white">
+        <div className="w-full max-w-[1440px] mx-auto bg-white rounded-[40px] px-6 md:px-10 py-6 md:py-7.5 pb-8 md:pb-11.5 border border-[#E8E8E8]">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-[0.8rem] text-[var(--color-ink-soft)] mb-6">
-            <Link href="/" className="hover:text-[var(--color-green)] transition-colors">
+          <nav className="flex items-center gap-2 text-[0.8rem] text-[#8B7355] mb-6">
+            <Link href="/" className="hover:text-[#FF6B00] transition-colors font-medium">
               Home
             </Link>
             <span className="opacity-40">/</span>
-            <Link href="/phones" className="hover:text-[var(--color-green)] transition-colors">
+            <Link href="/phones" className="hover:text-[#FF6B00] transition-colors font-medium">
               Phones
             </Link>
             <span className="opacity-40">/</span>
-            <span className="text-[var(--color-ink)] font-semibold">Finder</span>
+            <span className="text-[#4A3520] font-semibold">Finder</span>
           </nav>
 
           <FinderHeader totalPhones={stats.published} totalBrands={brands.length} />
           
-          <FinderSearch initialSearch={search} />
+          <FinderSearch />
           
           <FilterBar 
             brands={brands}
@@ -166,7 +158,6 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
           <FinderFooter />
         </div>
       </div>
-      <Footer />
     </>
   );
 }

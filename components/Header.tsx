@@ -3,7 +3,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 
@@ -14,7 +13,7 @@ interface HeaderProps {
 const NAV_ITEMS = [
   { href: "/phones", label: "Phones" },
   { href: "/laptops", label: "Laptops" },
-  { href: "/technology", label: "Technology" }, // ✅ ADDED
+  { href: "/technology", label: "Technology" },
   { href: "/news", label: "News" },
   { href: "/reviews", label: "Reviews" },
   { href: "/guides", label: "Guides" },
@@ -40,16 +39,12 @@ export function Header({ className = "" }: HeaderProps) {
   const [localError, setLocalError] = useState("");
   const [subscribeSuccess, setSubscribeSuccess] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [unsubscribeStep, setUnsubscribeStep] = useState<"idle" | "confirm" | "final">("idle");
   const [unsubscribeSuccess, setUnsubscribeSuccess] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
-  const [isLogoLoaded, setIsLogoLoaded] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
 
@@ -75,34 +70,6 @@ export function Header({ className = "" }: HeaderProps) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Search
-  useEffect(() => {
-    if (isSearchOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [isSearchOpen]);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isSearchOpen) {
-        setIsSearchOpen(false);
-        setSearchQuery("");
-      }
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [isSearchOpen]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/phone-finder?search=${encodeURIComponent(searchQuery.trim())}`);
-      setIsSearchOpen(false);
-      setSearchQuery("");
-      closeMenu();
-    }
-  };
 
   // Scroll effect
   useEffect(() => {
@@ -225,11 +192,12 @@ export function Header({ className = "" }: HeaderProps) {
         <div className="max-w-[1600px] mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 md:h-[72px]">
             <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
-              <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-lg bg-[#004643] flex items-center justify-center">
-                <span className="relative text-white text-base md:text-lg font-bold font-['Poppins',sans-serif] tracking-tight">7P</span>
+              <div className="relative w-10 h-10 md:w-11 md:h-11 rounded-lg bg-gradient-to-br from-[#004643] to-[#006b63] flex items-center justify-center shadow-lg shadow-[#004643]/20">
+                <span className="relative text-white text-base md:text-lg font-bold font-['Inter',sans-serif] tracking-tight">7P</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl md:text-2xl font-extrabold text-[#1a1a1a] font-['Poppins',sans-serif] tracking-[-0.5px] leading-none">7pexel</span>
+                <span className="text-xl md:text-2xl font-extrabold text-[#1a1a1a] font-['Inter',sans-serif] tracking-[-0.5px] leading-none">7pexel</span>
+                <span className="text-[8px] uppercase tracking-[0.2em] text-[#004643] font-semibold font-['Inter',sans-serif]">Tech Hub</span>
               </div>
             </Link>
             <div className="w-10 h-10 rounded-full bg-gray-100 animate-pulse" />
@@ -250,28 +218,31 @@ export function Header({ className = "" }: HeaderProps) {
       >
         {/* Top accent line */}
         <div
-          className={`h-0.5 w-full bg-[#004643] transition-opacity duration-700 ${
+          className={`h-0.5 w-full bg-gradient-to-r from-[#004643] via-[#008b7a] to-[#004643] transition-opacity duration-700 ${
             scrolled ? "opacity-100" : "opacity-100"
           }`}
         />
 
         <div className="max-w-[1600px] mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 md:h-[72px]">
-            {/* Logo */}
+            {/* Logo - Custom Text Based */}
             <Link
               href="/"
               className="flex items-center gap-3 group flex-shrink-0"
               onClick={closeMenu}
             >
-              <div className="relative w-14 h-14 md:w-16 md:h-16 overflow-hidden rounded-lg">
-                <Image
-                  src="/7pexel.jpeg"
-                  alt="7pexel"
-                  width={64}
-                  height={64}
-                  className="w-full h-full object-cover"
-                  priority
-                />
+              <div className="relative w-11 h-11 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-[#004643] to-[#006b63] flex items-center justify-center shadow-lg shadow-[#004643]/25 group-hover:shadow-[#004643]/40 transition-all duration-300 group-hover:scale-105">
+                <span className="relative text-white text-lg md:text-xl font-extrabold font-['Inter',sans-serif] tracking-tight">
+                  7P
+                </span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xl md:text-2xl font-extrabold text-[#1a1a1a] font-['Inter',sans-serif] tracking-[-0.5px] leading-none group-hover:text-[#004643] transition-colors duration-300">
+                  7pexel
+                </span>
+                <span className="text-[8px] uppercase tracking-[0.25em] text-[#004643] font-bold font-['Inter',sans-serif] opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+                  Tech Hub
+                </span>
               </div>
             </Link>
 
@@ -307,7 +278,6 @@ export function Header({ className = "" }: HeaderProps) {
                             : "opacity-0 scale-0 group-hover:opacity-40 group-hover:scale-75"
                         }`}
                       />
-                      {/* Glow effect on active */}
                       {isActive && (
                         <span className="absolute -top-3 -right-3 w-4 h-4 rounded-full bg-[#004643]/20 animate-pulse" />
                       )}
@@ -319,50 +289,6 @@ export function Header({ className = "" }: HeaderProps) {
 
             {/* Right Section */}
             <div className="flex items-center gap-3 flex-shrink-0">
-              {/* Search Bar - Desktop */}
-              <div className="hidden md:flex items-center bg-[#f5f5f5] rounded-full px-4 py-2 border border-transparent focus-within:border-[#004643] focus-within:bg-white transition-all duration-300">
-                <i className="fas fa-search text-[#999] text-xs mr-3" />
-                <input
-                  type="text"
-                  placeholder="Search devices..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleSearch(e);
-                    }
-                  }}
-                  className="bg-transparent border-none outline-none text-sm text-[#1a1a1a] placeholder:text-[#999] w-32 lg:w-40 xl:w-52 font-['Poppins',sans-serif]"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="text-[#999] hover:text-[#555] transition-colors ml-2"
-                  >
-                    <i className="fas fa-times text-xs" />
-                  </button>
-                )}
-                {searchQuery && (
-                  <button
-                    onClick={handleSearch}
-                    className="ml-2 bg-[#004643] text-white text-xs px-4 py-1.5 rounded-full hover:bg-[#003a33] transition-colors"
-                  >
-                    <i className="fas fa-arrow-right mr-1" />
-                    Go
-                  </button>
-                )}
-              </div>
-
-              {/* Mobile Search Toggle */}
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="md:hidden w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors flex items-center justify-center text-[#555]"
-                aria-label="Toggle search"
-              >
-                <i className="fas fa-search text-lg" />
-              </button>
-
               {/* Subscribe / Avatar Button */}
               {isSubscribed && subscriberEmail ? (
                 <div className="relative" ref={dropdownRef}>
@@ -372,7 +298,7 @@ export function Header({ className = "" }: HeaderProps) {
                       setUnsubscribeStep("idle");
                       setUnsubscribeSuccess(false);
                     }}
-                    className="w-10 h-10 rounded-full bg-[#004643] text-white font-bold text-base flex items-center justify-center hover:bg-[#003a33] transition-colors focus:outline-none"
+                    className="w-10 h-10 rounded-full bg-gradient-to-br from-[#004643] to-[#006b63] text-white font-bold text-base flex items-center justify-center hover:shadow-lg hover:shadow-[#004643]/25 transition-all duration-300 focus:outline-none hover:scale-105"
                     aria-label="User menu"
                   >
                     {getAvatarLetter()}
@@ -383,17 +309,19 @@ export function Header({ className = "" }: HeaderProps) {
                     <div className="absolute top-full right-0 mt-3 w-80 bg-white rounded-xl shadow-xl border border-[#e8e8e8] overflow-hidden max-h-[500px] overflow-y-auto">
                       {unsubscribeStep === "idle" ? (
                         <>
-                          <div className="px-5 py-4 bg-[#f8f8f8] border-b border-[#e8e8e8]">
+                          <div className="px-5 py-4 bg-gradient-to-r from-[#f8f8f8] to-[#f0f5f4] border-b border-[#e8e8e8]">
                             <div className="flex items-center gap-3">
-                              <div className="w-12 h-12 rounded-full bg-[#004643] text-white font-bold text-xl flex items-center justify-center flex-shrink-0">
+                              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#004643] to-[#006b63] text-white font-bold text-xl flex items-center justify-center flex-shrink-0 shadow-md">
                                 {getAvatarLetter()}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className="text-sm font-bold text-[#1a1a1a] truncate">
+                                <div className="text-sm font-bold text-[#1a1a1a] truncate font-['Inter',sans-serif]">
                                   {subscriberEmail}
                                 </div>
                                 <div className="text-xs text-[#004643] font-medium flex items-center gap-1">
-                                  <i className="fas fa-check-circle text-[#00A86B] text-[10px]" />
+                                  <svg className="w-3 h-3 text-[#00A86B]" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
                                   Subscribed
                                 </div>
                               </div>
@@ -403,11 +331,16 @@ export function Header({ className = "" }: HeaderProps) {
                           <div className="px-5 py-4 space-y-3">
                             <div className="text-xs text-[#666] leading-relaxed space-y-2">
                               <p>
-                                <i className="fas fa-shield-alt text-[#004643] mr-2" />
+                                <svg className="inline w-3 h-3 text-[#004643] mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
                                 We respect your privacy. Your email is safe with us.
                               </p>
                               <p>
-                                <i className="fas fa-envelope text-[#004643] mr-2" />
+                                <svg className="inline w-3 h-3 text-[#004643] mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                                </svg>
                                 You'll receive updates about:
                               </p>
                               <ul className="list-disc list-inside text-[#666] space-y-0.5 ml-4 text-[11px]">
@@ -423,7 +356,9 @@ export function Header({ className = "" }: HeaderProps) {
                                 onClick={() => setUnsubscribeStep("confirm")}
                                 className="w-full text-center text-sm text-red-500 hover:text-red-600 font-medium transition-colors py-2.5 rounded-lg hover:bg-red-50"
                               >
-                                <i className="fas fa-sign-out-alt mr-2" />
+                                <svg className="inline w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
                                 Unsubscribe
                               </button>
                             </div>
@@ -433,9 +368,11 @@ export function Header({ className = "" }: HeaderProps) {
                         <>
                           <div className="px-5 py-6 text-center">
                             <div className="w-16 h-16 mx-auto rounded-full bg-red-50 flex items-center justify-center mb-4">
-                              <i className="fas fa-exclamation-triangle text-2xl text-red-500" />
+                              <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
                             </div>
-                            <h4 className="text-lg font-bold text-[#1a1a1a] font-['Poppins',sans-serif]">
+                            <h4 className="text-lg font-bold text-[#1a1a1a] font-['Inter',sans-serif]">
                               Unsubscribe?
                             </h4>
                             <p className="text-sm text-[#666] mt-2 leading-relaxed">
@@ -460,7 +397,10 @@ export function Header({ className = "" }: HeaderProps) {
                             >
                               {isLoading ? (
                                 <span className="flex items-center justify-center gap-2">
-                                  <i className="fas fa-spinner fa-spin" />
+                                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                                  </svg>
                                   Unsubscribing...
                                 </span>
                               ) : (
@@ -473,9 +413,17 @@ export function Header({ className = "" }: HeaderProps) {
                         <>
                           <div className="px-5 py-8 text-center">
                             <div className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${unsubscribeSuccess ? 'bg-emerald-50' : 'bg-red-50'}`}>
-                              <i className={`${unsubscribeSuccess ? 'fas fa-check-circle text-emerald-500' : 'fas fa-exclamation-circle text-red-500'} text-3xl`} />
+                              {unsubscribeSuccess ? (
+                                <svg className="w-8 h-8 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              )}
                             </div>
-                            <h4 className="text-lg font-bold text-[#1a1a1a] font-['Poppins',sans-serif]">
+                            <h4 className="text-lg font-bold text-[#1a1a1a] font-['Inter',sans-serif]">
                               {unsubscribeSuccess ? "Unsubscribed Successfully" : "Unsubscribe Failed"}
                             </h4>
                             <p className="text-sm text-[#666] mt-2 leading-relaxed">
@@ -509,9 +457,11 @@ export function Header({ className = "" }: HeaderProps) {
                     setSubscribeSuccess(false);
                     setAgreedToTerms(false);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#004643] rounded-lg hover:bg-[#003a33] transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#004643] to-[#006b63] rounded-lg hover:shadow-lg hover:shadow-[#004643]/25 transition-all duration-300 hover:scale-105"
                 >
-                  <i className="fas fa-envelope text-xs" />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
                   Subscribe
                 </button>
               )}
@@ -543,38 +493,6 @@ export function Header({ className = "" }: HeaderProps) {
             </div>
           </div>
         </div>
-
-        {/* Mobile Search Bar */}
-        {isSearchOpen && (
-          <div className="md:hidden px-4 pb-4">
-            <form onSubmit={handleSearch} className="flex items-center bg-[#f5f5f5] rounded-xl px-4 py-2.5 border border-[#e8e8e8]">
-              <i className="fas fa-search text-[#999] mr-3" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search phones by name, brand..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent border-none outline-none text-sm text-[#1a1a1a] placeholder:text-[#999] font-['Poppins',sans-serif]"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery("")}
-                  className="text-[#999] hover:text-[#555] transition-colors mr-2"
-                >
-                  <i className="fas fa-times" />
-                </button>
-              )}
-              <button
-                type="submit"
-                className="bg-[#004643] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#003a33] transition-colors"
-              >
-                Search
-              </button>
-            </form>
-          </div>
-        )}
 
         {/* Mobile Menu */}
         <div
@@ -608,10 +526,10 @@ export function Header({ className = "" }: HeaderProps) {
             {isSubscribed && subscriberEmail ? (
               <div className="px-4 py-3 flex items-center justify-between bg-[#f8f8f8] rounded-lg">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-full bg-[#004643] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#004643] to-[#006b63] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
                     {getAvatarLetter()}
                   </div>
-                  <span className="text-sm font-medium text-[#555] truncate">
+                  <span className="text-sm font-medium text-[#555] truncate font-['Inter',sans-serif]">
                     {subscriberEmail}
                   </span>
                 </div>
@@ -628,7 +546,9 @@ export function Header({ className = "" }: HeaderProps) {
                   }}
                   className="text-xs text-red-500 hover:text-red-600 transition-colors font-medium whitespace-nowrap ml-2"
                 >
-                  <i className="fas fa-sign-out-alt mr-1" />
+                  <svg className="inline w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
                   Unsubscribe
                 </button>
               </div>
@@ -641,9 +561,11 @@ export function Header({ className = "" }: HeaderProps) {
                   setAgreedToTerms(false);
                   closeMenu();
                 }}
-                className="py-3 text-center text-sm font-medium text-white bg-[#004643] rounded-lg hover:bg-[#003a33] transition-colors"
+                className="py-3 text-center text-sm font-medium text-white bg-gradient-to-r from-[#004643] to-[#006b63] rounded-lg hover:shadow-lg hover:shadow-[#004643]/25 transition-all duration-300"
               >
-                <i className="fas fa-envelope mr-2" />
+                <svg className="inline w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
                 Subscribe to Newsletter
               </button>
             )}
@@ -676,23 +598,19 @@ export function Header({ className = "" }: HeaderProps) {
                 }}
                 className="absolute top-4 right-4 w-10 h-10 rounded-lg hover:bg-[#f5f5f5] transition-colors flex items-center justify-center text-[#999] hover:text-[#555]"
               >
-                <i className="fas fa-times" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
 
               <div className="p-8 pt-10">
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
-                    <div className="relative w-20 h-20 overflow-hidden rounded-xl">
-                      <Image
-                        src="/7pexel.jpeg"
-                        alt="7pexel"
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="relative w-20 h-20 overflow-hidden rounded-xl bg-gradient-to-br from-[#004643] to-[#006b63] flex items-center justify-center shadow-lg shadow-[#004643]/20">
+                      <span className="text-white text-3xl font-extrabold font-['Inter',sans-serif]">7P</span>
                     </div>
                   </div>
-                  <h3 className="text-2xl font-extrabold text-[#1a1a1a] font-['Poppins',sans-serif]">
+                  <h3 className="text-2xl font-extrabold text-[#1a1a1a] font-['Inter',sans-serif]">
                     Subscribe to <span className="text-[#004643]">7pexel</span>
                   </h3>
                   <p className="text-sm text-[#666] mt-2 leading-relaxed">
@@ -702,13 +620,17 @@ export function Header({ className = "" }: HeaderProps) {
 
                 {subscribeSuccess ? (
                   <div className="mt-6 p-4 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-700 flex items-center gap-3 justify-center">
-                    <i className="fas fa-check-circle text-emerald-500" />
+                    <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span>Subscribed successfully! Check your email.</span>
                   </div>
                 ) : (
                   <form onSubmit={handleSubscribe} className="mt-6">
                     <div className="relative">
-                      <i className="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-[#999]" />
+                      <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
                       <input
                         type="email"
                         value={email}
@@ -753,7 +675,9 @@ export function Header({ className = "" }: HeaderProps) {
 
                     {(localError || error) && (
                       <p className="text-xs text-red-500 mt-2 flex items-center gap-1.5">
-                        <i className="fas fa-exclamation-circle" />
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
                         {localError || error}
                       </p>
                     )}
@@ -761,21 +685,26 @@ export function Header({ className = "" }: HeaderProps) {
                     <button
                       type="submit"
                       disabled={localLoading || !agreedToTerms}
-                      className={`w-full mt-4 py-3.5 rounded-lg text-white font-semibold text-sm transition-colors ${
+                      className={`w-full mt-4 py-3.5 rounded-lg text-white font-semibold text-sm transition-all duration-300 ${
                         localLoading || !agreedToTerms
                           ? "bg-[#999] cursor-not-allowed opacity-50"
-                          : "bg-[#004643] hover:bg-[#003a33]"
+                          : "bg-gradient-to-r from-[#004643] to-[#006b63] hover:shadow-lg hover:shadow-[#004643]/25 hover:scale-[1.02]"
                       }`}
                     >
                       {localLoading ? (
                         <span className="flex items-center justify-center gap-2">
-                          <i className="fas fa-spinner fa-spin" />
+                          <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
                           Subscribing...
                         </span>
                       ) : (
                         <span className="flex items-center justify-center gap-2">
                           Subscribe Now
-                          <i className="fas fa-arrow-right text-xs" />
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                          </svg>
                         </span>
                       )}
                     </button>
@@ -783,7 +712,9 @@ export function Header({ className = "" }: HeaderProps) {
                 )}
 
                 <p className="text-[11px] text-[#999] text-center mt-4 flex items-center justify-center gap-1.5">
-                  <i className="fas fa-lock text-[10px]" />
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
                   No spam, unsubscribe anytime
                 </p>
               </div>

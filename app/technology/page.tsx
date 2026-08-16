@@ -4,7 +4,7 @@ import { TechnologyClient } from "./TechnologyClient";
 import { generateTechnologySchema } from "@/lib/seo/schemas";
 import { SITE_CONFIG } from "@/lib/seo/config";
 
-// Enhanced metadata with complete SEO structure
+// ─── METADATA ──────────────────────────────────────────
 export const metadata: Metadata = {
   title: "Technology — Latest Tech News, Expert Reviews & Buying Guides | 7pexel",
   description: "Your ultimate technology destination. Explore AI, Quantum Computing, AR/VR, Green Tech, Cybersecurity, and more. Expert reviews, buying guides, and tech insights from industry professionals.",
@@ -76,34 +76,33 @@ export const metadata: Metadata = {
   },
 };
 
-export default function TechnologyPage() {
-  // Add JSON-LD structured data
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    "name": "Technology Guides & Reviews",
-    "description": "Your ultimate technology destination with expert reviews, buying guides, and tech insights.",
-    "url": "https://7pexel.com/technology",
-    "about": {
-      "@type": "Thing",
-      "name": "Technology"
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "7pexel",
-      "logo": {
-        "@type": "ImageObject",
-        "url": "https://7pexel.com/images/logo.png"
-      }
-    },
-    "mainEntity": {
-      "@type": "ItemList",
-      "itemListElement": [
-        // Will be populated client-side
-      ]
+// ─── JSON-LD SCHEMA ───────────────────────────────────
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Technology Guides & Reviews",
+  "description": "Your ultimate technology destination with expert reviews, buying guides, and tech insights.",
+  "url": "https://7pexel.com/technology",
+  "about": {
+    "@type": "Thing",
+    "name": "Technology"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "7pexel",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://7pexel.com/images/logo.png"
     }
-  };
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": []
+  }
+};
 
+// ─── MAIN COMPONENT ────────────────────────────────────
+export default function TechnologyPage() {
   return (
     <>
       <script
