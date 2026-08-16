@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/db/mongodb';
 import TechnologyArticle from '@/lib/models/TechnologyArticle';
 import TechnologyCategory from '@/lib/models/TechnologyCategory';
+import TechnologySubCategory from '@/lib/models/TechnologySubCategory';
 import mongoose from 'mongoose';
 
 // ─── GET ARTICLE BY SLUG ──────────────────────────────
@@ -14,31 +15,50 @@ export async function GET(
     await connectToDatabase();
     const { slug } = await params;
     
-    // Find the article
-    const article = await TechnologyArticle.findOne({ slug, isPublished: true })
+    console.log(`🔍 Fetching article with slug: ${slug}`);
+    
+    // ─── FIND ARTICLE ──────────────────────────────────
+    const article = await TechnologyArticle.findOne({ 
+      slug, 
+      isPublished: true 
+    })
       .populate('categoryId', 'name slug description color icon metaTitle metaDescription')
       .populate('subCategoryId', 'name slug description color icon metaTitle metaDescription');
     
     if (!article) {
+      console.log(`❌ Article not found for slug: ${slug}`);
       return NextResponse.json(
         { success: false, error: 'Article not found' },
         { status: 404 }
       );
     }
     
-    // Increment views
-    await TechnologyArticle.findByIdAndUpdate(
-      article._id,
-      { $inc: { views: 1 } },
-      { new: true }
-    );
+    console.log(`✅ Article found: ${article.title}`);
     
-    // Get fresh article data with populated fields
+    // ─── INCREMENT VIEWS (SAFELY) ──────────────────────
+    try {
+      // Update views - handle case where views might not exist
+      await TechnologyArticle.findByIdAndUpdate(
+        article._id,
+        { $inc: { views: 1 } },
+        { 
+          new: true,
+          // If views field doesn't exist, create it with value 1
+          // The $inc will work even if the field doesn't exist (it creates it)
+        }
+      );
+      console.log(`👁️ Views incremented for: ${article.slug}`);
+    } catch (viewError) {
+      // Don't fail the whole request if view increment fails
+      console.error('Failed to increment views:', viewError);
+    }
+    
+    // ─── GET FRESH ARTICLE DATA ────────────────────────
     const freshArticle = await TechnologyArticle.findById(article._id)
       .populate('categoryId', 'name slug description color icon metaTitle metaDescription')
       .populate('subCategoryId', 'name slug description color icon metaTitle metaDescription');
     
-    // Get related articles
+    // ─── GET RELATED ARTICLES ──────────────────────────
     const relatedArticles = await TechnologyArticle.find({
       categorySlug: article.categorySlug,
       _id: { $ne: article._id },
@@ -46,9 +66,10 @@ export async function GET(
     })
       .sort({ publishedAt: -1 })
       .limit(4)
-      .populate('categoryId', 'name slug color icon');
+      .populate('categoryId', 'name slug color icon')
+      .lean();
     
-    // Get popular articles in same category
+    // ─── GET POPULAR ARTICLES ──────────────────────────
     const popularArticles = await TechnologyArticle.find({
       categorySlug: article.categorySlug,
       _id: { $ne: article._id },
@@ -56,7 +77,8 @@ export async function GET(
     })
       .sort({ views: -1, publishedAt: -1 })
       .limit(4)
-      .populate('categoryId', 'name slug color icon');
+      .populate('categoryId', 'name slug color icon')
+      .lean();
     
     return NextResponse.json({
       success: true,
@@ -68,9 +90,13 @@ export async function GET(
     });
     
   } catch (error: any) {
-    console.error('Error fetching article:', error);
+    console.error('❌ Error fetching article:', error);
     return NextResponse.json(
-      { success: false, error: error.message || 'Failed to fetch article' },
+      { 
+        success: false, 
+        error: error.message || 'Failed to fetch article',
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      },
       { status: 500 }
     );
   }

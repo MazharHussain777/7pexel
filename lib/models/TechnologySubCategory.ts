@@ -5,7 +5,6 @@ export interface ITechnologySubCategory extends Document {
   name: string;
   slug: string;
   description: string;
-  // ✅ ADD THESE FIELDS
   metaTitle: string;
   metaDescription: string;
   keywords: string[];
@@ -38,7 +37,6 @@ const TechnologySubCategorySchema = new Schema<ITechnologySubCategory>(
       required: [true, 'Sub-category description is required'],
       trim: true,
     },
-    // ✅ ADD THESE FIELDS
     metaTitle: {
       type: String,
       trim: true,
@@ -90,9 +88,25 @@ const TechnologySubCategorySchema = new Schema<ITechnologySubCategory>(
   }
 );
 
+// Indexes
 TechnologySubCategorySchema.index({ categoryId: 1, slug: 1 }, { unique: true });
 TechnologySubCategorySchema.index({ categorySlug: 1 });
 TechnologySubCategorySchema.index({ isActive: 1 });
+TechnologySubCategorySchema.index({ order: 1 });
+
+// Pre-save hook to ensure slug is unique
+TechnologySubCategorySchema.pre('save', async function(next) {
+  if (this.isModified('slug')) {
+    const existing = await mongoose.models.TechnologySubCategory?.findOne({
+      slug: this.slug,
+      _id: { $ne: this._id }
+    });
+    if (existing) {
+      throw new Error(`Subcategory with slug "${this.slug}" already exists`);
+    }
+  }
+  next();
+});
 
 export default mongoose.models.TechnologySubCategory || 
   mongoose.model<ITechnologySubCategory>('TechnologySubCategory', TechnologySubCategorySchema);
