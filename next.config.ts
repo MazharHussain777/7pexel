@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // ─── IMAGES ──────────────────────────────────────────────
   images: {
     remotePatterns: [
       // Unsplash
@@ -134,240 +133,21 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
   },
-
-  // ─── REACT ──────────────────────────────────────────────
   reactStrictMode: true,
   poweredByHeader: false,
   compress: true,
   generateEtags: true,
-
-  // ─── TYPESCRIPT ─────────────────────────────────────────
+  
+  // ✅ FIXED: Moved typedRoutes out of experimental
   typedRoutes: true,
-
-  // ─── EXPERIMENTAL ──────────────────────────────────────
+  
+  // ✅ Keep only necessary experimental features
   experimental: {
     optimizeCss: true,
   },
-
+  
   typescript: {
     ignoreBuildErrors: true,
-  },
-
-  // ─── HEADERS ────────────────────────────────────────────
-  async headers() {
-    return [
-      // ─── Sitemap Headers ──────────────────────────────
-      {
-        source: '/sitemap.xml',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/xml',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      {
-        source: '/sitemap-compare.xml',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/xml',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      {
-        source: '/sitemap-technology.xml',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'application/xml',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      // ─── Robots.txt ────────────────────────────────────
-      {
-        source: '/robots.txt',
-        headers: [
-          {
-            key: 'Content-Type',
-            value: 'text/plain',
-          },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      // ─── Security Headers ─────────────────────────────
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
-          },
-          {
-            key: 'X-XSS-Protection',
-            value: '1; mode=block',
-          },
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-        ],
-      },
-      // ─── Technology Pages Cache ───────────────────────
-      {
-        source: '/technology/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      {
-        source: '/technology',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      // ─── Category Pages ────────────────────────────────
-      {
-        source: '/technology/category/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      // ─── Phone Finder Pages ────────────────────────────
-      {
-        source: '/phone-finder/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-      // ─── Compare Pages ─────────────────────────────────
-      {
-        source: '/compare',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, stale-while-revalidate=86400',
-          },
-        ],
-      },
-    ];
-  },
-
-  // ─── REWRITES ────────────────────────────────────────────
-  async rewrites() {
-    return [
-      // ─── Sitemap Rewrites ─────────────────────────────
-      {
-        source: '/sitemap-technology.xml',
-        destination: '/api/sitemap-technology',
-      },
-      {
-        source: '/sitemap-compare.xml',
-        destination: '/api/sitemap-compare',
-      },
-      // ─── Legacy URL Support ──────────────────────────
-      {
-        source: '/phone-finder/:slug',
-        destination: '/phone-finder/:slug',
-      },
-      {
-        source: '/compare/:path*',
-        destination: '/compare/:path*',
-      },
-    ];
-  },
-
-  // ─── REDIRECTS ──────────────────────────────────────────
-  async redirects() {
-    return [
-      // ─── WWW to Non-WWW ──────────────────────────────
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'host',
-            value: 'www.7pexel.com',
-          },
-        ],
-        destination: 'https://7pexel.com/:path*',
-        permanent: true,
-      },
-      // ─── HTTP to HTTPS ────────────────────────────────
-      {
-        source: '/:path*',
-        has: [
-          {
-            type: 'header',
-            key: 'x-forwarded-proto',
-            value: 'http',
-          },
-        ],
-        destination: 'https://7pexel.com/:path*',
-        permanent: true,
-      },
-      // ─── Legacy Phone Routes ──────────────────────────
-      {
-        source: '/phones/:slug',
-        destination: '/phone-finder/:slug',
-        permanent: true,
-      },
-      {
-        source: '/phone/:slug',
-        destination: '/phone-finder/:slug',
-        permanent: true,
-      },
-      // ─── Legacy Technology Routes ────────────────────
-      {
-        source: '/tech/:slug',
-        destination: '/technology/:slug',
-        permanent: true,
-      },
-      // ─── Trailing Slash Removal ──────────────────────
-      {
-        source: '/:path*/',
-        destination: '/:path*',
-        permanent: true,
-      },
-    ];
   },
 };
 
