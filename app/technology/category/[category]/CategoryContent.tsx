@@ -289,7 +289,6 @@ export function CategoryContent({
                       loading="lazy"
                       decoding="async"
                     />
-                    {/* ✅ NO BADGES, NO VIEWS, NO TAGS - CLEAN IMAGE */}
                   </div>
                   
                   <div className="p-5">
@@ -308,7 +307,6 @@ export function CategoryContent({
                     <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
                       {guide.excerpt}
                     </p>
-                    {/* ✅ NO TAGS - REMOVED */}
                   </div>
                 </Link>
               );

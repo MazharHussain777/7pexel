@@ -3,6 +3,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { trackPageView, trackEvent } from "@/lib/analytics";
 
@@ -121,6 +122,7 @@ const LazyImage = ({ src, alt, className }: { src: string; alt: string; classNam
 
 // ─── MAIN COMPONENT ─────────────────────────────────────
 export function TechnologyClient({ initialArticles, initialCategories }: TechnologyClientProps) {
+  const router = useRouter();
   const [categories] = useState<Category[]>(initialCategories);
   const [articles] = useState<Article[]>(initialArticles);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -145,9 +147,14 @@ export function TechnologyClient({ initialArticles, initialCategories }: Technol
 
   // ─── HANDLERS ─────────────────────────────────────────
   const handleCategoryClick = useCallback((slug: string) => {
-    setActiveCategory(slug);
-    trackEvent("category_filter", { category: slug });
-  }, []);
+    if (slug === "all") {
+      setActiveCategory("all");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push(`/technology/category/${slug}`);
+    }
+    trackEvent("category_click", { category: slug });
+  }, [router]);
 
   const handleArticleClick = useCallback((article: Article) => {
     trackEvent("article_click", {
@@ -254,25 +261,32 @@ export function TechnologyClient({ initialArticles, initialCategories }: Technol
                 </span>
               </button>
 
-              {activeCategories.map((cat) => (
-                <button
-                  key={cat._id}
-                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
-                    activeCategory === cat.slug
-                      ? "bg-[#033742] text-white border-[#033742] shadow-md"
-                      : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
-                  }`}
-                  onClick={() => handleCategoryClick(cat.slug)}
-                >
-                  <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
-                    {categoryConfig[cat.slug]?.icon || "📖"}
-                  </span>
-                  <span className="font-fraunces font-medium capitalize">{cat.name}</span>
-                  <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
-                    ({articles.filter(a => a.categorySlug === cat.slug).length})
-                  </span>
-                </button>
-              ))}
+              {activeCategories.map((cat) => {
+                const count = articles.filter(a => a.categorySlug === cat.slug).length;
+                return (
+                  <Link
+                    key={cat._id}
+                    href={`/technology/category/${cat.slug}`}
+                    prefetch={true}
+                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
+                      activeCategory === cat.slug
+                        ? "bg-[#033742] text-white border-[#033742] shadow-md"
+                        : "bg-white text-[#2c3e3a] border-[#d8e2df] hover:border-[#033742] hover:shadow-md hover:text-[#033742]"
+                    }`}
+                    onClick={() => {
+                      trackEvent("category_click", { category: cat.slug });
+                    }}
+                  >
+                    <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
+                      {categoryConfig[cat.slug]?.icon || "📖"}
+                    </span>
+                    <span className="font-fraunces font-medium capitalize">{cat.name}</span>
+                    <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
+                      ({count})
+                    </span>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </section>
@@ -302,7 +316,6 @@ export function TechnologyClient({ initialArticles, initialCategories }: Technol
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
                     <LazyImage src={guide.image} alt={guide.imageAlt || guide.title} />
-                    {/* ✅ NO BADGES, NO VIEWS, NO TAGS - CLEAN IMAGE */}
                   </div>
                   
                   <div className="p-5">
@@ -321,7 +334,6 @@ export function TechnologyClient({ initialArticles, initialCategories }: Technol
                     <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
                       {guide.excerpt}
                     </p>
-                    {/* ✅ NO TAGS - REMOVED */}
                   </div>
                 </Link>
               ))}
@@ -349,7 +361,6 @@ export function TechnologyClient({ initialArticles, initialCategories }: Technol
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
                     <LazyImage src={guide.image} alt={guide.imageAlt || guide.title} />
-                    {/* ✅ NO BADGES - CLEAN IMAGE */}
                   </div>
                   
                   <div className="p-5">
@@ -360,7 +371,6 @@ export function TechnologyClient({ initialArticles, initialCategories }: Technol
                     <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
                       {guide.excerpt}
                     </p>
-                    {/* ✅ NO TAGS - REMOVED */}
                   </div>
                 </Link>
               ))}
