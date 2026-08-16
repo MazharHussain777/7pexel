@@ -1,32 +1,19 @@
 // app/technology/page.tsx
 import { Metadata } from "next";
 import { TechnologyClient } from "./TechnologyClient";
-import { generateTechnologySchema } from "@/lib/seo/schemas";
-import { SITE_CONFIG } from "@/lib/seo/config";
+import { connectToDatabase } from "@/lib/db/mongodb";
+import TechnologyArticle from "@/lib/models/TechnologyArticle";
+import TechnologyCategory from "@/lib/models/TechnologyCategory";
 
 // ─── METADATA ──────────────────────────────────────────
 export const metadata: Metadata = {
   title: "Technology — Latest Tech News, Expert Reviews & Buying Guides | 7pexel",
   description: "Your ultimate technology destination. Explore AI, Quantum Computing, AR/VR, Green Tech, Cybersecurity, and more. Expert reviews, buying guides, and tech insights from industry professionals.",
   keywords: [
-    "technology",
-    "AI",
-    "artificial intelligence",
-    "quantum computing",
-    "AR/VR",
-    "green tech",
-    "cybersecurity",
-    "space tech",
-    "tech news",
-    "gadget reviews",
-    "tech buying guides",
-    "smart home",
-    "wearables",
-    "audio",
-    "gaming",
-    "cameras",
-    "tech trends 2026",
-    "technology guides"
+    "technology", "AI", "artificial intelligence", "quantum computing", 
+    "AR/VR", "green tech", "cybersecurity", "space tech", "tech news",
+    "gadget reviews", "tech buying guides", "smart home", "wearables",
+    "audio", "gaming", "cameras", "tech trends 2026", "technology guides"
   ].join(", "),
   openGraph: {
     title: "Technology — Expert Reviews & Tech Guides | 7pexel",
@@ -67,49 +54,74 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: process.env.GOOGLE_VERIFICATION || "",
-  },
-  other: {
-    "revisit-after": "1 day",
-    "category": "technology",
-  },
-};
-
-// ─── JSON-LD SCHEMA ───────────────────────────────────
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Technology Guides & Reviews",
-  "description": "Your ultimate technology destination with expert reviews, buying guides, and tech insights.",
-  "url": "https://7pexel.com/technology",
-  "about": {
-    "@type": "Thing",
-    "name": "Technology"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "7pexel",
-    "logo": {
-      "@type": "ImageObject",
-      "url": "https://7pexel.com/images/logo.png"
-    }
-  },
-  "mainEntity": {
-    "@type": "ItemList",
-    "itemListElement": []
-  }
 };
 
 // ─── MAIN COMPONENT ────────────────────────────────────
-export default function TechnologyPage() {
+export default async function TechnologyPage() {
+  // ✅ Fetch data on server
+  let articles: any[] = [];
+  let categories: any[] = [];
+
+  try {
+    await connectToDatabase();
+    
+    const [articlesData, categoriesData] = await Promise.all([
+      TechnologyArticle.find({ isPublished: true })
+        .sort({ publishedAt: -1 })
+        .limit(50)
+        .populate('categoryId', 'name slug color icon')
+        .lean(),
+      TechnologyCategory.find({ isActive: true })
+        .sort({ order: 1 })
+        .lean(),
+    ]);
+
+    articles = articlesData;
+    categories = categoriesData;
+  } catch (error) {
+    console.error('Error fetching technology data:', error);
+  }
+
+  // ✅ JSON-LD SCHEMA
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Technology Guides & Reviews",
+    "description": "Your ultimate technology destination with expert reviews, buying guides, and tech insights.",
+    "url": "https://7pexel.com/technology",
+    "about": {
+      "@type": "Thing",
+      "name": "Technology"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "7pexel",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://7pexel.com/images/logo.png"
+      }
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "itemListElement": articles.slice(0, 10).map((article, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://7pexel.com/technology/${article.slug}`,
+        "name": article.title,
+      }))
+    }
+  };
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <TechnologyClient />
+      <TechnologyClient 
+        initialArticles={JSON.parse(JSON.stringify(articles))}
+        initialCategories={JSON.parse(JSON.stringify(categories))}
+      />
     </>
   );
 }

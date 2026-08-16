@@ -5,8 +5,10 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { CategoryHero } from "@/components/technology/CategoryHero";
 import { CategoryContent } from "./CategoryContent";
+import { connectToDatabase } from "@/lib/db/mongodb";
+import TechnologyArticle from "@/lib/models/TechnologyArticle";
 
-// ─── FETCH CATEGORIES FROM API ──────────────────────────
+// ─── FETCH CATEGORIES ──────────────────────────────────
 async function getCategory(slug: string) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/api/technology/categories/${slug}`, {
@@ -84,7 +86,6 @@ export async function generateMetadata({
     };
   }
 
-  // ✅ Ensure all meta fields are properly set
   const title = cat.metaTitle || `${cat.name} Guides & Tutorials | 7pexel Technology`;
   const description = cat.metaDescription || cat.description || `Expert ${cat.name} guides, tutorials, and best practices.`;
 
@@ -143,10 +144,23 @@ export default async function TechnologyCategoryPage({
     notFound();
   }
 
-  const subCategories = await getSubCategories(category);
-  const allCategories = await getAllCategories();
+  // ✅ Fetch all data on server
+  const [subCategories, allCategories, articles] = await Promise.all([
+    getSubCategories(category),
+    getAllCategories(),
+    connectToDatabase()
+      .then(() => TechnologyArticle.find({ 
+        categorySlug: category, 
+        isPublished: true 
+      })
+      .sort({ publishedAt: -1 })
+      .limit(50)
+      .populate('categoryId', 'name slug color icon')
+      .lean())
+      .catch(() => [])
+  ]);
 
-  // ✅ Add JSON-LD structured data for category page
+  // ✅ JSON-LD structured data
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -188,7 +202,11 @@ export default async function TechnologyCategoryPage({
           <CategoryHero category={cat} />
 
           {/* ─── CLIENT CONTENT ───────────────────────────── */}
-          <CategoryContent category={cat} subCategories={subCategories} />
+          <CategoryContent 
+            category={cat} 
+            subCategories={subCategories}
+            initialArticles={JSON.parse(JSON.stringify(articles))}
+          />
 
           {/* ─── BOTTOM CATEGORY NAVIGATION ──────────────── */}
           <section className="w-full bg-white border-t border-[#d8e2df] py-16">

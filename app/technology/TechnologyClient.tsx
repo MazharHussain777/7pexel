@@ -1,7 +1,7 @@
 // app/technology/TechnologyClient.tsx
 "use client";
 
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { trackPageView, trackEvent } from "@/lib/analytics";
@@ -61,53 +61,25 @@ interface Article {
   };
 }
 
+interface TechnologyClientProps {
+  initialArticles: Article[];
+  initialCategories: Category[];
+}
+
 // ─── CATEGORY CONFIG ───────────────────────────────────
 const categoryConfig: Record<string, { icon: string; color: string; gradient: string }> = {
-  ai: {
-    icon: "🤖",
-    color: "#6C3CE1",
-    gradient: "from-[#4A1FA0] via-[#6C3CE1] to-[#4A1FA0]"
-  },
-  "generative-ai": {
-    icon: "✨",
-    color: "#F59E0B",
-    gradient: "from-[#D97706] via-[#F59E0B] to-[#D97706]"
-  },
-  "quantum-computing": {
-    icon: "⚛️",
-    color: "#06B6D4",
-    gradient: "from-[#0891B2] via-[#06B6D4] to-[#0891B2]"
-  },
-  "ar-vr": {
-    icon: "🥽",
-    color: "#EC4899",
-    gradient: "from-[#BE185D] via-[#EC4899] to-[#BE185D]"
-  },
-  "green-tech": {
-    icon: "🌱",
-    color: "#22C55E",
-    gradient: "from-[#16A34A] via-[#22C55E] to-[#16A34A]"
-  },
-  cybersecurity: {
-    icon: "🔒",
-    color: "#EF4444",
-    gradient: "from-[#DC2626] via-[#EF4444] to-[#DC2626]"
-  },
-  "space-tech": {
-    icon: "🚀",
-    color: "#8B5CF6",
-    gradient: "from-[#7C3AED] via-[#8B5CF6] to-[#7C3AED]"
-  },
-  biotech: {
-    icon: "🧬",
-    color: "#14B8A6",
-    gradient: "from-[#0D9488] via-[#14B8A6] to-[#0D9488]"
-  },
+  ai: { icon: "🤖", color: "#6C3CE1", gradient: "from-[#4A1FA0] via-[#6C3CE1] to-[#4A1FA0]" },
+  "generative-ai": { icon: "✨", color: "#F59E0B", gradient: "from-[#D97706] via-[#F59E0B] to-[#D97706]" },
+  "quantum-computing": { icon: "⚛️", color: "#06B6D4", gradient: "from-[#0891B2] via-[#06B6D4] to-[#0891B2]" },
+  "ar-vr": { icon: "🥽", color: "#EC4899", gradient: "from-[#BE185D] via-[#EC4899] to-[#BE185D]" },
+  "green-tech": { icon: "🌱", color: "#22C55E", gradient: "from-[#16A34A] via-[#22C55E] to-[#16A34A]" },
+  cybersecurity: { icon: "🔒", color: "#EF4444", gradient: "from-[#DC2626] via-[#EF4444] to-[#DC2626]" },
+  "space-tech": { icon: "🚀", color: "#8B5CF6", gradient: "from-[#7C3AED] via-[#8B5CF6] to-[#7C3AED]" },
+  biotech: { icon: "🧬", color: "#14B8A6", gradient: "from-[#0D9488] via-[#14B8A6] to-[#0D9488]" },
 };
 
 function formatDate(date: string): string {
-  const d = new Date(date);
-  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return new Date(date).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
 function getCategoryName(slug: string): string {
@@ -148,53 +120,10 @@ const LazyImage = ({ src, alt, className }: { src: string; alt: string; classNam
 };
 
 // ─── MAIN COMPONENT ─────────────────────────────────────
-export function TechnologyClient() {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function TechnologyClient({ initialArticles, initialCategories }: TechnologyClientProps) {
+  const [categories] = useState<Category[]>(initialCategories);
+  const [articles] = useState<Article[]>(initialArticles);
   const [activeCategory, setActiveCategory] = useState<string>("all");
-
-  // ─── TRACK PAGE VIEW ──────────────────────────────────
-  useEffect(() => {
-    trackPageView("/technology", "Technology Hub");
-  }, []);
-
-  // ─── FETCH DATA ──────────────────────────────────────
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        const [categoriesRes, articlesRes] = await Promise.all([
-          fetch('/api/technology/categories?activeOnly=true'),
-          fetch('/api/technology/articles?isPublished=true&limit=50')
-        ]);
-        
-        const categoriesData = await categoriesRes.json();
-        const articlesData = await articlesRes.json();
-        
-        if (categoriesData.success) {
-          setCategories(categoriesData.data || []);
-        } else {
-          setError(categoriesData.error || 'Failed to fetch categories');
-        }
-        
-        if (articlesData.success) {
-          setArticles(articlesData.data || []);
-        } else {
-          setError(articlesData.error || 'Failed to fetch articles');
-        }
-      } catch (err) {
-        setError('Network error. Please try again.');
-        console.error('Error fetching data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   // ─── FILTERED ARTICLES ──────────────────────────────
   const filteredArticles = useMemo(() => {
@@ -228,36 +157,15 @@ export function TechnologyClient() {
     });
   }, []);
 
-  // ─── LOADING STATE ──────────────────────────────────
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#eef4f2]">
-        <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="w-12 h-12 border-4 border-[#033742] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-[#5a6f6a]">Loading technology guides...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
+  if (articles.length === 0) {
     return (
       <div className="min-h-screen bg-[#eef4f2]">
         <Header />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center max-w-md mx-auto p-6 bg-white rounded-xl shadow-sm">
-            <span className="text-4xl block mb-4">⚠️</span>
-            <h3 className="text-xl font-bold text-[#2c3e3a] mb-2">Something went wrong</h3>
-            <p className="text-[#5a6f6a]">{error}</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 px-6 py-2 bg-[#033742] text-white rounded-full hover:bg-[#011d24] transition-colors"
-            >
-              Try Again
-            </button>
+            <span className="text-4xl block mb-4">📰</span>
+            <h3 className="text-xl font-bold text-[#2c3e3a] mb-2">No articles available</h3>
+            <p className="text-[#5a6f6a]">Check back soon for new technology content.</p>
           </div>
         </div>
       </div>
@@ -305,9 +213,6 @@ export function TechnologyClient() {
                 <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-white/15 px-4 py-1.5 rounded-full font-semibold backdrop-blur-sm border border-white/10">
                   Technology Hub
                 </span>
-                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-[#3a8b9a] text-white px-4 py-1.5 rounded-full font-semibold shadow-[0_0_30px_rgba(58,139,154,0.35)]">
-                  🔥 {articles.filter(g => g.isTrending).length} Trending
-                </span>
               </div>
               
               <h1 className="font-fraunces font-medium text-[clamp(2.5rem,5vw,4rem)] tracking-[-0.03em] leading-[1.08]">
@@ -335,8 +240,7 @@ export function TechnologyClient() {
             </div>
           ) : (
             <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3">
-              <Link
-                href="/technology"
+              <button
                 className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
                   activeCategory === "all"
                     ? "bg-[#033742] text-white border-[#033742] shadow-md"
@@ -348,12 +252,11 @@ export function TechnologyClient() {
                 <span className={`text-xs ${activeCategory === "all" ? "text-white/70" : "text-[#7a8f8a]"}`}>
                   ({articles.length})
                 </span>
-              </Link>
+              </button>
 
               {activeCategories.map((cat) => (
-                <Link
+                <button
                   key={cat._id}
-                  href={`/technology/category/${cat.slug}`}
                   className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 text-[0.85rem] font-medium ${
                     activeCategory === cat.slug
                       ? "bg-[#033742] text-white border-[#033742] shadow-md"
@@ -364,13 +267,11 @@ export function TechnologyClient() {
                   <span className="text-[1.1rem] group-hover:scale-110 transition-transform duration-300">
                     {categoryConfig[cat.slug]?.icon || "📖"}
                   </span>
-                  <span className="font-fraunces font-medium capitalize">
-                    {cat.name}
-                  </span>
+                  <span className="font-fraunces font-medium capitalize">{cat.name}</span>
                   <span className={`text-xs ${activeCategory === cat.slug ? "text-white/70" : "text-[#7a8f8a]"}`}>
                     ({articles.filter(a => a.categorySlug === cat.slug).length})
                   </span>
-                </Link>
+                </button>
               ))}
             </div>
           )}
@@ -383,9 +284,6 @@ export function TechnologyClient() {
             <h2 className="font-fraunces font-medium text-[1.8rem] tracking-[-0.02em] text-[#011d24]">
               Latest <span className="text-[#033742]">Articles</span>
             </h2>
-            <span className="text-[0.7rem] font-jetbrains-mono bg-[#033742]/10 text-[#033742] px-3 py-1 rounded-full font-semibold">
-              {latestGuides.length} Posts
-            </span>
           </div>
 
           {latestGuides.length === 0 ? (
@@ -403,42 +301,8 @@ export function TechnologyClient() {
                   prefetch={index < 3}
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
-                    <LazyImage
-                      src={guide.image}
-                      alt={guide.imageAlt || guide.title}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2 z-10 flex-wrap">
-                      <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-[#011d24] text-white font-bold uppercase tracking-[0.05em]">
-                        {guide.categoryId?.name || getCategoryName(guide.categorySlug)}
-                      </span>
-                      {guide.isTrending && (
-                        <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-rose-500 text-white font-bold uppercase tracking-[0.05em]">
-                          🔥 Trending
-                        </span>
-                      )}
-                      {guide.isFeatured && (
-                        <span className="text-[0.55rem] px-2.5 py-1 rounded-full bg-[#3a8b9a] text-white font-bold uppercase tracking-[0.05em]">
-                          ★ Featured
-                        </span>
-                      )}
-                    </div>
-                    
-                    <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-                      <span className="text-[0.5rem] px-2 py-1 rounded-full bg-black/70 text-white font-bold font-jetbrains-mono backdrop-blur-sm">
-                        ⏱️ {guide.readTime} min
-                      </span>
-                      {guide.difficulty && (
-                        <span className={`text-[0.5rem] px-2 py-1 rounded-full text-white font-bold font-jetbrains-mono backdrop-blur-sm ${
-                          guide.difficulty === "Beginner" ? "bg-emerald-600/80" :
-                          guide.difficulty === "Intermediate" ? "bg-amber-600/80" :
-                          "bg-rose-600/80"
-                        }`}>
-                          {guide.difficulty}
-                        </span>
-                      )}
-                    </div>
+                    <LazyImage src={guide.image} alt={guide.imageAlt || guide.title} />
+                    {/* ✅ NO BADGES, NO VIEWS, NO TAGS - CLEAN IMAGE */}
                   </div>
                   
                   <div className="p-5">
@@ -448,8 +312,6 @@ export function TechnologyClient() {
                       </span>
                       <span className="w-1 h-1 rounded-full bg-[#c5d8d2]" />
                       <span className="text-[0.6rem] text-[#4a6a5a]">{formatDate(guide.publishedAt)}</span>
-                      <span className="w-1 h-1 rounded-full bg-[#c5d8d2]" />
-                      <span className="text-[0.6rem] text-[#4a6a5a]">👁️ {guide.views || 0}</span>
                     </div>
                     
                     <h3 className="font-fraunces font-medium text-[1.05rem] leading-[1.3] group-hover:text-[#033742] transition-colors line-clamp-2 text-[#011d24]">
@@ -459,20 +321,7 @@ export function TechnologyClient() {
                     <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
                       {guide.excerpt}
                     </p>
-                    
-                    <div className="flex items-center gap-2 mt-3 flex-wrap">
-                      {guide.tags?.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[0.5rem] px-2 py-0.5 bg-[#eef4f2] text-[#4a6a5a] rounded-full font-medium"
-                        >
-                          #{tag.toLowerCase().replace(/\s/g, '-')}
-                        </span>
-                      ))}
-                      {guide.tags?.length > 3 && (
-                        <span className="text-[0.5rem] text-[#7a8f8a]">+{guide.tags.length - 3}</span>
-                      )}
-                    </div>
+                    {/* ✅ NO TAGS - REMOVED */}
                   </div>
                 </Link>
               ))}
@@ -499,16 +348,8 @@ export function TechnologyClient() {
                   className="group bg-white rounded-[7px] overflow-hidden border border-[#c5d8d2] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(1,29,36,0.12)] hover:border-[#033742]"
                 >
                   <div className="relative w-full aspect-[16/9] overflow-hidden bg-[#e8f0ec]">
-                    <LazyImage
-                      src={guide.image}
-                      alt={guide.imageAlt || guide.title}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-[0.6rem] px-3 py-1.5 rounded-full bg-[#033742]/90 text-white font-bold uppercase tracking-[0.08em] backdrop-blur-sm">
-                        ⭐ Featured
-                      </span>
-                    </div>
+                    <LazyImage src={guide.image} alt={guide.imageAlt || guide.title} />
+                    {/* ✅ NO BADGES - CLEAN IMAGE */}
                   </div>
                   
                   <div className="p-5">
@@ -519,6 +360,7 @@ export function TechnologyClient() {
                     <p className="text-[0.85rem] text-[#5a6f6a] mt-2 line-clamp-2">
                       {guide.excerpt}
                     </p>
+                    {/* ✅ NO TAGS - REMOVED */}
                   </div>
                 </Link>
               ))}
