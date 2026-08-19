@@ -25,13 +25,11 @@ export function PhoneGrid({
   const [sortBy, setSortBy] = useState<"newest" | "price-low" | "price-high" | "popular">("newest");
   const [visibleCount, setVisibleCount] = useState(18);
 
-  // Parse price helper
   const parsePrice = (price: string): number => {
     if (!price) return 0;
     return parseInt(price.replace(/[$,]/g, ''));
   };
 
-  // Fetch phones from database when filters or search changes
   useEffect(() => {
     const loadPhones = async () => {
       setLoading(true);
@@ -50,6 +48,8 @@ export function PhoneGrid({
         setTotal(result.total);
       } catch (error) {
         console.error('Error fetching phones:', error);
+        setPhones([]);
+        setTotal(0);
       } finally {
         setLoading(false);
       }
@@ -60,7 +60,6 @@ export function PhoneGrid({
     }
   }, [searchTerm, filters, sortBy]);
 
-  // Sort phones locally after fetch
   const sortedPhones = useMemo(() => {
     const list = [...phones];
     switch (sortBy) {
@@ -81,7 +80,6 @@ export function PhoneGrid({
     return list;
   }, [phones, sortBy]);
 
-  // Get visible phones
   const visiblePhones = useMemo(() => {
     return sortedPhones.slice(0, visibleCount);
   }, [sortedPhones, visibleCount]);
@@ -103,16 +101,19 @@ export function PhoneGrid({
   if (sortedPhones.length === 0) {
     return (
       <div className="col-span-full py-15 px-5 text-center bg-[#F8F8F8] rounded-[40px] text-[#8B7355]">
-        <span className="text-[2rem]">🔍</span>
-        <h3 className="my-3 mb-1.5 font-medium text-[#4A3520]">No phones found</h3>
-        <p className="text-[0.9rem]">Try adjusting your filters or search term.</p>
+        <span className="text-[4rem] block mb-4">📱</span>
+        <h3 className="text-2xl font-bold text-[#4A3520] mb-2">No phones found</h3>
+        <p className="text-[0.95rem] text-[#8B7355] max-w-md mx-auto">
+          {searchTerm || Object.keys(filters).length > 0 
+            ? "Try adjusting your filters or search term." 
+            : "No phones available in the database yet. Please add some phones."}
+        </p>
       </div>
     );
   }
 
   return (
     <div>
-      {/* Results Header with Sort */}
       <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
         <div className="flex items-center gap-3 flex-wrap">
           <span className="font-semibold text-[0.95rem] bg-[#FFF5EB] px-5 py-1.5 rounded-full flex items-center gap-2 border border-[#FFE4C4]">
@@ -125,7 +126,6 @@ export function PhoneGrid({
           </span>
         </div>
 
-        {/* Sort Dropdown */}
         <div className="flex items-center gap-2">
           <span className="text-[0.75rem] text-[#8B7355] font-medium">Sort by:</span>
           <select
@@ -141,13 +141,10 @@ export function PhoneGrid({
         </div>
       </div>
 
-      {/* Phone Grid - 9 in 1 row */}
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-9 gap-2 md:gap-3">
         {visiblePhones.map((phone) => {
           const slug = phone.slug;
-          const brandColor = getBrandColor(phone.brand);
-          
-          const imageUrl = phone.image || phone.imageUrl || '/images/placeholder-phone.jpg';
+          const imageUrl = phone.image || '/images/placeholder-phone.jpg';
 
           return (
             <Link
@@ -155,7 +152,6 @@ export function PhoneGrid({
               href={`/phones/finder/${slug}`}
               className="group block border border-[#E8E8E8] rounded-[8px] overflow-hidden bg-white transition-all duration-300 hover:border-[#FF6B00] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(255,107,0,0.10)]"
             >
-              {/* Image Area */}
               <div className="relative w-full aspect-[3/4] overflow-hidden bg-white">
                 <Image
                   src={imageUrl}
@@ -177,13 +173,11 @@ export function PhoneGrid({
                   }}
                 />
                 
-                {/* Year Badge */}
                 <div className="absolute bottom-1.5 right-1.5 bg-[#FF6B00]/80 backdrop-blur-sm text-white text-[0.4rem] font-medium px-1.5 py-0.5 rounded-full">
                   {phone.year}
                 </div>
               </div>
 
-              {/* Content */}
               <div className="p-2 text-center">
                 <div className="text-[0.45rem] uppercase tracking-[0.06em] text-[#8B7355] font-semibold mb-0.5 truncate">
                   {phone.brand}
@@ -197,7 +191,6 @@ export function PhoneGrid({
         })}
       </div>
 
-      {/* Load More Button */}
       {visibleCount < sortedPhones.length && (
         <div className="mt-8 text-center">
           <button
@@ -211,25 +204,6 @@ export function PhoneGrid({
       )}
     </div>
   );
-}
-
-// Helper functions
-function getBrandColor(brand: string): string {
-  const colors: Record<string, string> = {
-    Apple: "#555555",
-    Samsung: "#1428A0",
-    Google: "#4285F4",
-    OnePlus: "#E54141",
-    Xiaomi: "#FF6900",
-    Oppo: "#1A8C4A",
-    Vivo: "#415FFF",
-    Nothing: "#000000",
-    Motorola: "#00B388",
-    Huawei: "#CF0A2C",
-    Sony: "#000000",
-    LG: "#A50034",
-  };
-  return colors[brand] || "#FF6B00";
 }
 
 function getBrandEmoji(brand: string): string {

@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { fetchLatestPhones } from "@/app/phones/finder/data/phone-db";
+import { fetchPhonesFromDB } from "@/lib/phone-data-service";
 
 export function LatestPhones() {
   const [phones, setPhones] = useState<any[]>([]);
@@ -12,8 +12,11 @@ export function LatestPhones() {
   useEffect(() => {
     const loadPhones = async () => {
       try {
-        const data = await fetchLatestPhones(6);
-        setPhones(data);
+        const result = await fetchPhonesFromDB({
+          limit: 6,
+          sort: 'newest'
+        });
+        setPhones(result.data || []);
       } catch (error) {
         console.error('Error fetching latest phones:', error);
       } finally {
@@ -64,7 +67,7 @@ export function LatestPhones() {
           
           return (
             <Link
-              key={phone._id || phone.slug}
+              key={phone.id || phone.slug}
               href={`/phones/finder/${slug}`}
               className="group border border-[var(--color-line)] rounded-[12px] overflow-hidden bg-[var(--color-paper)] transition-all hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(15,24,15,0.10)] hover:border-[rgba(15,107,62,0.25)]"
             >
@@ -95,7 +98,6 @@ export function LatestPhones() {
   );
 }
 
-// Helper functions
 function getBrandColor(brand: string): string {
   const colors: Record<string, string> = {
     Apple: "#555555",

@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { fetchLatestPhones } from "@/app/phones/finder/data/phone-db";
+import { fetchPhonesFromDB } from "@/lib/phone-data-service";
 
 export function RecentAdditions() {
   const [phones, setPhones] = useState<any[]>([]);
@@ -13,10 +13,14 @@ export function RecentAdditions() {
   useEffect(() => {
     const loadPhones = async () => {
       try {
-        const data = await fetchLatestPhones(6);
-        setPhones(data);
+        const result = await fetchPhonesFromDB({
+          limit: 6,
+          sort: 'newest'
+        });
+        setPhones(result.data || []);
       } catch (error) {
         console.error('Error fetching recent phones:', error);
+        setPhones([]);
       } finally {
         setLoading(false);
       }
@@ -63,17 +67,14 @@ export function RecentAdditions() {
         {phones.map((phone) => {
           const brandColor = getBrandColor(phone.brand);
           const slug = phone.slug;
-          
-          // Use the image from database (ImageKit URL) directly
-          const imageUrl = phone.image || phone.imageUrl || '/images/placeholder-phone.jpg';
+          const imageUrl = phone.image || '/images/placeholder-phone.jpg';
           
           return (
             <Link
-              key={phone._id || phone.slug}
+              key={phone.id || phone.slug}
               href={`/phones/finder/${slug}`}
               className="group border border-[#E8E8E8] rounded-[12px] overflow-hidden bg-white transition-all hover:-translate-y-1 hover:shadow-[0_12px_24px_rgba(255,107,0,0.12)] hover:border-[#FF6B00]"
             >
-              {/* Image Area - White background */}
               <div className="relative w-full aspect-square overflow-hidden bg-white">
                 <Image
                   src={imageUrl}
@@ -95,13 +96,11 @@ export function RecentAdditions() {
                   }}
                 />
                 
-                {/* Year Badge */}
                 <div className="absolute bottom-1.5 right-1.5 bg-[#FF6B00]/80 backdrop-blur-sm text-white text-[0.4rem] font-medium px-1.5 py-0.5 rounded-full">
                   {phone.year}
                 </div>
               </div>
               
-              {/* Content */}
               <div className="p-2.5 text-center">
                 <div className="text-[0.5rem] uppercase tracking-[0.08em] text-[#8B7355] font-semibold truncate">
                   {phone.brand}

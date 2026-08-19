@@ -3,9 +3,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { fetchBrands } from "@/app/phones/finder/data/phone-db";
+import { fetchBrandsFromDB } from "@/lib/phone-data-service";
 
-// Official brand colors
 const BRAND_COLORS: Record<string, { primary: string; secondary: string; bg: string }> = {
   Apple: { primary: "#555555", secondary: "#8E8E93", bg: "#F5F5F7" },
   Samsung: { primary: "#1428A0", secondary: "#4A6CF7", bg: "#E8EDF9" },
@@ -41,17 +40,8 @@ export function Brands() {
   useEffect(() => {
     const loadBrands = async () => {
       try {
-        const brandList = await fetchBrands();
-        
-        // Ensure we get unique brand names
-        const brandNames = Array.isArray(brandList) 
-          ? brandList
-              .map(item => typeof item === 'string' ? item : item.brand || String(item))
-              .filter((name, index, self) => self.indexOf(name) === index) // Remove duplicates
-              .sort()
-          : [];
-        
-        setBrands(brandNames);
+        const brandList = await fetchBrandsFromDB();
+        setBrands(Array.isArray(brandList) ? brandList : []);
       } catch (error) {
         console.error('Error fetching brands:', error);
         setBrands([]);

@@ -1,4 +1,5 @@
 // app/phones/finder/page.tsx
+import { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { FinderHeader } from "@/components/phones/finder/FinderHeader";
 import { FinderSearch } from "@/components/phones/finder/FinderSearch";
@@ -6,8 +7,67 @@ import { FilterBar } from "@/components/phones/finder/FilterBar";
 import { PhoneGrid } from "@/components/phones/finder/PhoneGrid";
 import { Pagination } from "@/components/phones/finder/Pagination";
 import { FinderFooter } from "@/components/phones/finder/FinderFooter";
-import { getAllPhones, getBrands, getPhoneStats } from "@/lib/phone-service";
+import { 
+  fetchPhonesFromDB,
+  fetchBrandsFromDB,
+  fetchPhoneStatsFromDB,
+  fetchYearsFromDB,
+  fetchCategoriesFromDB
+} from "@/lib/phone-data-service";
 import Link from "next/link";
+
+// ============================================
+// METADATA - SEO OPTIMIZED
+// ============================================
+
+export const metadata: Metadata = {
+  title: 'Phone Finder - Compare Smartphones Side by Side | 7pexel',
+  description: 'Find and compare the latest smartphones. Filter by brand, price, specs, and more. Compare phones side by side to make the best choice.',
+  keywords: 'phone finder, compare phones, smartphone comparison, best phones 2026, phone specs, smartphone reviews, phone filter, phone search',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://7pexel.com/phones/finder',
+  },
+  openGraph: {
+    title: 'Phone Finder - Compare Smartphones | 7pexel',
+    description: 'Find and compare the latest smartphones. Filter by brand, price, specs, and more.',
+    url: 'https://7pexel.com/phones/finder',
+    type: 'website',
+    siteName: '7pexel',
+    locale: 'en_US',
+    images: [
+      {
+        url: 'https://7pexel.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Phone Finder - Compare Smartphones',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@7pexel',
+    creator: '@7pexel',
+    title: 'Phone Finder - Compare Smartphones | 7pexel',
+    description: 'Find and compare the latest smartphones. Filter by brand, price, specs, and more.',
+    images: ['https://7pexel.com/og-image.jpg'],
+  },
+};
+
+// ============================================
+// PAGE COMPONENT
+// ============================================
 
 interface PageProps {
   searchParams: Promise<{
@@ -25,47 +85,6 @@ interface PageProps {
   }>;
 }
 
-function serializePhone(phone: any) {
-  if (!phone) return null;
-  return {
-    _id: phone._id?.toString() || phone._id,
-    id: phone.id || phone._id?.toString(),
-    slug: phone.slug,
-    brand: phone.brand,
-    model: phone.model,
-    year: phone.year,
-    price: phone.price,
-    image: phone.image,
-    rating: phone.rating || 0,
-    category: phone.category || [],
-    display: phone.display,
-    displaySize: phone.displaySize,
-    camera: phone.camera,
-    cameraDetails: phone.cameraDetails,
-    battery: phone.battery,
-    chipset: phone.chipset,
-    ram: phone.ram,
-    storage: phone.storage,
-    os: phone.os,
-    weight: phone.weight,
-    colors: phone.colors || [],
-    highlights: phone.highlights || [],
-    pros: phone.pros || [],
-    cons: phone.cons || [],
-    author: phone.author,
-    authorAvatar: phone.authorAvatar,
-    date: phone.date ? new Date(phone.date).toISOString() : new Date().toISOString(),
-    readTime: phone.readTime,
-    customStyles: phone.customStyles || '',
-    contentHtml: phone.contentHtml,
-    isFeatured: phone.isFeatured || false,
-    isTrending: phone.isTrending || false,
-    published: phone.published !== false,
-    createdAt: phone.createdAt ? new Date(phone.createdAt).toISOString() : new Date().toISOString(),
-    updatedAt: phone.updatedAt ? new Date(phone.updatedAt).toISOString() : new Date().toISOString(),
-  };
-}
-
 export default async function PhoneFinderPage({ searchParams }: PageProps) {
   const params = await searchParams;
   
@@ -81,8 +100,9 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
   const trending = params.trending === 'true';
   const sort = params.sort || 'newest';
 
-  const [phonesResult, brandsResult, stats] = await Promise.all([
-    getAllPhones({
+  // Fetch from Supabase
+  const [phonesResult, brands, stats, years, categories] = await Promise.all([
+    fetchPhonesFromDB({
       search,
       brand,
       category,
@@ -95,25 +115,18 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
       limit,
       sort: sort as any,
     }),
-    getBrands(),
-    getPhoneStats(),
+    fetchBrandsFromDB(),
+    fetchPhoneStatsFromDB(),
+    fetchYearsFromDB(),
+    fetchCategoriesFromDB(),
   ]);
-
-  const brands = Array.isArray(brandsResult) ? brandsResult : [];
-  const serializedPhones = phonesResult.data.map(serializePhone);
-  const serializedResult = {
-    data: serializedPhones,
-    total: phonesResult.total,
-    totalPages: phonesResult.totalPages,
-  };
-
-  const years = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
 
   return (
     <>
       <Header />
       <div className="w-full px-4 md:px-8 lg:px-12 py-4 md:py-6 bg-white">
         <div className="w-full max-w-[1440px] mx-auto bg-white rounded-[40px] px-6 md:px-10 py-6 md:py-7.5 pb-8 md:pb-11.5 border border-[#E8E8E8]">
+          
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-[0.8rem] text-[#8B7355] mb-6">
             <Link href="/" className="hover:text-[#FF6B00] transition-colors font-medium">
@@ -127,13 +140,13 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
             <span className="text-[#4A3520] font-semibold">Finder</span>
           </nav>
 
-          <FinderHeader totalPhones={stats.published} totalBrands={brands.length} />
+          <FinderHeader totalPhones={stats.total} totalBrands={brands.length} />
           
           <FinderSearch />
           
           <FilterBar 
             brands={brands}
-            categories={stats.categories || []}
+            categories={categories || []}
             years={years}
             activeBrand={brand}
             activeCategory={category}
@@ -142,8 +155,8 @@ export default async function PhoneFinderPage({ searchParams }: PageProps) {
           />
           
           <PhoneGrid 
-            initialPhones={serializedResult.data}
-            initialTotal={serializedResult.total}
+            initialPhones={phonesResult.data}
+            initialTotal={phonesResult.total}
             searchTerm={search}
             filters={{ brand, category, year, featured, trending }}
           />

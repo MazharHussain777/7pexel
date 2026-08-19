@@ -1,61 +1,32 @@
 // app/phones/finder/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import type { Metadata, Viewport } from "next";
-import { Header } from "@/components/Header";
-import { getPhoneBySlug, getRelatedPhones, getAllPhones } from "@/lib/phone-service";
-import { PhoneHero } from "@/components/phones/finder/PhoneHero";
-import { PhoneSpecs } from "@/components/phones/finder/PhoneSpecs";
-import { RelatedPhones } from "@/components/phones/finder/RelatedPhones";
-import { PhoneJsonLd } from "@/components/phones/finder/PhoneJsonLd";
-import Link from "next/link";
+import { 
+  fetchPhoneBySlugFromDB, 
+  fetchRelatedPhonesFromDB, 
+  fetchPhonesFromDB 
+} from "@/lib/phone-data-service";
+import PhoneDetailClient from "./PhoneDetailClient";
 
-function serializePhone(phone: any) {
-  if (!phone) return null;
-  return {
-    _id: phone._id?.toString() || phone._id,
-    id: phone.id || phone._id?.toString(),
-    slug: phone.slug,
-    brand: phone.brand,
-    model: phone.model,
-    year: phone.year,
-    price: phone.price,
-    image: phone.image,
-    rating: phone.rating || 0,
-    category: phone.category || [],
-    display: phone.display,
-    displaySize: phone.displaySize,
-    camera: phone.camera,
-    cameraDetails: phone.cameraDetails,
-    battery: phone.battery,
-    chipset: phone.chipset,
-    ram: phone.ram,
-    storage: phone.storage,
-    os: phone.os,
-    weight: phone.weight,
-    colors: phone.colors || [],
-    highlights: phone.highlights || [],
-    pros: phone.pros || [],
-    cons: phone.cons || [],
-    author: phone.author,
-    authorAvatar: phone.authorAvatar,
-    date: phone.date ? new Date(phone.date).toISOString() : new Date().toISOString(),
-    readTime: phone.readTime,
-    customStyles: phone.customStyles || '',
-    contentHtml: phone.contentHtml,
-    isFeatured: phone.isFeatured || false,
-    isTrending: phone.isTrending || false,
-    published: phone.published !== false,
-    createdAt: phone.createdAt ? new Date(phone.createdAt).toISOString() : new Date().toISOString(),
-    updatedAt: phone.updatedAt ? new Date(phone.updatedAt).toISOString() : new Date().toISOString(),
-  };
-}
+// ============================================
+// GENERATE STATIC PATHS
+// ============================================
 
 export async function generateStaticParams() {
-  const { data: phones } = await getAllPhones({ limit: 1000 });
-  return phones.map((phone) => ({
-    slug: phone.slug,
-  }));
+  try {
+    const result = await fetchPhonesFromDB({ limit: 1000 });
+    return result.data.map((phone) => ({
+      slug: phone.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
+
+// ============================================
+// VIEWPORT CONFIG
+// ============================================
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -63,107 +34,187 @@ export const viewport: Viewport = {
   maximumScale: 5,
   userScalable: true,
   themeColor: '#FF6B00',
+  colorScheme: 'light',
+  viewportFit: 'cover',
 };
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
+// ============================================
+// METADATA GENERATION - COMPLETE SEO
+// ============================================
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
 }): Promise<Metadata> {
   const { slug } = await params;
-  const phone = await getPhoneBySlug(slug);
+  const phone = await fetchPhoneBySlugFromDB(slug);
 
+  // If phone not found, return 404 metadata
   if (!phone) {
     return {
       title: "Phone Not Found | 7pexel",
       description: "The phone you're looking for doesn't exist or has been removed.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
   const fullName = `${phone.brand} ${phone.model}`;
-  const year = phone.year || "2026";
+  const pageUrl = `${siteUrl}/phones/finder/${slug}`;
+  const imageUrl = phone.image || `${siteUrl}/images/default-phone.jpg`;
+
+  // Generate rich meta description with key specs
+  const metaDescription = `Read our expert ${fullName} review. ${phone.ram}GB RAM, ${phone.storage}GB storage, ${phone.battery}mAh battery, ${phone.chipset_details} chipset. ${phone.camera_details} camera. Find out if ${fullName} is the best smartphone of ${phone.year}.`;
+
+  // Generate comprehensive keywords
+  const metaKeywords = [
+    `${fullName} review`,
+    `${fullName} specs`,
+    `${phone.brand} ${phone.model}`,
+    `${phone.model} ${phone.year}`,
+    `${phone.brand} smartphone`,
+    `${phone.model} price`,
+    `${phone.model} camera`,
+    `${phone.model} battery`,
+    `${phone.model} performance`,
+    `best smartphone ${phone.year}`,
+    `${phone.brand} flagship`,
+    `${phone.model} gaming`,
+    `${phone.model} display`,
+    `${phone.model} vs`,
+    `${phone.brand} phone`,
+  ];
+
+  // Generate OG title
+  const ogTitle = `${fullName} (${phone.year}) – In-Depth Review & Complete Specifications | 7pexel`;
+
+  // Generate OG description
+  const ogDescription = `Read our expert review of the ${fullName}. Discover its powerful ${phone.camera_details} camera, impressive ${phone.battery}mAh battery life, ${phone.chipset_details} performance, and stunning ${phone.display_size} display. Is it worth buying in ${phone.year}?`;
+
+  // Generate Twitter title
+  const twitterTitle = `${fullName} Review – Full Specs, Camera & Performance (${phone.year})`;
+
+  // Generate Twitter description
+  const twitterDescription = `Is ${fullName} worth buying? Read our full review with camera test, battery life, gaming performance, and benchmark scores.`;
 
   return {
-    title: `${fullName} (${year}) Specs, Camera, Battery, Chipset & Review | 7pexel`,
-    description: `Complete ${fullName} (${year}) specifications and review. ${phone.ram}GB RAM, ${phone.storage}GB storage, ${phone.battery} battery, ${phone.chipset} chipset.`,
-    openGraph: {
-      title: `${fullName} (${year}) – Full Specs, Camera, Battery & Performance`,
-      description: `Detailed ${fullName} specifications and review.`,
-      url: `${siteUrl}/phones/finder/${slug}`,
-      siteName: "7pexel",
-      images: [{ url: phone.image, width: 1200, height: 630, alt: fullName }],
-      type: "article",
+    // ============ BASIC METADATA ============
+    title: `${fullName} (${phone.year}) – Complete Review, Specs, Camera & Price | 7pexel`,
+    description: metaDescription,
+    keywords: metaKeywords.join(', '),
+    authors: [{ 
+      name: phone.author || '7pexel Team',
+      url: siteUrl,
+    }],
+    creator: '7pexel',
+    publisher: '7pexel',
+    generator: 'Next.js',
+    applicationName: '7pexel',
+    referrer: 'origin-when-cross-origin',
+    formatDetection: {
+      email: false,
+      address: false,
+      telephone: false,
     },
-    twitter: {
-      card: "summary_large_image",
-      title: `${fullName} – Full Specs & Review`,
-      description: `Complete ${fullName} specifications and review.`,
-      images: [phone.image],
+
+    // ============ ROBOTS ============
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
+
+    // ============ CANONICAL & ALTERNATES ============
     alternates: {
-      canonical: `${siteUrl}/phones/finder/${slug}`,
+      canonical: pageUrl,
+      languages: {
+        'en-US': pageUrl,
+      },
     },
+
+    // ============ OPEN GRAPH ============
+    openGraph: {
+      title: ogTitle,
+      description: ogDescription,
+      url: pageUrl,
+      siteName: '7pexel',
+      type: 'article',
+      locale: 'en_US',
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${fullName} - Smartphone Review and Specifications`,
+        },
+      ],
+      publishedTime: phone.created_at || new Date().toISOString(),
+      modifiedTime: phone.updated_at || new Date().toISOString(),
+      authors: [phone.author || '7pexel Team'],
+      tags: [
+        phone.brand,
+        phone.model,
+        phone.category?.join(', ') || 'smartphone',
+        `${phone.year} flagship`,
+      ],
+    },
+
+    // ============ TWITTER CARDS ============
+    twitter: {
+      card: 'summary_large_image',
+      site: '@7pexel',
+      creator: '@7pexel',
+      title: twitterTitle,
+      description: twitterDescription,
+      images: [imageUrl],
+    },
+
+    // ============ ICONS ============
+    icons: {
+      icon: '/favicon.ico',
+      shortcut: '/favicon.ico',
+      apple: '/apple-touch-icon.png',
+    },
+
+    // ============ OTHER ============
+    category: 'Technology',
+    classification: 'Smartphone Reviews, Tech Reviews, Phone Comparisons',
+    metadataBase: new URL(siteUrl),
   };
 }
 
-export default async function PhoneDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
+// ============================================
+// MAIN PAGE COMPONENT
+// ============================================
+
+export default async function PhoneDetailPage({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
 }) {
   const { slug } = await params;
-  const phone = await getPhoneBySlug(slug);
+  const phone = await fetchPhoneBySlugFromDB(slug);
 
   if (!phone) {
     notFound();
   }
 
-  const relatedPhones = await getRelatedPhones(slug, 11);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
-  const pageUrl = `${siteUrl}/phones/finder/${slug}`;
+  const [relatedPhones, allPhones] = await Promise.all([
+    fetchRelatedPhonesFromDB(slug, 11),
+    fetchPhonesFromDB({ limit: 100, sort: 'newest' }),
+  ]);
 
-  const serializedPhone = serializePhone(phone);
-  const serializedRelated = relatedPhones.map(p => serializePhone(p));
-
-  return (
-    <>
-      <Header />
-      <PhoneJsonLd phone={serializedPhone} pageUrl={pageUrl} siteUrl={siteUrl} />
-
-      <div className="min-h-screen bg-white w-full">
-        <main className="w-full mx-0 px-0 py-6 md:py-12">
-          <h1 className="sr-only">
-            {phone.brand} {phone.model} ({phone.year}) – Complete Specifications, Camera Review, Battery Life & Performance | 7pexel
-          </h1>
-
-          <div className="w-full px-4 md:px-6 lg:px-8">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[0.8rem] text-[#8B7355] mb-6">
-              <Link href="/" className="text-[#FF6B00] hover:underline font-medium">Home</Link>
-              <span className="opacity-40" aria-hidden="true">/</span>
-              <Link href="/phones" className="text-[#FF6B00] hover:underline font-medium">Phones</Link>
-              <span className="opacity-40" aria-hidden="true">/</span>
-              <Link href="/phones/finder" className="text-[#FF6B00] hover:underline font-medium">Finder</Link>
-              <span className="opacity-40" aria-hidden="true">/</span>
-              <span className="font-medium truncate max-w-[200px] text-[#4A3520]" aria-current="page">
-                {phone.brand} {phone.model}
-              </span>
-            </nav>
-          </div>
-
-          <div className="w-full px-4 md:px-6 lg:px-8">
-            <PhoneHero phone={serializedPhone} />
-          </div>
-
-          <div className="w-full mt-8">
-            <PhoneSpecs phone={serializedPhone} />
-          </div>
-
-          <div className="w-full px-4 md:px-6 lg:px-8 mt-8">
-            <RelatedPhones relatedPhones={serializedRelated} currentSlug={slug} />
-          </div>
-        </main>
-      </div>
-    </>
-  );
+  // Pass data to Client Component
+  return <PhoneDetailClient phone={phone} relatedPhones={relatedPhones} allPhones={allPhones} />;
 }

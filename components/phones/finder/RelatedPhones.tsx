@@ -4,6 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getBrandEmoji, getBrandTheme, getPhoneSlug } from "@/app/phones/finder/data/phone-helpers";
+import { getImageKitUrl, getPhoneImage } from "@/lib/imagekit";
 
 interface RelatedPhonesProps {
   relatedPhones: any[];
@@ -18,6 +19,16 @@ export function RelatedPhones({ relatedPhones, currentSlug }: RelatedPhonesProps
 
   // Take only 9 phones for the grid
   const displayPhones = relatedPhones.slice(0, 9);
+
+  // Get image URL with ImageKit support
+  const getImageUrl = (phone: any, width?: number, height?: number) => {
+    if (phone.image) {
+      if (phone.image.includes('ik.imagekit.io')) return phone.image;
+      if (phone.image.includes('http')) return phone.image;
+      return getImageKitUrl(phone.image, { width: width || 200, height: height || 300, quality: 80, format: 'webp' });
+    }
+    return getPhoneImage(phone.brand, phone.model, { width: width || 200, height: height || 300, quality: 80 });
+  };
 
   return (
     <section className="mt-8 w-full" aria-label="Similar phones">
@@ -39,7 +50,7 @@ export function RelatedPhones({ relatedPhones, currentSlug }: RelatedPhonesProps
           {displayPhones.map((phone) => {
             const slug = phone.slug || getPhoneSlug(phone.model);
             return (
-              <RelatedPhoneCard key={phone._id || phone.id || slug} phone={phone} slug={slug} theme={theme} />
+              <RelatedPhoneCard key={phone._id || phone.id || slug} phone={phone} slug={slug} theme={theme} getImageUrl={getImageUrl} />
             );
           })}
         </div>
@@ -61,21 +72,25 @@ export function RelatedPhones({ relatedPhones, currentSlug }: RelatedPhonesProps
   );
 }
 
-// Related Phone Card Component
-function RelatedPhoneCard({ phone, slug, theme }: { phone: any; slug: string; theme: { primary: string; secondary: string } }) {
+// Related Phone Card - Clean, No border, No shadow
+function RelatedPhoneCard({ phone, slug, theme, getImageUrl }: { 
+  phone: any; 
+  slug: string; 
+  theme: { primary: string; secondary: string };
+  getImageUrl: (phone: any, width?: number, height?: number) => string;
+}) {
   const brandColor = theme.primary;
   
-  // Use image from database or fallback
-  const imageUrl = phone.image || phone.imageUrl || '/images/placeholder-phone.jpg';
+  // Get image URL with ImageKit
+  const imageUrl = getImageUrl(phone, 200, 300);
   
   return (
     <Link
       href={`/phones/finder/${slug}`}
-      className="group block border rounded-[10px] overflow-hidden bg-white transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_8px_24px_rgba(15,24,15,0.10)] hover:border-[var(--color-green)]"
-      style={{ borderColor: `${brandColor}10` }}
+      className="group block transition-all duration-300 hover:-translate-y-1"
     >
-      {/* Image Area */}
-      <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-[#f5f8f6] to-[#e8f0ec]">
+      {/* Image Area - No border, just clean */}
+      <div className="relative w-full aspect-square overflow-hidden bg-gradient-to-br from-[#f5f8f6] to-[#e8f0ec] rounded-lg">
         <Image
           src={imageUrl}
           alt={`${phone.brand} ${phone.model}`}
@@ -96,13 +111,13 @@ function RelatedPhoneCard({ phone, slug, theme }: { phone: any; slug: string; th
           }}
         />
         
-        {/* Year Badge */}
+        {/* Year Badge - Clean, minimal */}
         <div className="absolute bottom-1.5 right-1.5 bg-black/30 backdrop-blur-sm text-white text-[0.35rem] font-medium px-1.5 py-0.5 rounded-full">
           {phone.year}
         </div>
       </div>
 
-      {/* Content */}
+      {/* Content - Clean, no borders */}
       <div className="p-2 text-center">
         <div className="text-[0.45rem] uppercase tracking-[0.08em] text-[var(--color-ink-soft)] font-semibold truncate">
           {phone.brand}

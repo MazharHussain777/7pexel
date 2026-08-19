@@ -1,317 +1,434 @@
 // components/phones/finder/PhoneSpecs.tsx
 "use client";
 
-import { Phone, getBrandTheme } from "@/lib/phone-data";
+import { useState, useEffect } from "react";
+import { getBrandTheme } from "@/lib/phone-data";
+import { getReviewStats } from "@/lib/review-service";
 
 interface PhoneSpecsProps {
-  phone: Phone;
+  phone: any;
 }
 
 export function PhoneSpecs({ phone }: PhoneSpecsProps) {
   const theme = getBrandTheme(phone.brand);
-  const chipsetName = phone.chipset?.charAt(0).toUpperCase() + phone.chipset?.slice(1) || "N/A";
-  const displayMain = phone.display === "large" ? "6.7\"+" : phone.display === "medium" ? "6.1-6.7\"" : "Under 6.1\"";
-  const cameraName = phone.camera?.charAt(0).toUpperCase() + phone.camera?.slice(1) || "N/A";
-  const batteryMain = `${phone.battery}mAh`;
-  const osName = phone.os?.charAt(0).toUpperCase() + phone.os?.slice(1) || "Android";
-  const price = phone.price ? `$${phone.price}` : "Price on Request";
+  
+  // State for real-time reviews
+  const [reviewsCount, setReviewsCount] = useState(phone.review_count || 0);
+  const [averageRating, setAverageRating] = useState(phone.rating || 0);
 
-  // Build specs for the spec cards
+  // Fetch real-time review stats
+  useEffect(() => {
+    const loadReviewStats = async () => {
+      try {
+        const stats = await getReviewStats(phone.slug);
+        if (stats && stats.total_reviews > 0) {
+          setAverageRating(stats.average_rating);
+          setReviewsCount(stats.total_reviews);
+        } else {
+          setAverageRating(phone.rating || 0);
+          setReviewsCount(phone.review_count || 0);
+        }
+      } catch (error) {
+        console.error('Error loading review stats:', error);
+        setAverageRating(phone.rating || 0);
+        setReviewsCount(phone.review_count || 0);
+      }
+    };
+    loadReviewStats();
+  }, [phone.slug, phone.rating, phone.review_count]);
+
+  // Helper to get value with fallback
+  const getValue = (value: any, fallback: string = '—') => {
+    if (value === undefined || value === null || value === '') return fallback;
+    return value;
+  };
+
+  // Format chipset name - Full name
+  const getFullChipsetName = (chipset: string) => {
+    const chipsetMap: Record<string, string> = {
+      apple: 'Apple A18 Pro',
+      snapdragon: 'Snapdragon 8 Gen 4',
+      tensor: 'Tensor G4',
+      mediatek: 'Dimensity 9400',
+      exynos: 'Exynos 2400',
+      dimensity: 'Dimensity 9300',
+    };
+    return chipsetMap[chipset?.toLowerCase()] || chipset || 'N/A';
+  };
+
+  const chipsetName = getFullChipsetName(phone.chipset);
+  const chipsetDetails = getValue(phone.chipset_details);
+
+  // Get OS name
+  const osName = getValue(
+    phone.os?.charAt(0).toUpperCase() + phone.os?.slice(1),
+    'Android'
+  );
+
+  // Format price
+  const formattedPrice = phone.price ? `$${phone.price}` : 'Price on Request';
+  
+  // Get colors
+  const colors = phone.colors || [];
+
+  // Generate star rating display
+  const getStarDisplay = (rating: number) => {
+    const full = Math.floor(rating);
+    const half = rating - full >= 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
+    return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(empty);
+  };
+
+  // Get rating color
+  const getRatingColor = (rating: number) => {
+    if (rating >= 4.5) return 'text-green-600';
+    if (rating >= 4.0) return 'text-blue-600';
+    if (rating >= 3.5) return 'text-yellow-600';
+    if (rating >= 3.0) return 'text-orange-500';
+    return 'text-red-500';
+  };
+
+  // Get review count display
+  const getReviewCountDisplay = (count: number) => {
+    if (count === 0) return 'No reviews';
+    if (count >= 1000) return `${(count / 1000).toFixed(1)}K reviews`;
+    return `${count.toLocaleString()} reviews`;
+  };
+
+  // ============================================
+  // 1. DISPLAY SPECS (First)
+  // ============================================
   const displaySpecs = [
-    { label: "Size", value: displayMain },
-    { label: "Type", value: phone.display === "large" ? "AMOLED Large Display" : phone.display === "medium" ? "AMOLED Mid-Size" : "AMOLED Compact" },
-    { label: "Resolution", value: phone.display === "large" ? "1440 x 3200" : phone.display === "medium" ? "1080 x 2400" : "1080 x 2340" },
-    { label: "Refresh Rate", value: phone.refresh_rate ? `${phone.refresh_rate}Hz` : "Standard" },
-    { label: "Aspect Ratio", value: "20:9" },
-    { label: "HDR Support", value: "HDR10+" },
-    { label: "Color Depth", value: "1B colors" },
-    { label: "Brightness", value: phone.price > 899 ? "2000 nits" : "1200 nits" },
-    { label: "Protection", value: "Gorilla Glass Victus 2" },
-    { label: "Always-On Display", value: "Yes" },
-    { label: "Screen-to-Body", value: phone.display === "large" ? "92%" : "88%" },
+    { label: "Size", value: getValue(phone.display_size) },
+    { label: "Resolution", value: getValue(phone.display_resolution) },
+    { label: "Type", value: getValue(phone.display_type) },
+    { label: "Protection", value: getValue(phone.display_protection) },
+    { label: "Refresh Rate", value: getValue(phone.refresh_rate) },
+    { label: "Brightness", value: getValue(phone.brightness) },
+    { label: "Aspect Ratio", value: getValue(phone.aspect_ratio) },
+    { label: "Pixel Density", value: getValue(phone.pixel_density) },
+    { label: "Screen-to-Body", value: getValue(phone.screen_to_body_ratio) },
+    { label: "Features", value: phone.display_features?.join(', ') || '—' },
   ];
 
+  // ============================================
+  // 2. PHYSICAL SPECS (Second)
+  // ============================================
+  const physicalSpecs = [
+    { label: "Weight", value: getValue(phone.weight) },
+    { label: "Dimensions", value: getValue(phone.dimensions) },
+    { label: "Colors", value: colors.length > 0 ? colors.join(' · ') : '—' },
+    { label: "Materials", value: phone.materials?.join(' · ') || '—' },
+    { label: "Water Resistance", value: getValue(phone.water_resistance) },
+    { label: "Dust Resistance", value: getValue(phone.dust_resistance) },
+  ];
+
+  // ============================================
+  // 3. PERFORMANCE SPECS (Third)
+  // ============================================
   const performanceSpecs = [
     { label: "Chipset", value: chipsetName },
-    { label: "CPU", value: phone.chipset === "snapdragon" ? "Octa-core (1x3.36GHz + 5x2.8GHz + 2x2.0GHz)" : phone.chipset === "apple" ? "Hexa-core (2x3.78GHz + 4x2.11GHz)" : "Octa-core" },
-    { label: "CPU Architecture", value: "ARMv9" },
-    { label: "GPU", value: phone.chipset === "snapdragon" ? "Adreno 750" : phone.chipset === "apple" ? "Apple GPU (5-core)" : "Mali-G710" },
-    { label: "Neural Engine", value: phone.chipset === "apple" ? "16-core Neural Engine" : phone.chipset === "snapdragon" ? "Hexagon NPU" : "N/A" },
-    { label: "Manufacturing Process", value: phone.chipset === "apple" ? "3nm" : "4nm" },
-    { label: "RAM", value: `${phone.ram}GB` },
-    { label: "RAM Type", value: "LPDDR5X" },
-    { label: "Storage", value: `${phone.storage}GB` },
-    { label: "Storage Type", value: "UFS 4.0" },
-    { label: "Expandable Storage", value: "No" },
-    { label: "AnTuTu v11", value: phone.price > 899 ? "1,850,000 pts" : "1,200,000 pts" },
+    { label: "Chipset Details", value: chipsetDetails },
+    { label: "CPU", value: getValue(phone.cpu) },
+    { label: "CPU Cores", value: getValue(phone.cpu_cores) },
+    { label: "CPU Frequency", value: getValue(phone.cpu_frequency) },
+    { label: "GPU", value: getValue(phone.gpu) },
+    { label: "GPU Details", value: getValue(phone.gpu_details) },
+    { label: "RAM", value: `${getValue(phone.ram)}GB ${getValue(phone.ram_type)}` },
+    { label: "Storage", value: `${getValue(phone.storage)}GB ${getValue(phone.storage_type)}` },
+    { label: "Expandable", value: getValue(phone.expandable_storage) },
+    { label: "AnTuTu Score", value: getValue(phone.antutu_score) },
+    { label: "Geekbench Score", value: getValue(phone.geekbench_score) },
   ];
 
+  // ============================================
+  // 4. CONNECTIVITY SPECS (Fourth)
+  // ============================================
+  const connectivitySpecs = [
+    { label: "SIM", value: getValue(phone.sim) },
+    { label: "Network", value: getValue(phone.network) },
+    { label: "WiFi", value: getValue(phone.wifi) },
+    { label: "Bluetooth", value: getValue(phone.bluetooth) },
+    { label: "NFC", value: getValue(phone.nfc) },
+    { label: "USB", value: getValue(phone.usb) },
+    { label: "GPS", value: getValue(phone.gps) },
+    { label: "Sensors", value: phone.sensors?.join(', ') || '—' },
+  ];
+
+  // ============================================
+  // 5. CAMERA SPECS (Fifth)
+  // ============================================
   const cameraSpecs = [
-    { label: "Main Camera", value: cameraName },
-    { label: "Wide Sensor", value: phone.price > 899 ? "50MP" : "48MP" },
-    { label: "Sensor Size", value: '1/1.3"' },
-    { label: "Pixel Size", value: "1.2µm" },
-    { label: "Aperture", value: "f/1.8" },
-    { label: "Ultra-Wide", value: phone.price > 899 ? "12MP" : "8MP" },
-    { label: "Telephoto", value: phone.price > 899 ? "10MP" : "N/A" },
-    { label: "OIS", value: "Yes" },
-    { label: "Video Recording", value: "8K@30fps, 4K@120fps" },
-    { label: "Slow Motion", value: "720p@960fps" },
-    { label: "Flash", value: "Dual-LED" },
-    { label: "HDR Video", value: "Yes" },
-    { label: "Night Mode", value: "Yes" },
-    { label: "Portrait Mode", value: "Yes" },
+    { label: "Camera Type", value: getValue(phone.camera) },
+    { label: "Details", value: getValue(phone.camera_details) },
+    { label: "Video Recording", value: getValue(phone.video_recording) },
+    { label: "Front Camera", value: getValue(phone.front_camera) },
+    { label: "Sensor", value: getValue(phone.camera_sensor) },
+    { label: "Aperture", value: getValue(phone.aperture) },
+    { label: "Optical Zoom", value: getValue(phone.optical_zoom) },
+    { label: "Digital Zoom", value: getValue(phone.digital_zoom) },
+    { label: "Features", value: phone.camera_features?.join(', ') || '—' },
   ];
 
-  const selfieSpecs = [
-    { label: "Front Camera", value: "12MP" },
-    { label: "Sensor", value: "Sony IMX709" },
-    { label: "Aperture", value: "f/2.2" },
-    { label: "Video Recording", value: "4K@60fps" },
-    { label: "Features", value: "Portrait Mode, HDR, Night Mode" },
-    { label: "Front Flash", value: "Yes (screen flash)" },
+  // ============================================
+  // 6. AUDIO SPECS (Sixth)
+  // ============================================
+  const audioSpecs = [
+    { label: "Speakers", value: getValue(phone.speakers) },
+    { label: "Audio Jack", value: getValue(phone.audio_jack) },
+    { label: "Audio Features", value: phone.audio_features?.join(', ') || '—' },
   ];
 
-  const batterySpecs = [
-    { label: "Capacity", value: batteryMain },
-    { label: "Type", value: "Li-Ion" },
-    { label: "Technology", value: "Silicon-Carbon" },
-    { label: "Wired Charging", value: phone.charging ? `${phone.charging}W` : "Standard" },
-    { label: "Wired Charging Time", value: phone.charging && phone.charging >= 45 ? "0-100% in 45 min" : "0-100% in 75 min" },
-    { label: "Wireless Charging", value: phone.charging && phone.charging >= 25 ? "15W" : "No" },
-    { label: "Reverse Charging", value: phone.charging && phone.charging >= 45 ? "10W" : "No" },
-    { label: "Battery Health", value: "80% after 800 cycles" },
-    { label: "Video Playback", value: "Up to 20 hours" },
-    { label: "Audio Playback", value: "Up to 85 hours" },
-    { label: "Standby Time", value: "Up to 500 hours" },
-  ];
-
+  // ============================================
+  // 7. SOFTWARE SPECS (Seventh)
+  // ============================================
   const softwareSpecs = [
     { label: "OS", value: osName },
-    { label: "OS Version", value: osName === "iOS" ? "iOS 18" : "Android 15" },
-    { label: "OS Updates", value: osName === "iOS" ? "6 years" : "4 years" },
-    { label: "Security Updates", value: osName === "iOS" ? "6 years" : "5 years" },
-    { label: "UI / Skin", value: osName === "iOS" ? "iOS" : "One UI 6" },
-    { label: "Google Play", value: osName === "Android" ? "Yes" : "No" },
-    { label: "Customization", value: osName === "Android" ? "Yes" : "Limited" },
+    { label: "OS Version", value: getValue(phone.os_version) },
+    { label: "UI Skin", value: getValue(phone.ui_skin) },
+    { label: "Update Policy", value: getValue(phone.update_policy) },
+    { label: "Security Updates", value: getValue(phone.security_updates) },
   ];
 
-  const connectivitySpecs = [
-    { label: "SIM", value: "Dual SIM" },
-    { label: "5G", value: phone.connectivity?.includes("5g") ? "✅ Yes" : "❌ No" },
-    { label: "Wi-Fi", value: phone.connectivity?.includes("wifi7") ? "Wi-Fi 7" : phone.connectivity?.includes("wifi6") ? "Wi-Fi 6" : "Wi-Fi 5" },
-    { label: "Bluetooth", value: phone.connectivity?.includes("bluetooth") ? "5.4" : "5.3" },
-    { label: "NFC", value: phone.connectivity?.includes("nfc") ? "✅ Yes" : "❌ No" },
-    { label: "USB", value: "USB-C 3.2" },
-    { label: "Ultra Wideband", value: phone.connectivity?.includes("nfc") ? "Yes" : "No" },
-    { label: "Satellite SOS", value: phone.os === "ios" ? "Yes" : "No" },
-  ];
-
+  // ============================================
+  // 8. SECURITY SPECS (Eighth)
+  // ============================================
   const securitySpecs = [
-    { label: "Fingerprint", value: "Under-display" },
-    { label: "Fingerprint Type", value: "Ultrasonic" },
-    { label: "Face Unlock", value: "3D Face ID" },
-    { label: "Accelerometer", value: "Yes" },
-    { label: "Gyroscope", value: "Yes" },
-    { label: "Proximity", value: "Yes" },
-    { label: "Barometer", value: "Yes" },
-    { label: "Compass", value: "Yes" },
-    { label: "Heart Rate Sensor", value: "Yes" },
+    { label: "Fingerprint", value: getValue(phone.fingerprint) },
+    { label: "Face Unlock", value: getValue(phone.face_unlock) },
+    { label: "Security Features", value: phone.security_features?.join(', ') || '—' },
   ];
 
-  const additionalSpecs = [
-    { label: "Water Resistance", value: "IP68" },
-    { label: "Dust Resistance", value: "IP68" },
-    { label: "Build", value: "Glass front, glass back, aluminum frame" },
-    { label: "Box Contents", value: "Phone, USB-C Cable, Ejector Tool" },
-    { label: "Colors", value: "Black, White, Green" },
-    { label: "Release Date", value: `Q1 ${phone.year || "2026"}` },
-    { label: "Availability", value: "In Stock" },
-    { label: "Accessories", value: "Screen protector, Case" },
+  // ============================================
+  // 9. BATTERY SPECS (Ninth)
+  // ============================================
+  const batterySpecs = [
+    { label: "Capacity", value: `${getValue(phone.battery)} mAh` },
+    { label: "Type", value: getValue(phone.battery_type) },
+    { label: "Charging Speed", value: `${getValue(phone.charging)}W` },
+    { label: "Charging Type", value: getValue(phone.charging_type) },
+    { label: "Wireless Charging", value: getValue(phone.wireless_charging) },
+    { label: "Reverse Charging", value: getValue(phone.reverse_charging) },
+    { label: "Battery Life", value: getValue(phone.battery_life) },
+    { label: "Charging Time", value: getValue(phone.charging_time) },
   ];
 
+  // ============================================
+  // 10. PRICING & INFO (Tenth)
+  // ============================================
   const pricingSpecs = [
-    { label: "💰 Price", value: price },
-    { label: "🧠 RAM", value: `${phone.ram}GB` },
-    { label: "💾 Storage", value: `${phone.storage}GB` },
-    { label: "🎨 Colors", value: "Black · White · Green" },
-    { label: "📅 Release Year", value: phone.year || "2026" },
-    { label: "📱 Model", value: phone.model },
-    { label: "🌍 Regions", value: "Global" },
-    { label: "📶 Carriers", value: "AT&T, Verizon, T-Mobile" },
+    { label: "Price", value: formattedPrice },
+    { label: "Rating", value: `${averageRating.toFixed(1)}/5 ${getStarDisplay(averageRating)}`, isRating: true },
+    { label: "Reviews", value: getReviewCountDisplay(reviewsCount), isReview: true },
+    { label: "Brand", value: getValue(phone.brand) },
+    { label: "Model", value: getValue(phone.model) },
+    { label: "Year", value: getValue(phone.year) },
+    { label: "Categories", value: phone.category?.join(', ') || '—' },
   ];
 
-  // Group specs for masonry layout
-  const specGroups = [
-    { id: "performance", title: "Performance", icon: "fa-microchip", items: performanceSpecs },
-    { id: "display", title: "Display", icon: "fa-desktop", items: displaySpecs },
-    { id: "camera", title: "Main Camera", icon: "fa-camera", items: cameraSpecs },
-    { id: "battery", title: "Battery & Charging", icon: "fa-battery-three-quarters", items: batterySpecs },
-    { id: "connectivity", title: "Connectivity", icon: "fa-wifi", items: connectivitySpecs },
-    { id: "software", title: "Software", icon: "fa-code", items: softwareSpecs },
-    { id: "security", title: "Security & Sensors", icon: "fa-shield-alt", items: securitySpecs },
-    { id: "selfie", title: "Selfie Camera", icon: "fa-user-circle", items: selfieSpecs },
-    { id: "additional", title: "Additional Features", icon: "fa-plus-circle", items: additionalSpecs },
+  // ============================================
+  // 11. CONTENT SPECS (Eleventh)
+  // ============================================
+  const contentSpecs = [
+    { label: "Highlights", value: phone.highlights?.join(' · ') || '—' },
+    { label: "Author", value: getValue(phone.author) },
+    { label: "Date", value: getValue(phone.date) },
+    { label: "Read Time", value: getValue(phone.read_time) },
   ];
+
+  // ============================================
+  // ALL GROUPS IN SPECIFIED ORDER
+  // ============================================
+  const specGroups = [
+    { id: "display", icon: "📺", title: "Display", color: "#2563EB", bg: "#EFF6FF", items: displaySpecs, order: 1 },
+    { id: "physical", icon: "📐", title: "Physical", color: "#0891B2", bg: "#ECFEFF", items: physicalSpecs, order: 2 },
+    { id: "performance", icon: "⚡", title: "Performance", color: "#D97706", bg: "#FFFBEB", items: performanceSpecs, order: 3 },
+    { id: "connectivity", icon: "📶", title: "Connectivity", color: "#0284C7", bg: "#F0F9FF", items: connectivitySpecs, order: 4 },
+    { id: "camera", icon: "📷", title: "Camera", color: "#DC2626", bg: "#FEF2F2", items: cameraSpecs, order: 5 },
+    { id: "audio", icon: "🔊", title: "Audio", color: "#EA580C", bg: "#FFF7ED", items: audioSpecs, order: 6 },
+    { id: "software", icon: "📱", title: "Software", color: "#7C3AED", bg: "#F5F3FF", items: softwareSpecs, order: 7 },
+    { id: "security", icon: "🔒", title: "Security", color: "#475569", bg: "#F8FAFC", items: securitySpecs, order: 8 },
+    { id: "battery", icon: "🔋", title: "Battery", color: "#16A34A", bg: "#F0FDF4", items: batterySpecs, order: 9 },
+    { id: "pricing", icon: "💰", title: "Pricing & Info", color: "#059669", bg: "#ECFDF5", items: pricingSpecs, order: 10 },
+    { id: "content", icon: "📝", title: "Content", color: "#6B7280", bg: "#F3F4F6", items: contentSpecs, order: 11 },
+  ];
+
+  // Sort groups by order
+  const sortedGroups = [...specGroups].sort((a, b) => a.order - b.order);
+
+  // Calculate total items
+  const totalItems = specGroups.reduce((acc, g) => acc + g.items.length, 0);
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-baseline gap-3 mb-4 px-3 md:px-4 lg:px-6">
-        <div className="w-1 h-6 rounded-full" style={{ background: `linear-gradient(180deg, ${theme.primary}, ${theme.secondary})` }} />
-        <h2 className="font-['Poppins',sans-serif] text-2xl font-bold" style={{ color: theme.primary }}>
-          Full Specifications
-        </h2>
-        <div className="flex-1 h-px" style={{ background: `linear-gradient(90deg, ${theme.primary}40, transparent)` }} />
-        <span className="text-[0.7rem] font-semibold tracking-[0.5px]" style={{ color: theme.primary }}>
-          90+ data points
-        </span>
-      </div>
-
-      {/* Masonry Layout - Left Empty (12%) | Right Specs (88vw) */}
-      <div className="flex w-full">
-        {/* Left Empty Space - 12% */}
-        <div className="hidden lg:block w-[12%] flex-shrink-0" />
-        
-        {/* Right Specs - 88vw with Masonry Layout */}
-        <div className="w-[88vw] flex-shrink-0 px-3 md:px-4 lg:px-6">
-          <div className="columns-1 sm:columns-2 xl:columns-3 gap-2 md:gap-2.5 space-y-0">
-            {specGroups.map((group) => (
-              <div
-                key={group.id}
-                className="break-inside-avoid mb-2 md:mb-2.5"
-              >
-                <MasonrySpecCard group={group} theme={theme} />
-              </div>
-            ))}
-
-            {/* Pricing & Models - Special Full Width Card with Vertical Layout */}
-            <div className="break-inside-avoid mb-2 md:mb-2.5 col-span-1 sm:col-span-2 xl:col-span-3">
-              <MasonryPricingCard pricingSpecs={pricingSpecs} theme={theme} />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-1 h-10 rounded-full" style={{ background: `linear-gradient(180deg, ${theme.primary}, ${theme.secondary})` }} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800 truncate">
+              Full Specifications
+            </h2>
+            <div className="flex items-center gap-1.5 text-[0.55rem] font-medium">
+              <span className="px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                {totalItems} Specs
+              </span>
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Grid - 3 columns */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {sortedGroups.map((group) => (
+          <SpecCard key={group.id} group={group} colors={colors} />
+        ))}
       </div>
     </div>
   );
 }
 
-// Masonry Spec Card Component with Enhanced Horizontal Lines
-function MasonrySpecCard({ group, theme }: { group: any; theme: { primary: string; secondary: string } }) {
-  const itemCount = group.items.length;
+// ============================================
+// SPEC CARD COMPONENT - Same styling as before
+// ============================================
+
+interface SpecCardProps {
+  group: {
+    id: string;
+    icon: string;
+    title: string;
+    color: string;
+    bg: string;
+    items: { label: string; value: string; isRating?: boolean; isReview?: boolean }[];
+  };
+  colors: string[];
+}
+
+function SpecCard({ group, colors }: SpecCardProps) {
+  const isPricingCard = group.id === 'pricing';
+  const isPhysicalCard = group.id === 'physical';
   
-  // Dynamic padding based on item count
-  const getPaddingClass = () => {
-    if (itemCount >= 14) return "py-2.5";
-    if (itemCount >= 10) return "py-2";
-    if (itemCount >= 7) return "py-1.5";
-    return "py-1";
+  // Get rating color
+  const getRatingColor = (value: string) => {
+    const rating = parseFloat(value);
+    if (rating >= 4.5) return 'text-green-600';
+    if (rating >= 4.0) return 'text-blue-600';
+    if (rating >= 3.5) return 'text-yellow-600';
+    if (rating >= 3.0) return 'text-orange-500';
+    return 'text-red-500';
   };
 
   return (
     <div 
-      className="bg-white border rounded-[12px] overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 hover:border-[var(--color-green)]/30 w-full"
-      style={{ borderColor: `${theme.primary}10` }}
+      className={`bg-white border-2 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${isPricingCard ? 'border-green-200' : ''}`}
+      style={{ 
+        borderColor: isPricingCard ? '#05966930' : `${group.color}20`,
+        borderRadius: '4px',
+        boxShadow: 'none'
+      }}
     >
       {/* Header */}
-      <div className="flex items-center gap-2 px-3 py-2" style={{ borderBottom: `1px solid ${theme.primary}08`, background: `linear-gradient(135deg, ${theme.primary}04, transparent)` }}>
-        <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
-          <i className={`fas ${group.icon} text-white text-[0.55rem]`} />
-        </div>
-        <h3 className="text-[0.68rem] font-bold uppercase tracking-[0.5px] flex-1 truncate" style={{ color: theme.primary }}>
+      <div 
+        className="flex items-center gap-2.5 px-3.5 py-3 border-b-2"
+        style={{ 
+          borderColor: isPricingCard ? '#05966920' : `${group.color}20`,
+          background: isPricingCard ? 'linear-gradient(135deg, #ECFDF5, transparent)' : `linear-gradient(135deg, ${group.bg}, transparent)`
+        }}
+      >
+        <span className="text-base flex-shrink-0">{group.icon}</span>
+        <h3 className={`text-[0.7rem] font-bold flex-1 truncate ${isPricingCard ? 'text-green-700' : ''}`} style={isPricingCard ? { color: '#059669' } : { color: group.color }}>
           {group.title}
         </h3>
-        <span className="text-[0.35rem] font-bold px-1.5 py-0.5 rounded-full flex-shrink-0" style={{ color: theme.primary, backgroundColor: `${theme.primary}08` }}>
+        <span 
+          className="text-[0.35rem] font-bold px-2 py-0.5 rounded-full flex-shrink-0"
+          style={{ color: isPricingCard ? '#059669' : group.color, background: isPricingCard ? '#05966912' : `${group.color}12` }}
+        >
           {group.items.length}
         </span>
       </div>
-      
-      {/* Items with Enhanced Horizontal Lines */}
-      <div className={`px-3 ${getPaddingClass()}`}>
-        {group.items.map((item: any, idx: number) => (
-          <div key={idx}>
-            <div className="flex items-baseline justify-between gap-2 py-1">
-              <span className="text-[0.6rem] font-medium text-gray-400 whitespace-nowrap flex-shrink-0">{item.label}</span>
-              <span className="text-[0.68rem] font-medium text-right leading-snug text-gray-700 truncate max-w-[60%]">{item.value}</span>
-            </div>
-            {/* Enhanced Horizontal Line with gradient and better visibility */}
-            {idx < group.items.length - 1 && (
-              <div className="relative w-full my-1">
-                <div 
-                  className="w-full h-[1px]" 
-                  style={{ 
-                    background: `linear-gradient(90deg, ${theme.primary}12, ${theme.primary}06, transparent)`,
-                  }} 
-                />
-                <div 
-                  className="absolute top-0 left-0 w-1/3 h-[1px]" 
-                  style={{ 
-                    background: `linear-gradient(90deg, ${theme.primary}20, transparent)`,
-                  }} 
-                />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-// Masonry Pricing Card with Vertical Layout and Enhanced Lines
-function MasonryPricingCard({ pricingSpecs, theme }: { pricingSpecs: { label: string; value: string }[]; theme: { primary: string; secondary: string } }) {
-  return (
-    <div
-      className="bg-white border-2 rounded-[12px] overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
-      style={{ borderColor: `${theme.primary}20`, boxShadow: `0 2px 12px ${theme.primary}08` }}
-    >
-      <div className="flex items-center gap-2 px-3 py-2" style={{ borderBottom: `2px solid ${theme.primary}10`, background: `linear-gradient(135deg, ${theme.primary}06, ${theme.secondary}03)` }}>
-        <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: `linear-gradient(135deg, ${theme.primary}, ${theme.secondary})` }}>
-          <i className="fas fa-tag text-white text-[0.55rem]" />
-        </div>
-        <h3 className="text-[0.72rem] font-bold uppercase tracking-[0.5px] flex-1" style={{ color: theme.primary }}>
-          Pricing & Models
-        </h3>
-        <span className="text-[0.4rem] font-bold px-1.5 py-0.5 rounded-full" style={{ color: theme.primary, backgroundColor: `${theme.primary}08` }}>
-          {pricingSpecs.length}
-        </span>
-      </div>
-      
-      {/* Vertical Layout - Single Column with better spacing */}
-      <div className="px-3 py-2 space-y-0">
-        {pricingSpecs.map((item, idx) => (
-          <div key={idx}>
-            <div className="flex items-center justify-between gap-3 py-1.5">
-              <span className="text-[0.65rem] font-semibold text-gray-400 whitespace-nowrap flex-shrink-0 tracking-wide">
-                {item.label}
-              </span>
-              <span className={`text-[0.75rem] font-semibold text-right leading-snug ${
-                item.value === 'N/A' ? 'text-gray-300' : 
-                item.label === '💰 Price' ? 'text-[var(--color-green)] text-[0.85rem] font-bold' : 
-                'text-[#1a1a1a]'
-              }`}>
-                {item.value}
-              </span>
-            </div>
-            {/* Enhanced Horizontal Line with gradient */}
-            {idx < pricingSpecs.length - 1 && (
-              <div className="relative w-full">
-                <div 
-                  className="w-full h-[1px]" 
-                  style={{ 
-                    background: `linear-gradient(90deg, ${theme.primary}10, ${theme.primary}04, transparent)`,
-                  }} 
-                />
-                <div 
-                  className="absolute top-0 left-0 w-1/4 h-[1px]" 
-                  style={{ 
-                    background: `linear-gradient(90deg, ${theme.primary}18, transparent)`,
-                  }} 
-                />
+      {/* Items */}
+      <div className="px-3.5 py-2.5 space-y-0">
+        {group.items.map((item, idx) => {
+          const isLast = idx === group.items.length - 1;
+          const hasValue = item.value !== '—' && item.value !== 'N/A';
+          const isLongValue = item.value.length > 25;
+          
+          // Check special items
+          const isRatingItem = item.isRating || item.label === 'Rating';
+          const isReviewItem = item.isReview || item.label === 'Reviews';
+          const isPriceItem = item.label === 'Price';
+          
+          // Get rating color for rating items
+          const ratingColor = isRatingItem ? getRatingColor(item.value) : '';
+          
+          return (
+            <div key={idx}>
+              <div className={`flex ${isLongValue ? 'flex-col items-start gap-0.5' : 'items-center justify-between'} gap-2 py-1.5`}>
+                {/* Label */}
+                <span className={`text-[0.65rem] font-medium text-gray-500 tracking-wide ${isLongValue ? '' : 'whitespace-nowrap flex-shrink-0'}`}>
+                  {item.label}
+                </span>
+                {/* Value - Same styling as before */}
+                <span className={`text-[0.75rem] font-medium leading-relaxed w-full ${
+                  hasValue ? 'text-gray-700' : 'text-gray-300 italic'
+                } ${isLongValue ? 'break-words' : 'text-right'}
+                ${isRatingItem ? ratingColor : ''}
+                ${isReviewItem ? 'text-purple-600' : ''}
+                ${isPriceItem ? 'text-green-700 text-[0.85rem] font-semibold' : ''}`}>
+                  {item.value}
+                </span>
               </div>
-            )}
+              {/* Grid line */}
+              {!isLast && (
+                <div className="w-full py-0.5">
+                  <div 
+                    className="w-full h-[1px]" 
+                    style={{ 
+                      background: isPricingCard ? `linear-gradient(90deg, #05966910, #05966903, transparent)` : `linear-gradient(90deg, ${group.color}10, ${group.color}03, transparent)`,
+                      borderRadius: '2px'
+                    }} 
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Colors Grid - Only for Physical card */}
+      {isPhysicalCard && colors.length > 0 && (
+        <div className="px-3.5 pb-3">
+          <div className="text-[0.5rem] font-medium text-gray-400 uppercase tracking-wide mb-1.5">Available Colors</div>
+          <div className="flex flex-wrap gap-1.5">
+            {colors.map((color: string) => (
+              <span
+                key={color}
+                className="text-[0.45rem] font-medium px-2.5 py-0.5 rounded-full border"
+                style={{
+                  backgroundColor: `${group.color}06`,
+                  borderColor: `${group.color}15`,
+                  color: group.color
+                }}
+              >
+                {color}
+              </span>
+            ))}
           </div>
-        ))}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div 
+        className="px-3.5 py-1.5 border-t-2 text-center"
+        style={{ 
+          borderColor: isPricingCard ? '#05966915' : `${group.color}15`,
+          background: isPricingCard ? '#ECFDF540' : `${group.bg}40`
+        }}
+      >
+        <span className="text-[0.35rem] font-medium uppercase tracking-wider" style={{ color: isPricingCard ? '#05966960' : `${group.color}60` }}>
+          {group.items.length} Specifications
+        </span>
       </div>
     </div>
   );
