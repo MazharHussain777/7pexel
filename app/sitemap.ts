@@ -27,15 +27,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95 
     },
     { 
-      url: `${baseUrl}/phones/finder/apple-iphone-16-pro-max`, 
-      lastModified: currentDate, 
-      changeFrequency: 'weekly' as const, 
-      priority: 0.9 
-    },
-    { 
       url: `${baseUrl}/compare`, 
       lastModified: currentDate, 
-      changeFrequency: 'weekly' as const, 
+      changeFrequency: 'daily' as const, 
       priority: 0.85 
     },
     { 
@@ -66,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // ============ PHONE PAGES (DYNAMIC) ============
   let phonePages: MetadataRoute.Sitemap = [];
+  const phoneSlugs: string[] = [];
   
   if (isSupabaseAvailable && supabaseServer) {
     try {
@@ -76,23 +71,82 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         .order('created_at', { ascending: false });
 
       if (!error && phones) {
-        phonePages = phones.map((phone: any) => ({
-          url: `${baseUrl}/phones/finder/${phone.slug}`,
-          lastModified: phone.updated_at ? new Date(phone.updated_at) : currentDate,
-          changeFrequency: 'weekly' as const,
-          priority: 0.9,
-        }));
-        console.log(`📱 Generated ${phonePages.length} phone sitemap entries`);
+        // Use a Set to track unique slugs
+        const uniqueSlugs = new Set<string>();
+        
+        phonePages = phones
+          .filter((phone: any) => {
+            // Skip duplicates
+            if (uniqueSlugs.has(phone.slug)) {
+              console.log(`⚠️ Duplicate slug found: ${phone.slug}, skipping...`);
+              return false;
+            }
+            uniqueSlugs.add(phone.slug);
+            return true;
+          })
+          .map((phone: any) => {
+            phoneSlugs.push(phone.slug);
+            return {
+              url: `${baseUrl}/phones/finder/${phone.slug}`,
+              lastModified: phone.updated_at ? new Date(phone.updated_at) : currentDate,
+              changeFrequency: 'weekly' as const,
+              priority: 0.9,
+            };
+          });
+        
+        console.log(`📱 Generated ${phonePages.length} unique phone sitemap entries`);
+        console.log(`📱 Phone slugs: ${phoneSlugs.join(', ')}`);
       }
     } catch (error) {
       console.error('Error fetching phones for sitemap:', error);
     }
   }
 
+  // ============ COMPARE PAGES ============
+  let comparePages: MetadataRoute.Sitemap = [];
+  
+  if (phoneSlugs.length >= 2) {
+    // Generate unique compare combinations
+    const compareSet = new Set<string>();
+    const maxPhones = Math.min(phoneSlugs.length, 20);
+    
+    for (let i = 0; i < maxPhones; i++) {
+      for (let j = i + 1; j < Math.min(maxPhones, i + 5); j++) {
+        const slugs = [phoneSlugs[i], phoneSlugs[j]].sort();
+        const key = slugs.join(',');
+        if (!compareSet.has(key)) {
+          compareSet.add(key);
+          comparePages.push({
+            url: `${baseUrl}/compare?phones=${slugs.join(",")}`,
+            lastModified: currentDate,
+            changeFrequency: 'weekly' as const,
+            priority: 0.85,
+          });
+        }
+      }
+    }
+    
+    console.log(`📊 Generated ${comparePages.length} unique compare sitemap entries`);
+  }
+
   // ============ COMBINE ALL PAGES ============
-  const allPages = [...staticPages, ...phonePages];
+  const allPages = [...staticPages, ...phonePages, ...comparePages];
 
-  console.log(`📊 Total sitemap entries: ${allPages.length}`);
+  // Remove any remaining duplicates by URL
+  const urlSet = new Set<string>();
+  const uniquePages = allPages.filter((page) => {
+    if (urlSet.has(page.url)) {
+      console.log(`⚠️ Removing duplicate URL: ${page.url}`);
+      return false;
+    }
+    urlSet.add(page.url);
+    return true;
+  });
 
-  return allPages;
+  console.log(`📊 Total unique sitemap entries: ${uniquePages.length}`);
+  console.log(`   - Static: ${staticPages.length}`);
+  console.log(`   - Phones: ${phonePages.length}`);
+  console.log(`   - Compare: ${comparePages.length}`);
+
+  return uniquePages;
 }
