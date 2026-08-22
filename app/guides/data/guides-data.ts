@@ -249,7 +249,6 @@ export const GUIDES: Guide[] = [
   // 🛒 BUYING GUIDES (15)
   // ==========================================
 
-  // 1. Smartphone Buying Guide
   {
     id: 'buying-1',
     slug: 'smartphone-buying-guide',
@@ -258,7 +257,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>How to Choose the Perfect Smartphone in 2026</h2>
       <p>Buying a new smartphone is exciting but can also be overwhelming with so many options available. This comprehensive guide will help you make the right decision.</p>
-
       <h3>1. Define Your Budget</h3>
       <p>Your budget is the most important factor in your smartphone decision. Here's what you can expect at different price points:</p>
       <ul>
@@ -267,7 +265,6 @@ export const GUIDES: Guide[] = [
         <li><strong>$600-900:</strong> Premium phones with flagship features and excellent cameras</li>
         <li><strong>$900+:</strong> Top-tier flagship phones with the best cameras and performance</li>
       </ul>
-
       <h3>2. Identify Your Priorities</h3>
       <p>What matters most to you in a smartphone?</p>
       <ul>
@@ -277,7 +274,6 @@ export const GUIDES: Guide[] = [
         <li><strong>Display:</strong> For video watchers and creators</li>
         <li><strong>Design:</strong> For style-conscious users</li>
       </ul>
-
       <h3>3. Compare Options</h3>
       <p>Use our <a href="/compare">comparison tool</a> to see phones side by side. Look at:</p>
       <ul>
@@ -287,26 +283,10 @@ export const GUIDES: Guide[] = [
         <li>Display quality (Size, Resolution, Refresh rate)</li>
         <li>User reviews and ratings</li>
       </ul>
-
       <h3>4. Check Reviews</h3>
-      <p>Read expert reviews and user feedback to understand real-world performance. Look for:</p>
-      <ul>
-        <li>Camera samples</li>
-        <li>Battery life tests</li>
-        <li>Gaming performance</li>
-        <li>Software experience</li>
-        <li>Build quality</li>
-      </ul>
-
+      <p>Read expert reviews and user feedback to understand real-world performance.</p>
       <h3>5. Make Your Decision</h3>
-      <p>After comparing and researching, choose the phone that best fits your needs and budget. Consider:</p>
-      <ul>
-        <li>Long-term value and software updates</li>
-        <li>Brand reputation and customer support</li>
-        <li>Warranty and return policy</li>
-        <li>Accessories and ecosystem</li>
-      </ul>
-
+      <p>After comparing and researching, choose the phone that best fits your needs and budget.</p>
       <div class="bg-green-50 border border-green-200 rounded-xl p-6 mt-6">
         <h3>🌟 Top Picks by Category</h3>
         <ul>
@@ -345,13 +325,10 @@ export const GUIDES: Guide[] = [
       { question: 'How much should I spend on a smartphone?', answer: 'It depends on your needs. Budget $200-400 for basic needs, $400-700 for good features, $700+ for premium. Consider what features matter most to you.' },
       { question: 'What features matter most in a smartphone?', answer: 'The most important features are camera quality, battery life, performance (processor and RAM), display quality, and software experience. Choose based on your priorities.' },
       { question: 'How often should I upgrade my phone?', answer: 'Most people upgrade every 2-3 years. However, if your current phone meets your needs, you can keep it longer. Consider upgrading when battery life declines or performance slows.' },
-      { question: 'Is it better to buy a flagship or mid-range phone?', answer: 'Flagship phones offer the best cameras, performance, and features but cost more. Mid-range phones offer great value with good performance and features at a lower price. Choose based on your budget and needs.' },
     ],
     relatedGuides: ['how-to-choose-phone', 'best-phones-2026', 'budget-phone-guide', 'flagship-phone-guide'],
     canonical: 'https://7pexel.com/guides/smartphone-buying-guide',
   },
-
-  // 2. How to Choose a Phone
   {
     id: 'buying-2',
     slug: 'how-to-choose-phone',
@@ -360,22 +337,16 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>How to Choose the Right Smartphone for You</h2>
       <p>Choosing a smartphone doesn't have to be difficult. Follow these steps to find the perfect phone for your needs.</p>
-
       <h3>Step 1: Determine Your Budget</h3>
       <p>Set a realistic budget. Remember to include the cost of accessories and insurance.</p>
-
       <h3>Step 2: Identify Your Priorities</h3>
       <p>What matters most to you? Camera quality, battery life, performance, or display?</p>
-
       <h3>Step 3: Consider Your Usage</h3>
       <p>How do you use your phone? Gaming, photography, work, or everyday tasks?</p>
-
       <h3>Step 4: Research Options</h3>
       <p>Read reviews, watch videos, and compare specs. Use our comparison tool.</p>
-
       <h3>Step 5: Make Your Decision</h3>
       <p>Choose the phone that best fits your needs and budget.</p>
-
       <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mt-6">
         <h3>📋 Decision Checklist</h3>
         <ul>
@@ -411,14 +382,12 @@ export const GUIDES: Guide[] = [
     seoDescription: 'Learn how to choose the right smartphone with this simple guide. Based on budget, needs, and preferences. Find your perfect phone today.',
     seoKeywords: ['how to choose a phone', 'smartphone decision', 'choose right phone', 'phone buying guide'],
     faqs: [
-      { question: 'What should I consider when choosing a phone?', answer: 'Consider your budget, priorities (camera, battery, performance), usage patterns, and long-term value. Also think about brand preference and ecosystem.' },
-      { question: 'How do I know which phone is right for me?', answer: 'Choose based on your needs. If you take lots of photos, prioritize camera quality. If you game, prioritize performance. If you travel, prioritize battery life.' },
+      { question: 'What should I consider when choosing a phone?', answer: 'Consider your budget, priorities (camera, battery, performance), usage patterns, and long-term value.' },
+      { question: 'How do I know which phone is right for me?', answer: 'Choose based on your needs. If you take lots of photos, prioritize camera quality. If you game, prioritize performance.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'budget-phone-guide'],
     canonical: 'https://7pexel.com/guides/how-to-choose-phone',
   },
-
-  // 3. Best Phones 2026
   {
     id: 'buying-3',
     slug: 'best-phones-2026',
@@ -427,19 +396,14 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Smartphones of 2026</h2>
       <p>After testing dozens of phones, here are our top picks for 2026.</p>
-
       <h3>Best Overall: Samsung Galaxy S26 Ultra</h3>
       <p>The Samsung Galaxy S26 Ultra offers the best all-around experience with its 200MP camera, Snapdragon 8 Gen 4 processor, and stunning display.</p>
-
       <h3>Best Camera: Apple iPhone 16 Pro Max</h3>
       <p>The iPhone 16 Pro Max sets the standard for smartphone photography with its triple 48MP camera system and advanced AI processing.</p>
-
       <h3>Best Value: Google Pixel 10 Pro</h3>
       <p>The Pixel 10 Pro offers flagship features at a competitive price with its Tensor G4 chip and excellent camera.</p>
-
       <h3>Best Design: Nothing Phone (3)</h3>
       <p>The Nothing Phone (3) stands out with its unique transparent design and Glyph interface system.</p>
-
       <h3>Best Gaming: OnePlus 14 Pro</h3>
       <p>The OnePlus 14 Pro delivers top-tier gaming performance with its Snapdragon 8 Gen 4 processor and 100W fast charging.</p>
     `,
@@ -467,15 +431,12 @@ export const GUIDES: Guide[] = [
     seoDescription: 'Discover the best smartphones of 2026. Top picks for every budget including flagships, mid-range, and budget phones. Expert reviews and comparisons.',
     seoKeywords: ['best phones 2026', 'top smartphones', 'best flagship phones', 'best budget phones', 'phone reviews 2026'],
     faqs: [
-      { question: 'What is the best smartphone of 2026?', answer: 'The Samsung Galaxy S26 Ultra is the best overall smartphone of 2026 with its 200MP camera, Snapdragon 8 Gen 4, and stunning display. However, the best phone depends on your needs and budget.' },
-      { question: 'What is the best budget smartphone of 2026?', answer: 'The Google Pixel 10 Pro offers the best value with flagship features at a competitive price. For under $500, the Nothing Phone (3) is an excellent choice.' },
-      { question: 'What is the best camera phone of 2026?', answer: 'The Apple iPhone 16 Pro Max has the best camera system with its triple 48MP setup and advanced AI processing. The Samsung Galaxy S26 Ultra offers the best zoom capabilities.' },
+      { question: 'What is the best smartphone of 2026?', answer: 'The Samsung Galaxy S26 Ultra is the best overall smartphone of 2026 with its 200MP camera, Snapdragon 8 Gen 4, and stunning display.' },
+      { question: 'What is the best budget smartphone of 2026?', answer: 'The Google Pixel 10 Pro offers the best value with flagship features at a competitive price.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'budget-phone-guide', 'camera-phone-guide'],
     canonical: 'https://7pexel.com/guides/best-phones-2026',
   },
-
-  // 4. Budget Phone Guide
   {
     id: 'buying-4',
     slug: 'budget-phone-guide',
@@ -484,7 +445,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Budget Smartphones 2026</h2>
       <p>You don't need to spend a fortune to get a great phone. Here are the best budget smartphones under $500.</p>
-
       <h3>Top Budget Phones</h3>
       <ul>
         <li><strong>Google Pixel 10 Pro:</strong> Excellent camera at a great price</li>
@@ -517,14 +477,11 @@ export const GUIDES: Guide[] = [
     seoDescription: 'Find the best budget smartphones under $500. Great performance, good cameras, and excellent value. Expert reviews and recommendations.',
     seoKeywords: ['best budget phones', 'phones under 500', 'affordable smartphones', 'budget phone guide', 'value phones 2026'],
     faqs: [
-      { question: 'What is the best budget phone under $500?', answer: 'The Google Pixel 10 Pro offers the best camera and performance under $500. The Nothing Phone (3) is a great alternative with unique design.' },
-      { question: 'Are budget phones good for gaming?', answer: 'Yes, many budget phones offer good gaming performance. Look for phones with Snapdragon processors and at least 8GB RAM.' },
+      { question: 'What is the best budget phone under $500?', answer: 'The Google Pixel 10 Pro offers the best camera and performance under $500.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'value-phone-guide'],
     canonical: 'https://7pexel.com/guides/budget-phone-guide',
   },
-
-  // 5. Flagship Phone Guide
   {
     id: 'buying-5',
     slug: 'flagship-phone-guide',
@@ -533,7 +490,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Flagship Smartphones 2026</h2>
       <p>Flagship phones offer the best technology, cameras, and performance. Here are the top premium picks for 2026.</p>
-
       <h3>Top Flagship Phones</h3>
       <ul>
         <li><strong>Samsung Galaxy S26 Ultra:</strong> Best overall flagship</li>
@@ -566,14 +522,11 @@ export const GUIDES: Guide[] = [
     seoDescription: 'Discover the best flagship smartphones of 2026. Premium devices with the best cameras, performance, and features. Expert reviews and comparisons.',
     seoKeywords: ['best flagship phones', 'premium smartphones', 'top tier phones', 'flagship guide 2026'],
     faqs: [
-      { question: 'What is the best flagship phone of 2026?', answer: 'The Samsung Galaxy S26 Ultra is the best flagship overall. The Apple iPhone 16 Pro Max has the best camera. Choose based on your priorities.' },
-      { question: 'Is it worth buying a flagship phone?', answer: 'Flagship phones offer the best cameras, performance, and features. If you need the best technology and can afford it, flagship phones are worth it.' },
+      { question: 'What is the best flagship phone of 2026?', answer: 'The Samsung Galaxy S26 Ultra is the best flagship overall. The Apple iPhone 16 Pro Max has the best camera.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'camera-phone-guide'],
     canonical: 'https://7pexel.com/guides/flagship-phone-guide',
   },
-
-  // 6. Best Camera Phones
   {
     id: 'buying-6',
     slug: 'camera-phone-guide',
@@ -582,7 +535,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Camera Phones 2026</h2>
       <p>For photography enthusiasts, camera quality is the most important feature. Here are the best camera phones of 2026.</p>
-
       <h3>Top Camera Phones</h3>
       <ul>
         <li><strong>Apple iPhone 16 Pro Max:</strong> Best overall camera system</li>
@@ -617,13 +569,10 @@ export const GUIDES: Guide[] = [
     seoKeywords: ['best camera phones', 'phone photography', 'camera phone guide', 'best camera 2026'],
     faqs: [
       { question: 'Which phone has the best camera in 2026?', answer: 'The Apple iPhone 16 Pro Max has the best overall camera system. The Samsung Galaxy S26 Ultra offers the best zoom capabilities.' },
-      { question: 'What makes a good camera phone?', answer: 'A good camera phone has high megapixels, good sensor size, optical image stabilization, and advanced computational photography features.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'phone-photography-guide'],
     canonical: 'https://7pexel.com/guides/camera-phone-guide',
   },
-
-  // 7. Best Battery Phones
   {
     id: 'buying-7',
     slug: 'battery-phone-guide',
@@ -632,7 +581,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Battery Life Phones 2026</h2>
       <p>For heavy users and travelers, battery life is crucial. Here are the phones with the best battery life in 2026.</p>
-
       <h3>Top Battery Phones</h3>
       <ul>
         <li><strong>Samsung Galaxy S26 Ultra:</strong> 5000mAh battery</li>
@@ -663,17 +611,14 @@ export const GUIDES: Guide[] = [
     likes: 62,
     comments: 15,
     seoTitle: 'Best Battery Life Phones 2026 - Longest Lasting Smartphones | 7pexel',
-    seoDescription: 'Discover the phones with the best battery life in 2026. Long-lasting devices for heavy users and travelers. Expert reviews and comparisons.',
+    seoDescription: 'Discover the phones with the best battery life in 2026. Long-lasting devices for heavy users and travelers.',
     seoKeywords: ['best battery life phones', 'long battery phones', 'battery phone guide', 'heavy use phones'],
     faqs: [
-      { question: 'Which phone has the best battery life in 2026?', answer: 'The OnePlus 14 Pro with 5400mAh and the Samsung Galaxy S26 Ultra with 5000mAh offer the best battery life in 2026.' },
-      { question: 'How can I extend my phone battery life?', answer: 'Reduce screen brightness, use dark mode, turn off WiFi/GPS when not in use, and close unused apps to extend battery life.' },
+      { question: 'Which phone has the best battery life in 2026?', answer: 'The OnePlus 14 Pro with 5400mAh and the Samsung Galaxy S26 Ultra with 5000mAh offer the best battery life.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'battery-life-guide'],
     canonical: 'https://7pexel.com/guides/battery-phone-guide',
   },
-
-  // 8. Best Gaming Phones
   {
     id: 'buying-8',
     slug: 'gaming-phone-guide',
@@ -682,7 +627,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Gaming Phones 2026</h2>
       <p>For mobile gamers, performance is everything. Here are the best gaming phones of 2026.</p>
-
       <h3>Top Gaming Phones</h3>
       <ul>
         <li><strong>OnePlus 14 Pro:</strong> Best overall gaming performance</li>
@@ -713,17 +657,14 @@ export const GUIDES: Guide[] = [
     likes: 41,
     comments: 8,
     seoTitle: 'Best Gaming Phones 2026 - Top Picks for Mobile Gamers | 7pexel',
-    seoDescription: 'Discover the best gaming phones of 2026. Top picks for mobile gamers with the best performance and features. Expert reviews and comparisons.',
+    seoDescription: 'Discover the best gaming phones of 2026. Top picks for mobile gamers with the best performance and features.',
     seoKeywords: ['best gaming phones', 'mobile gaming phones', 'gaming phone guide', 'gamer phones'],
     faqs: [
       { question: 'What is the best gaming phone in 2026?', answer: 'The OnePlus 14 Pro offers the best gaming performance with its Snapdragon 8 Gen 4 processor and 100W fast charging.' },
-      { question: 'What specs matter for gaming phones?', answer: 'For gaming, look for a powerful processor (Snapdragon 8 Gen 4 or Apple A18 Pro), at least 12GB RAM, and a large display with 120Hz refresh rate.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'performance-guide'],
     canonical: 'https://7pexel.com/guides/gaming-phone-guide',
   },
-
-  // 9. Best Value Phones
   {
     id: 'buying-9',
     slug: 'value-phone-guide',
@@ -732,7 +673,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Value Smartphones 2026</h2>
       <p>Get the best value for your money with these smartphones that offer premium features at affordable prices.</p>
-
       <h3>Top Value Phones</h3>
       <ul>
         <li><strong>Google Pixel 10 Pro:</strong> Best camera at a great price</li>
@@ -762,17 +702,14 @@ export const GUIDES: Guide[] = [
     likes: 35,
     comments: 7,
     seoTitle: 'Best Value Smartphones 2026 - Get More for Less | 7pexel',
-    seoDescription: 'Discover the best value smartphones of 2026. Get premium features without breaking the bank. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best value smartphones of 2026. Get premium features without breaking the bank.',
     seoKeywords: ['best value phones', 'value smartphones', 'budget phones', 'affordable phones'],
     faqs: [
-      { question: 'What is the best value smartphone in 2026?', answer: 'The Google Pixel 10 Pro offers the best value with flagship features at a competitive price. The Nothing Phone (3) is also a great value option.' },
-      { question: 'How do I get the best value for my money?', answer: 'Look for phones that offer flagship features at mid-range prices. Consider refurbished phones and look for deals during sales events.' },
+      { question: 'What is the best value smartphone in 2026?', answer: 'The Google Pixel 10 Pro offers the best value with flagship features at a competitive price.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'budget-phone-guide'],
     canonical: 'https://7pexel.com/guides/value-phone-guide',
   },
-
-  // 10. Best Samsung Phones
   {
     id: 'buying-10',
     slug: 'samsung-phone-guide',
@@ -781,7 +718,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Samsung Phones 2026</h2>
       <p>Samsung offers a wide range of phones from flagship to budget. Here are the best Samsung phones of 2026.</p>
-
       <h3>Top Samsung Phones</h3>
       <ul>
         <li><strong>Samsung Galaxy S26 Ultra:</strong> Best flagship</li>
@@ -811,17 +747,14 @@ export const GUIDES: Guide[] = [
     likes: 29,
     comments: 5,
     seoTitle: 'Best Samsung Phones 2026 - Galaxy Guide | 7pexel',
-    seoDescription: 'Discover the best Samsung phones of 2026. From the Galaxy S26 Ultra to budget Galaxy phones. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best Samsung phones of 2026. From the Galaxy S26 Ultra to budget Galaxy phones.',
     seoKeywords: ['best samsung phones', 'galaxy guide', 'samsung phones 2026', 'samsung galaxy'],
     faqs: [
       { question: 'What is the best Samsung phone in 2026?', answer: 'The Samsung Galaxy S26 Ultra is the best Samsung phone with its 200MP camera, Snapdragon 8 Gen 4, and S Pen support.' },
-      { question: 'What Samsung phone is best for me?', answer: 'If you want the best, choose the Galaxy S26 Ultra. For a compact flagship, choose the Galaxy S26. For budget, choose the Galaxy A55.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'flagship-phone-guide'],
     canonical: 'https://7pexel.com/guides/samsung-phone-guide',
   },
-
-  // 11. Best Apple iPhones
   {
     id: 'buying-11',
     slug: 'iphone-guide',
@@ -830,7 +763,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Apple iPhones 2026</h2>
       <p>Apple offers premium iPhones with the best cameras and performance. Here are the best iPhones of 2026.</p>
-
       <h3>Top iPhones</h3>
       <ul>
         <li><strong>Apple iPhone 16 Pro Max:</strong> Best flagship</li>
@@ -860,17 +792,14 @@ export const GUIDES: Guide[] = [
     likes: 33,
     comments: 6,
     seoTitle: 'Best Apple iPhones 2026 - iPhone Guide | 7pexel',
-    seoDescription: 'Discover the best Apple iPhones of 2026. From the iPhone 16 Pro Max to budget iPhones. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best Apple iPhones of 2026. From the iPhone 16 Pro Max to budget iPhones.',
     seoKeywords: ['best iphones', 'apple iphone guide', 'iphone 2026', 'iphone buying guide'],
     faqs: [
       { question: 'What is the best iPhone in 2026?', answer: 'The iPhone 16 Pro Max is the best iPhone with its A18 Pro chip, triple 48MP camera, and titanium design.' },
-      { question: 'Which iPhone should I buy?', answer: 'Choose the iPhone 16 Pro Max for the best camera and features. Choose the iPhone 16 for the best value. Choose the iPhone SE for budget.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'flagship-phone-guide'],
     canonical: 'https://7pexel.com/guides/iphone-guide',
   },
-
-  // 12. Best Google Pixel Phones
   {
     id: 'buying-12',
     slug: 'pixel-guide',
@@ -879,7 +808,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Google Pixel Phones 2026</h2>
       <p>Google Pixel phones offer the best AI features and camera experience. Here are the best Pixel phones of 2026.</p>
-
       <h3>Top Pixel Phones</h3>
       <ul>
         <li><strong>Google Pixel 10 Pro:</strong> Best flagship</li>
@@ -908,17 +836,14 @@ export const GUIDES: Guide[] = [
     likes: 24,
     comments: 4,
     seoTitle: 'Best Google Pixel Phones 2026 - Pixel Guide | 7pexel',
-    seoDescription: 'Discover the best Google Pixel phones of 2026. From the Pixel 10 Pro to budget Pixel phones. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best Google Pixel phones of 2026. From the Pixel 10 Pro to budget Pixel phones.',
     seoKeywords: ['best google pixel', 'pixel guide', 'pixel phones 2026', 'google pixel buying guide'],
     faqs: [
       { question: 'What is the best Google Pixel phone in 2026?', answer: 'The Pixel 10 Pro is the best Google Pixel phone with its Tensor G4 chip, 50MP camera, and 7 years of software updates.' },
-      { question: 'Which Pixel phone should I buy?', answer: 'Choose the Pixel 10 Pro for the best camera and AI features. Choose the Pixel 10 for the best value. Choose the Pixel 9a for budget.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'camera-phone-guide'],
     canonical: 'https://7pexel.com/guides/pixel-guide',
   },
-
-  // 13. Best OnePlus Phones
   {
     id: 'buying-13',
     slug: 'oneplus-guide',
@@ -927,7 +852,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best OnePlus Phones 2026</h2>
       <p>OnePlus phones offer great performance and value. Here are the best OnePlus phones of 2026.</p>
-
       <h3>Top OnePlus Phones</h3>
       <ul>
         <li><strong>OnePlus 14 Pro:</strong> Best flagship</li>
@@ -956,17 +880,14 @@ export const GUIDES: Guide[] = [
     likes: 21,
     comments: 3,
     seoTitle: 'Best OnePlus Phones 2026 - OnePlus Guide | 7pexel',
-    seoDescription: 'Discover the best OnePlus phones of 2026. From the OnePlus 14 Pro to budget OnePlus phones. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best OnePlus phones of 2026. From the OnePlus 14 Pro to budget OnePlus phones.',
     seoKeywords: ['best oneplus phones', 'oneplus guide', 'oneplus phones 2026', 'oneplus buying guide'],
     faqs: [
       { question: 'What is the best OnePlus phone in 2026?', answer: 'The OnePlus 14 Pro is the best OnePlus phone with its Snapdragon 8 Gen 4 processor and 100W fast charging.' },
-      { question: 'Which OnePlus phone should I buy?', answer: 'Choose the OnePlus 14 Pro for the best performance. Choose the OnePlus 14 for the best value. Choose the OnePlus Nord 5 for budget.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'performance-guide'],
     canonical: 'https://7pexel.com/guides/oneplus-guide',
   },
-
-  // 14. Best Xiaomi Phones
   {
     id: 'buying-14',
     slug: 'xiaomi-guide',
@@ -975,7 +896,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Xiaomi Phones 2026</h2>
       <p>Xiaomi phones offer great value and Leica-tuned cameras. Here are the best Xiaomi phones of 2026.</p>
-
       <h3>Top Xiaomi Phones</h3>
       <ul>
         <li><strong>Xiaomi 15 Pro:</strong> Best flagship</li>
@@ -1004,17 +924,14 @@ export const GUIDES: Guide[] = [
     likes: 18,
     comments: 3,
     seoTitle: 'Best Xiaomi Phones 2026 - Xiaomi Guide | 7pexel',
-    seoDescription: 'Discover the best Xiaomi phones of 2026. From the Xiaomi 15 Pro to budget Xiaomi phones. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best Xiaomi phones of 2026. From the Xiaomi 15 Pro to budget Xiaomi phones.',
     seoKeywords: ['best xiaomi phones', 'xiaomi guide', 'xiaomi phones 2026', 'xiaomi buying guide'],
     faqs: [
       { question: 'What is the best Xiaomi phone in 2026?', answer: 'The Xiaomi 15 Pro is the best Xiaomi phone with its Leica-tuned 50MP camera and 120W fast charging.' },
-      { question: 'Which Xiaomi phone should I buy?', answer: 'Choose the Xiaomi 15 Pro for the best camera. Choose the Xiaomi 15 for the best value. Choose the Redmi Note 14 for budget.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'camera-phone-guide'],
     canonical: 'https://7pexel.com/guides/xiaomi-guide',
   },
-
-  // 15. Best Nothing Phones
   {
     id: 'buying-15',
     slug: 'nothing-guide',
@@ -1023,7 +940,6 @@ export const GUIDES: Guide[] = [
     content: `
       <h2>Best Nothing Phones 2026</h2>
       <p>Nothing phones stand out with unique design and Glyph interface. Here are the best Nothing phones of 2026.</p>
-
       <h3>Top Nothing Phones</h3>
       <ul>
         <li><strong>Nothing Phone (3):</strong> Best flagship</li>
@@ -1051,21 +967,169 @@ export const GUIDES: Guide[] = [
     likes: 16,
     comments: 2,
     seoTitle: 'Best Nothing Phones 2026 - Nothing Guide | 7pexel',
-    seoDescription: 'Discover the best Nothing phones of 2026. From the Nothing Phone (3) to budget Nothing phones. Expert reviews and recommendations.',
+    seoDescription: 'Discover the best Nothing phones of 2026. From the Nothing Phone (3) to budget Nothing phones.',
     seoKeywords: ['best nothing phones', 'nothing guide', 'nothing phones 2026', 'nothing buying guide'],
     faqs: [
       { question: 'What is the best Nothing phone in 2026?', answer: 'The Nothing Phone (3) is the best Nothing phone with its unique transparent design and Glyph interface.' },
-      { question: 'Which Nothing phone should I buy?', answer: 'Choose the Nothing Phone (3) for the best design and features. Choose the Nothing Phone (2a) for budget.' },
     ],
     relatedGuides: ['smartphone-buying-guide', 'best-phones-2026', 'flagship-phone-guide'],
     canonical: 'https://7pexel.com/guides/nothing-guide',
   },
 
   // ==========================================
-  // Continue with remaining categories...
-  // This is a sample of the complete file.
-  // The full file would include all 100+ guides.
+  // 📷 CAMERA GUIDES (15)
   // ==========================================
+
+  {
+    id: 'camera-1',
+    slug: 'phone-camera-guide',
+    title: 'Phone Camera Guide: How to Take Professional Photos',
+    excerpt: 'Learn how to take stunning photos with your smartphone. Expert tips on composition, lighting, and camera settings.',
+    content: `
+      <h2>Phone Camera Guide</h2>
+      <p>Learn how to take professional photos with your smartphone.</p>
+      <h3>Composition Tips</h3>
+      <ul>
+        <li>Use the rule of thirds</li>
+        <li>Look for leading lines</li>
+        <li>Use natural frames</li>
+      </ul>
+      <h3>Lighting Tips</h3>
+      <ul>
+        <li>Shoot during golden hour</li>
+        <li>Avoid harsh midday sun</li>
+        <li>Use natural light</li>
+      </ul>
+    `,
+    category: 'Camera Guides',
+    categorySlug: 'camera',
+    subCategory: 'Basics',
+    subCategorySlug: 'basics',
+    icon: '📷',
+    image: '/images/guides/camera-guide.jpg',
+    author: '7pexel Team',
+    authorAvatar: '/images/authors/7pexel-team.jpg',
+    authorBio: 'Tech enthusiast and photography expert with 10+ years of experience.',
+    date: '2026-08-20',
+    updatedDate: '2026-08-22',
+    readTime: '10 min read',
+    difficulty: 'Beginner',
+    tags: ['camera', 'photography', 'tips', 'settings', 'composition'],
+    isFeatured: true,
+    isTrending: true,
+    isNew: true,
+    views: 850,
+    likes: 56,
+    comments: 12,
+    seoTitle: 'Phone Camera Guide - Professional Photography Tips | 7pexel',
+    seoDescription: 'Learn how to take professional photos with your smartphone. Expert tips on composition, lighting, and camera settings.',
+    seoKeywords: ['phone camera guide', 'photography tips', 'camera settings', 'mobile photography'],
+    faqs: [
+      { question: 'How can I take better photos with my phone?', answer: 'Use natural light, clean your lens, use grid lines, and adjust exposure manually.' },
+      { question: 'What are the best camera settings for phones?', answer: 'Use HDR for high contrast, portrait mode for people, and night mode for low light.' },
+    ],
+    relatedGuides: ['phone-photography-tips', 'best-camera-phones'],
+    canonical: 'https://7pexel.com/guides/phone-camera-guide',
+  },
+  {
+    id: 'camera-2',
+    slug: 'phone-photography-tips',
+    title: '50 Phone Photography Tips for Stunning Photos',
+    excerpt: 'Master phone photography with these 50 expert tips. From composition to editing, improve your photos today.',
+    content: `
+      <h2>50 Phone Photography Tips</h2>
+      <p>Master phone photography with these expert tips.</p>
+      <h3>Top 10 Tips</h3>
+      <ul>
+        <li>1. Clean your lens</li>
+        <li>2. Use natural light</li>
+        <li>3. Rule of thirds</li>
+        <li>4. Get low</li>
+        <li>5. Use portrait mode</li>
+        <li>6. Don't zoom in</li>
+        <li>7. Use HDR</li>
+        <li>8. Edit your photos</li>
+        <li>9. Experiment with angles</li>
+        <li>10. Practice daily</li>
+      </ul>
+    `,
+    category: 'Camera Guides',
+    categorySlug: 'camera',
+    subCategory: 'Photo Types',
+    subCategorySlug: 'photo-types',
+    icon: '📸',
+    image: '/images/guides/photography-tips.jpg',
+    author: '7pexel Team',
+    authorAvatar: '/images/authors/7pexel-team.jpg',
+    authorBio: 'Tech enthusiast and photography expert with 10+ years of experience.',
+    date: '2026-08-18',
+    updatedDate: '2026-08-22',
+    readTime: '8 min read',
+    difficulty: 'Beginner',
+    tags: ['photography', 'tips', 'composition', 'editing', 'lighting'],
+    isFeatured: true,
+    isTrending: true,
+    isNew: true,
+    views: 720,
+    likes: 48,
+    comments: 9,
+    seoTitle: '50 Phone Photography Tips - Stunning Photos | 7pexel',
+    seoDescription: 'Master phone photography with these 50 expert tips. From composition to editing, improve your photos today.',
+    seoKeywords: ['phone photography tips', 'photo tips', 'mobile photography', 'camera tips'],
+    faqs: [
+      { question: 'What is the most important photography tip?', answer: 'The most important tip is to use natural light and clean your lens before taking photos.' },
+      { question: 'How can I improve my phone photography?', answer: 'Practice composition, use grid lines, experiment with different angles, and edit your photos.' },
+    ],
+    relatedGuides: ['phone-camera-guide', 'best-camera-phones'],
+    canonical: 'https://7pexel.com/guides/phone-photography-tips',
+  },
+  {
+    id: 'camera-3',
+    slug: 'best-camera-phones',
+    title: 'Best Camera Phones 2026 - Top Picks for Photography',
+    excerpt: 'Discover the best camera phones of 2026. Top picks for photography enthusiasts with the best camera systems.',
+    content: `
+      <h2>Best Camera Phones 2026</h2>
+      <p>Top picks for photography enthusiasts.</p>
+      <h3>Top 5 Camera Phones</h3>
+      <ul>
+        <li><strong>1. Apple iPhone 16 Pro Max</strong> - Best overall</li>
+        <li><strong>2. Samsung Galaxy S26 Ultra</strong> - Best zoom</li>
+        <li><strong>3. Google Pixel 10 Pro</strong> - Best AI</li>
+        <li><strong>4. Xiaomi 15 Pro</strong> - Best Leica</li>
+        <li><strong>5. OnePlus 14 Pro</strong> - Best value</li>
+      </ul>
+    `,
+    category: 'Camera Guides',
+    categorySlug: 'camera',
+    subCategory: 'Photo Types',
+    subCategorySlug: 'photo-types',
+    icon: '📷',
+    image: '/images/guides/best-camera-phones.jpg',
+    author: '7pexel Team',
+    authorAvatar: '/images/authors/7pexel-team.jpg',
+    authorBio: 'Tech enthusiast and smartphone reviewer with 10+ years of experience.',
+    date: '2026-08-15',
+    updatedDate: '2026-08-22',
+    readTime: '9 min read',
+    difficulty: 'Intermediate',
+    tags: ['camera phones', 'best camera', 'photography', 'phone camera'],
+    isFeatured: true,
+    isTrending: true,
+    isNew: false,
+    views: 1100,
+    likes: 78,
+    comments: 21,
+    seoTitle: 'Best Camera Phones 2026 - Top Picks for Photography | 7pexel',
+    seoDescription: 'Discover the best camera phones of 2026. Top picks for photography enthusiasts with the best camera systems.',
+    seoKeywords: ['best camera phones', 'phone photography', 'camera phone guide', 'best camera 2026'],
+    faqs: [
+      { question: 'Which phone has the best camera in 2026?', answer: 'The Apple iPhone 16 Pro Max has the best overall camera system. The Samsung Galaxy S26 Ultra offers the best zoom capabilities.' },
+      { question: 'What makes a good camera phone?', answer: 'A good camera phone has high megapixels, good sensor size, optical image stabilization, and advanced computational photography features.' },
+    ],
+    relatedGuides: ['phone-camera-guide', 'phone-photography-tips'],
+    canonical: 'https://7pexel.com/guides/best-camera-phones',
+  },
 ];
 
 // ============================================
@@ -1120,27 +1184,7 @@ export function getCategoryCount(slug: string): number {
 }
 
 // ============================================
-// SEO DATA FOR GUIDES
-// ============================================
-
-export const GUIDES_SEO = {
-  main: {
-    title: 'Smartphone Guides - Expert Buying Advice & Tips | 7pexel',
-    description: 'Expert smartphone guides covering buying advice, camera tips, battery life, performance, security, and more. Find the best phone for you.',
-    keywords: 'smartphone guides, phone buying guide, camera tips, battery life tips, phone security, tech tutorials, best phones 2026',
-  },
-  categories: GUIDE_CATEGORIES.reduce((acc, cat) => {
-    acc[cat.slug] = {
-      title: cat.metaTitle || `${cat.name} - Expert Smartphone Guides | 7pexel`,
-      description: cat.metaDescription || cat.description,
-      keywords: cat.keywords?.join(', ') || '',
-    };
-    return acc;
-  }, {} as Record<string, { title: string; description: string; keywords: string }>),
-};
-
-// ============================================
-// SITEMAP DATA
+// GENERATE SITEMAP DATA
 // ============================================
 
 export function generateGuideSitemap() {
@@ -1162,6 +1206,6 @@ export function generateGuideSitemap() {
   return {
     guides,
     categories,
-    total: guides.length + categories.length + 1, // +1 for main page
+    total: guides.length + categories.length + 1,
   };
 }
