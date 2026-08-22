@@ -1,6 +1,7 @@
 // app/guides/layout.tsx
-import { Metadata } from "next";
+import { Metadata } from "react";
 import { ReactNode } from "react";
+import './guides.css'; // ✅ ADD THIS LINE - Import CSS
 
 interface GuidesLayoutProps {
   children: ReactNode;
