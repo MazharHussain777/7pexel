@@ -2,449 +2,383 @@
 import { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { GUIDES, GUIDE_CATEGORIES } from "./data/guides-data";
 import Link from "next/link";
-import { fetchPhonesFromDB } from "@/lib/phone-data-service";
-import { STATIC_PHONES } from "@/app/phones/finder/data/static-phone-data";
+import Image from "next/image";
+
+// ============================================
+// METADATA - FULL SEO OPTIMIZATION
+// ============================================
 
 export const metadata: Metadata = {
   title: "Smartphone Guides - Expert Buying Advice & Tips | 7pexel",
-  description: "Expert smartphone guides covering everything from buying advice to photography tips. Learn how to choose the perfect phone, master your camera, and extend battery life.",
-  keywords: "smartphone guides, phone buying guide, camera tips, battery life tips, phone photography, tech tutorials",
+  description: "Expert smartphone guides covering buying advice, camera tips, battery life, performance, security, and more. Find the best phone for you.",
+  keywords: "smartphone guides, phone buying guide, camera tips, battery life tips, phone security, tech tutorials, best phones 2026",
   openGraph: {
     title: "Smartphone Guides - Expert Buying Advice & Tips | 7pexel",
-    description: "Expert smartphone guides covering everything from buying advice to photography tips.",
-    images: ["/og-image.jpg"],
+    description: "Expert smartphone guides covering buying advice, camera tips, battery life, performance, and security.",
+    url: "https://7pexel.com/guides",
+    type: "website",
+    siteName: "7pexel",
+    images: [
+      {
+        url: "/og-guides.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Smartphone Guides - 7pexel",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Smartphone Guides - Expert Buying Advice & Tips | 7pexel",
+    description: "Expert smartphone guides covering buying advice, camera tips, battery life, and more.",
+    images: ["/og-guides.jpg"],
+    site: "@7pexel",
+    creator: "@7pexel",
+  },
+  alternates: {
+    canonical: "https://7pexel.com/guides",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
 };
 
-export default async function GuidesPage() {
-  // Fetch phones for recommendations
-  let phones = [];
-  try {
-    const result = await fetchPhonesFromDB({ limit: 100 });
-    phones = result.data || [];
-  } catch (error) {
-    phones = STATIC_PHONES;
+// ============================================
+// SCHEMA MARKUP
+// ============================================
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Smartphone Guides",
+  "description": "Expert smartphone guides covering buying advice, camera tips, battery life, performance, security, and more.",
+  "url": "https://7pexel.com/guides",
+  "about": {
+    "@type": "Thing",
+    "name": "Smartphone Guides"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "7pexel",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://7pexel.com/logo.png"
+    }
+  },
+  "mainEntity": {
+    "@type": "ItemList",
+    "itemListElement": GUIDES.filter(g => g.isFeatured).map((guide, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "url": `https://7pexel.com/guides/${guide.slug}`,
+      "name": guide.title,
+    }))
   }
+};
 
-  // Get top phones by rating
-  const topPhones = [...phones]
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    .slice(0, 5);
+// ============================================
+// MAIN COMPONENT
+// ============================================
 
-  // Get best value phones
-  const bestValuePhones = [...phones]
-    .filter(p => parseInt(p.price) < 800 && (p.rating || 0) > 4)
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    .slice(0, 4);
-
-  // Get flagship phones
-  const flagshipPhones = [...phones]
-    .filter(p => parseInt(p.price) > 900)
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    .slice(0, 4);
+export default function GuidesPage() {
+  const featuredGuides = GUIDES.filter(g => g.isFeatured).slice(0, 6);
+  const trendingGuides = GUIDES.filter(g => g.isTrending).slice(0, 4);
+  const newGuides = GUIDES.filter(g => g.isNew).slice(0, 4);
+  const categories = GUIDE_CATEGORIES;
 
   return (
     <>
       <Header />
-      <main className="max-w-[1440px] mx-auto px-4 md:px-8 py-8">
-        {/* Hero */}
-        <div className="relative mb-12 rounded-3xl overflow-hidden bg-gradient-to-br from-[#7F011F] to-[#a80a30] text-white p-8 md:p-12 shadow-2xl">
+      
+      {/* JSON-LD Schema */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
+
+      <main className="min-h-screen bg-[#f8faf9]">
+        {/* ============================================ */}
+        {/* HERO SECTION */}
+        {/* ============================================ */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-[#004643] via-[#006b63] to-[#008b7a] text-white">
           <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-white rounded-full blur-3xl" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-72 h-72 bg-white rounded-full blur-3xl" />
           </div>
-          <div className="relative z-10">
-            <h1 className="font-fraunces text-3xl md:text-5xl font-medium mb-3 tracking-tight">
-              Smartphone <span className="text-white/80">Guides</span>
-            </h1>
-            <p className="text-white/80 text-base md:text-lg max-w-2xl">
-              Expert advice, tips, and tutorials to help you choose, use, and master your smartphone.
-            </p>
-          </div>
-        </div>
-
-        {/* Quick Navigation */}
-        <div className="flex flex-wrap gap-3 mb-8">
-          <a href="#buying-guide" className="px-4 py-2 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-sm font-medium hover:shadow-md">
-            🛒 Buying Guide
-          </a>
-          <a href="#camera-guide" className="px-4 py-2 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-sm font-medium hover:shadow-md">
-            📷 Camera Guide
-          </a>
-          <a href="#battery-guide" className="px-4 py-2 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-sm font-medium hover:shadow-md">
-            🔋 Battery Guide
-          </a>
-          <a href="#performance-guide" className="px-4 py-2 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-sm font-medium hover:shadow-md">
-            ⚡ Performance Guide
-          </a>
-          <a href="#value-guide" className="px-4 py-2 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-sm font-medium hover:shadow-md">
-            💰 Value Guide
-          </a>
-        </div>
-
-        {/* ============================================================ */}
-        {/* SECTION 1: BUYING GUIDE */}
-        {/* ============================================================ */}
-        <section id="buying-guide" className="mb-12 scroll-mt-20">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">🛒</span>
-            <h2 className="font-fraunces text-2xl font-medium">Smartphone Buying Guide</h2>
-          </div>
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.06)_0%,_transparent_60%)]" />
           
-          <div className="bg-white rounded-2xl border border-[var(--color-line)] p-6 md:p-8 shadow-sm">
-            <p className="text-[#6d4a4a] mb-6">
-              Choosing the right smartphone can be overwhelming. This guide breaks down everything you need to know to make the perfect choice.
+          <div className="max-w-[1440px] mx-auto px-4 md:px-8 py-12 md:py-20 relative z-10">
+            <div className="max-w-3xl">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-4xl">📚</span>
+                <span className="text-[0.7rem] font-jetbrains-mono uppercase tracking-[0.15em] bg-white/15 px-4 py-1.5 rounded-full font-semibold backdrop-blur-sm border border-white/10">
+                  Smartphone Guides
+                </span>
+              </div>
+              <h1 className="font-fraunces text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.1]">
+                Expert Smartphone <br />
+                <span className="text-[#8bc4b8]">Guides & Tips</span>
+              </h1>
+              <p className="mt-4 text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed">
+                Everything you need to know about smartphones — from buying advice to photography tips,
+                battery life hacks, and security guides.
+              </p>
+              <div className="flex flex-wrap gap-3 mt-6">
+                <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm border border-white/5">
+                  <span className="text-2xl">📖</span>
+                  <span className="text-sm font-medium">{GUIDES.length} Guides</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm border border-white/5">
+                  <span className="text-2xl">📂</span>
+                  <span className="text-sm font-medium">{categories.length} Categories</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm border border-white/5">
+                  <span className="text-2xl">⭐</span>
+                  <span className="text-sm font-medium">Expert Reviewed</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* SEARCH BAR */}
+        {/* ============================================ */}
+        <section className="max-w-[1440px] mx-auto px-4 md:px-8 -mt-6 relative z-10">
+          <div className="bg-white rounded-2xl shadow-lg border border-[#e8edec] p-4">
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 text-[#6d8a82]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search guides... (e.g., 'buying guide', 'camera tips')"
+                className="flex-1 py-2 bg-transparent focus:outline-none text-[#1a1a1a] placeholder:text-[#a0b8b0]"
+              />
+              <button className="px-6 py-2 bg-[#004643] text-white rounded-xl font-medium hover:bg-[#006b63] transition-colors">
+                Search
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* QUICK NAVIGATION - CATEGORIES */}
+        {/* ============================================ */}
+        <section className="max-w-[1440px] mx-auto px-4 md:px-8 py-8">
+          <div className="flex flex-wrap gap-2 justify-center">
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/guides/category/${cat.slug}`}
+                className="group inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-[#e8edec] hover:border-[#004643] transition-all hover:shadow-md hover:-translate-y-0.5"
+              >
+                <span className="text-lg">{cat.icon}</span>
+                <span className="text-sm font-medium text-[#1a1a1a] group-hover:text-[#004643] transition-colors">
+                  {cat.name}
+                </span>
+                <span className="text-xs bg-[#f0f5f3] text-[#6d8a82] px-2 py-0.5 rounded-full">
+                  {cat.count}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* FEATURED GUIDES */}
+        {/* ============================================ */}
+        <section className="max-w-[1440px] mx-auto px-4 md:px-8 py-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⭐</span>
+              <h2 className="font-fraunces text-2xl font-medium text-[#1a1a1a]">Featured Guides</h2>
+            </div>
+            <Link href="/guides/featured" className="text-sm text-[#004643] font-medium hover:underline">
+              View all →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredGuides.map((guide) => (
+              <GuideCard key={guide.id} guide={guide} />
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* CATEGORY SECTIONS */}
+        {/* ============================================ */}
+        {categories.slice(0, 4).map((category) => {
+          const categoryGuides = GUIDES.filter(g => g.categorySlug === category.slug).slice(0, 4);
+          return (
+            <section key={category.id} className="max-w-[1440px] mx-auto px-4 md:px-8 py-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{category.icon}</span>
+                  <h2 className="font-fraunces text-2xl font-medium text-[#1a1a1a]">{category.name}</h2>
+                  <span className="text-sm bg-[#f0f5f3] text-[#6d8a82] px-3 py-0.5 rounded-full">
+                    {category.count}
+                  </span>
+                </div>
+                <Link href={`/guides/category/${category.slug}`} className="text-sm text-[#004643] font-medium hover:underline">
+                  View all →
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {categoryGuides.map((guide) => (
+                  <GuideCardSmall key={guide.id} guide={guide} />
+                ))}
+              </div>
+            </section>
+          );
+        })}
+
+        {/* ============================================ */}
+        {/* ALL GUIDES GRID */}
+        {/* ============================================ */}
+        <section className="max-w-[1440px] mx-auto px-4 md:px-8 py-8">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-2xl">📚</span>
+            <h2 className="font-fraunces text-2xl font-medium text-[#1a1a1a]">All Guides</h2>
+            <span className="text-sm bg-[#f0f5f3] text-[#6d8a82] px-3 py-0.5 rounded-full">
+              {GUIDES.length}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {GUIDES.map((guide) => (
+              <GuideCardSmall key={guide.id} guide={guide} />
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* CTA SECTION */}
+        {/* ============================================ */}
+        <section className="max-w-[1440px] mx-auto px-4 md:px-8 py-12">
+          <div className="bg-gradient-to-r from-[#004643] to-[#006b63] rounded-3xl p-8 md:p-12 text-white text-center">
+            <h2 className="font-fraunces text-2xl md:text-3xl font-medium mb-3">
+              Ready to Find Your Perfect Phone?
+            </h2>
+            <p className="text-white/80 max-w-2xl mx-auto mb-6">
+              Use our comparison tool to find the best smartphone for your needs.
             </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Step 1 */}
-              <div className="p-5 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)]">
-                <div className="w-10 h-10 rounded-full bg-[#7F011F]/10 text-[#7F011F] flex items-center justify-center font-bold text-lg mb-3">1</div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-2">Define Your Budget</h3>
-                <p className="text-sm text-[#6d4a4a]">Determine how much you want to spend. Phones range from $200 to $1,500+. Set a realistic budget.</p>
-              </div>
-
-              {/* Step 2 */}
-              <div className="p-5 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)]">
-                <div className="w-10 h-10 rounded-full bg-[#7F011F]/10 text-[#7F011F] flex items-center justify-center font-bold text-lg mb-3">2</div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-2">Identify Your Priorities</h3>
-                <p className="text-sm text-[#6d4a4a]">What matters most? Camera, battery, performance, or display? Choose based on your needs.</p>
-              </div>
-
-              {/* Step 3 */}
-              <div className="p-5 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)]">
-                <div className="w-10 h-10 rounded-full bg-[#7F011F]/10 text-[#7F011F] flex items-center justify-center font-bold text-lg mb-3">3</div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-2">Compare Options</h3>
-                <p className="text-sm text-[#6d4a4a]">Use our <Link href="/compare" className="text-[#7F011F] font-medium hover:underline">comparison tool</Link> to see phones side by side.</p>
-              </div>
-            </div>
-
-            {/* Top Picks */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-[#7F011F]/5 to-[#a80a30]/5 rounded-xl border border-[#7F011F]/10">
-              <h4 className="font-semibold text-[#1a1a1a] mb-3">🏆 Top Picks by Category</h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Link href="/phones/finder/samsung-galaxy-s26-ultra" className="p-3 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-center">
-                  <p className="text-xs font-medium text-[#7F011F]">Best Overall</p>
-                  <p className="text-sm font-semibold">Samsung S26 Ultra</p>
-                </Link>
-                <Link href="/phones/finder/apple-iphone-16-pro-max" className="p-3 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-center">
-                  <p className="text-xs font-medium text-[#7F011F]">Best Camera</p>
-                  <p className="text-sm font-semibold">iPhone 16 Pro Max</p>
-                </Link>
-                <Link href="/phones/finder/google-pixel-10-pro" className="p-3 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-center">
-                  <p className="text-xs font-medium text-[#7F011F]">Best Value</p>
-                  <p className="text-sm font-semibold">Pixel 10 Pro</p>
-                </Link>
-                <Link href="/phones/finder/nothing-phone-3" className="p-3 bg-white rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-center">
-                  <p className="text-xs font-medium text-[#7F011F]">Best Design</p>
-                  <p className="text-sm font-semibold">Nothing Phone (3)</p>
-                </Link>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Link
                 href="/phones/finder"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7F011F] text-white rounded-xl hover:bg-[#a80a30] transition-all shadow-lg shadow-[#7F011F]/30"
+                className="px-6 py-3 bg-white text-[#004643] font-bold rounded-xl hover:shadow-xl transition-all hover:scale-105"
               >
                 🔍 Browse All Phones
               </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* SECTION 2: CAMERA GUIDE */}
-        {/* ============================================================ */}
-        <section id="camera-guide" className="mb-12 scroll-mt-20">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">📷</span>
-            <h2 className="font-fraunces text-2xl font-medium">Phone Camera Guide</h2>
-          </div>
-          
-          <div className="bg-white rounded-2xl border border-[var(--color-line)] p-6 md:p-8 shadow-sm">
-            <p className="text-[#6d4a4a] mb-6">
-              Learn how to take stunning photos with your smartphone. From composition to settings, master mobile photography.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Tips */}
-              <div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-3">📸 Photography Tips</h3>
-                <ul className="space-y-2 text-sm text-[#6d4a4a]">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#7F011F] mt-0.5">•</span>
-                    Use natural light whenever possible
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#7F011F] mt-0.5">•</span>
-                    Clean your lens before taking photos
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#7F011F] mt-0.5">•</span>
-                    Use the rule of thirds for composition
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#7F011F] mt-0.5">•</span>
-                    Tap to focus and adjust exposure
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#7F011F] mt-0.5">•</span>
-                    Use HDR mode for high-contrast scenes
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[#7F011F] mt-0.5">•</span>
-                    Shoot in RAW for more editing control
-                  </li>
-                </ul>
-              </div>
-
-              {/* Best Camera Phones */}
-              <div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-3">🏆 Best Camera Phones</h3>
-                <div className="space-y-2">
-                  {topPhones.slice(0, 5).map((phone: any) => (
-                    <Link
-                      key={phone.slug}
-                      href={`/phones/finder/${phone.slug}`}
-                      className="flex items-center justify-between p-2 bg-[#fbf8ff] rounded-lg hover:bg-[#f5f5f5] transition-colors"
-                    >
-                      <span className="text-sm font-medium">{phone.brand} {phone.model}</span>
-                      <span className="text-xs bg-[#7F011F]/10 text-[#7F011F] px-2 py-0.5 rounded-full">⭐ {phone.rating || 4.5}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
               <Link
-                href="/collections/best-camera"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7F011F] text-white rounded-xl hover:bg-[#a80a30] transition-all shadow-lg shadow-[#7F011F]/30"
+                href="/compare"
+                className="px-6 py-3 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-all"
               >
-                📸 View Best Camera Phones
+                📊 Compare Phones
               </Link>
             </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* SECTION 3: BATTERY GUIDE */}
-        {/* ============================================================ */}
-        <section id="battery-guide" className="mb-12 scroll-mt-20">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">🔋</span>
-            <h2 className="font-fraunces text-2xl font-medium">Battery Life Guide</h2>
-          </div>
-          
-          <div className="bg-white rounded-2xl border border-[var(--color-line)] p-6 md:p-8 shadow-sm">
-            <p className="text-[#6d4a4a] mb-6">
-              Maximize your phone's battery life with these expert tips. Learn how to charge properly and extend battery longevity.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Tip 1 */}
-              <div className="p-4 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)]">
-                <span className="text-2xl block mb-2">⚡</span>
-                <h4 className="font-semibold text-sm text-[#1a1a1a] mb-1">Optimize Charging</h4>
-                <p className="text-xs text-[#6d4a4a]">Avoid charging to 100% regularly. Keep between 20-80% for battery health.</p>
-              </div>
-
-              {/* Tip 2 */}
-              <div className="p-4 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)]">
-                <span className="text-2xl block mb-2">🔆</span>
-                <h4 className="font-semibold text-sm text-[#1a1a1a] mb-1">Reduce Brightness</h4>
-                <p className="text-xs text-[#6d4a4a]">Lower screen brightness and use auto-brightness to save battery.</p>
-              </div>
-
-              {/* Tip 3 */}
-              <div className="p-4 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)]">
-                <span className="text-2xl block mb-2">📡</span>
-                <h4 className="font-semibold text-sm text-[#1a1a1a] mb-1">Manage Connectivity</h4>
-                <p className="text-xs text-[#6d4a4a]">Turn off Bluetooth, WiFi, and GPS when not in use.</p>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
-              <Link
-                href="/collections/best-battery"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7F011F] text-white rounded-xl hover:bg-[#a80a30] transition-all shadow-lg shadow-[#7F011F]/30"
-              >
-                🔋 View Best Battery Phones
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* SECTION 4: PERFORMANCE GUIDE */}
-        {/* ============================================================ */}
-        <section id="performance-guide" className="mb-12 scroll-mt-20">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">⚡</span>
-            <h2 className="font-fraunces text-2xl font-medium">Performance Guide</h2>
-          </div>
-          
-          <div className="bg-white rounded-2xl border border-[var(--color-line)] p-6 md:p-8 shadow-sm">
-            <p className="text-[#6d4a4a] mb-6">
-              Understand smartphone performance metrics. Learn about processors, RAM, storage, and what really matters.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Performance Metrics */}
-              <div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-3">📊 Key Metrics</h3>
-                <div className="space-y-2 text-sm text-[#6d4a4a]">
-                  <div className="flex justify-between p-2 bg-[#fbf8ff] rounded-lg">
-                    <span>Processor (Chipset)</span>
-                    <span className="font-medium text-[#1a1a1a]">Snapdragon / Apple / Tensor</span>
-                  </div>
-                  <div className="flex justify-between p-2 bg-[#fbf8ff] rounded-lg">
-                    <span>RAM</span>
-                    <span className="font-medium text-[#1a1a1a]">8GB - 24GB</span>
-                  </div>
-                  <div className="flex justify-between p-2 bg-[#fbf8ff] rounded-lg">
-                    <span>Storage</span>
-                    <span className="font-medium text-[#1a1a1a]">128GB - 1TB</span>
-                  </div>
-                  <div className="flex justify-between p-2 bg-[#fbf8ff] rounded-lg">
-                    <span>Antutu Score</span>
-                    <span className="font-medium text-[#1a1a1a]">1.2M - 2.2M</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Best Performance Phones */}
-              <div>
-                <h3 className="font-semibold text-[#1a1a1a] mb-3">🏆 Best Performance Phones</h3>
-                <div className="space-y-2">
-                  {flagshipPhones.map((phone: any) => (
-                    <Link
-                      key={phone.slug}
-                      href={`/phones/finder/${phone.slug}`}
-                      className="flex items-center justify-between p-2 bg-[#fbf8ff] rounded-lg hover:bg-[#f5f5f5] transition-colors"
-                    >
-                      <span className="text-sm font-medium">{phone.brand} {phone.model}</span>
-                      <span className="text-xs bg-[#7F011F]/10 text-[#7F011F] px-2 py-0.5 rounded-full">⚡ {phone.antutu_score || 'N/A'}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
-              <Link
-                href="/collections/best-gaming"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7F011F] text-white rounded-xl hover:bg-[#a80a30] transition-all shadow-lg shadow-[#7F011F]/30"
-              >
-                ⚡ View Best Gaming Phones
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* SECTION 5: VALUE GUIDE */}
-        {/* ============================================================ */}
-        <section id="value-guide" className="mb-12 scroll-mt-20">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">💰</span>
-            <h2 className="font-fraunces text-2xl font-medium">Value Guide</h2>
-          </div>
-          
-          <div className="bg-white rounded-2xl border border-[var(--color-line)] p-6 md:p-8 shadow-sm">
-            <p className="text-[#6d4a4a] mb-6">
-              Find the best value smartphones. Get premium features without breaking the bank.
-            </p>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {bestValuePhones.map((phone: any) => (
-                <Link
-                  key={phone.slug}
-                  href={`/phones/finder/${phone.slug}`}
-                  className="p-4 bg-[#fbf8ff] rounded-xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all text-center hover:shadow-md"
-                >
-                  <p className="text-sm font-semibold line-clamp-1">{phone.brand} {phone.model}</p>
-                  <p className="text-xs text-[#6d4a4a]">${phone.price}</p>
-                  <p className="text-xs text-[#0F6B3E] font-medium">⭐ {phone.rating || 4.0}</p>
-                </Link>
-              ))}
-            </div>
-
-            <div className="mt-4 text-center">
-              <Link
-                href="/collections/best-value"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#7F011F] text-white rounded-xl hover:bg-[#a80a30] transition-all shadow-lg shadow-[#7F011F]/30"
-              >
-                💰 View Best Value Phones
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* SECTION 6: RELATED GUIDES */}
-        {/* ============================================================ */}
-        <section className="mb-12">
-          <div className="flex items-center gap-3 mb-6">
-            <span className="text-3xl">📚</span>
-            <h2 className="font-fraunces text-2xl font-medium">More Guides</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/guides/phone-photography" className="p-5 bg-white rounded-2xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all hover:shadow-md text-center">
-              <span className="text-3xl block mb-2">📸</span>
-              <h3 className="font-semibold text-sm">Phone Photography</h3>
-              <p className="text-xs text-[#6d4a4a] mt-1">Master mobile photography</p>
-            </Link>
-            
-            <Link href="/guides/phone-security" className="p-5 bg-white rounded-2xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all hover:shadow-md text-center">
-              <span className="text-3xl block mb-2">🔒</span>
-              <h3 className="font-semibold text-sm">Phone Security</h3>
-              <p className="text-xs text-[#6d4a4a] mt-1">Protect your data</p>
-            </Link>
-            
-            <Link href="/guides/phone-accessories" className="p-5 bg-white rounded-2xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all hover:shadow-md text-center">
-              <span className="text-3xl block mb-2">🎧</span>
-              <h3 className="font-semibold text-sm">Best Accessories</h3>
-              <p className="text-xs text-[#6d4a4a] mt-1">Must-have accessories</p>
-            </Link>
-            
-            <Link href="/guides/upgrade-guide" className="p-5 bg-white rounded-2xl border border-[var(--color-line)] hover:border-[#7F011F] transition-all hover:shadow-md text-center">
-              <span className="text-3xl block mb-2">📈</span>
-              <h3 className="font-semibold text-sm">Upgrade Guide</h3>
-              <p className="text-xs text-[#6d4a4a] mt-1">When to upgrade</p>
-            </Link>
-          </div>
-        </section>
-
-        {/* ============================================================ */}
-        {/* SECTION 7: CALL TO ACTION */}
-        {/* ============================================================ */}
-        <section className="bg-gradient-to-r from-[#7F011F] to-[#a80a30] rounded-3xl p-8 md:p-12 text-white text-center">
-          <h2 className="font-fraunces text-2xl md:text-3xl font-medium mb-3">
-            Ready to Find Your Perfect Phone?
-          </h2>
-          <p className="text-white/80 max-w-2xl mx-auto mb-6">
-            Use our comparison tool to find the best smartphone for your needs.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link
-              href="/phones/finder"
-              className="px-6 py-3 bg-white text-[#7F011F] font-bold rounded-xl hover:shadow-xl transition-all hover:scale-105"
-            >
-              🔍 Browse All Phones
-            </Link>
-            <Link
-              href="/compare"
-              className="px-6 py-3 border-2 border-white text-white font-bold rounded-xl hover:bg-white/10 transition-all"
-            >
-              📊 Compare Phones
-            </Link>
           </div>
         </section>
       </main>
+
+      <Footer />
     </>
+  );
+}
+
+// ============================================
+// GUIDE CARD COMPONENTS
+// ============================================
+
+function GuideCard({ guide }: { guide: Guide }) {
+  return (
+    <Link
+      href={`/guides/${guide.slug}`}
+      className="group bg-white rounded-2xl overflow-hidden border border-[#e8edec] hover:border-[#004643] transition-all hover:shadow-xl hover:-translate-y-1"
+    >
+      <div className="relative h-48 bg-gradient-to-br from-[#f0f5f3] to-[#e8edec]">
+        {guide.image ? (
+          <img src={guide.image} alt={guide.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-6xl">
+            {guide.icon}
+          </div>
+        )}
+        {/* Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-1">
+          {guide.isNew && (
+            <span className="bg-[#004643] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">NEW</span>
+          )}
+          {guide.isFeatured && (
+            <span className="bg-[#F59E0B] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">⭐ FEATURED</span>
+          )}
+          {guide.isTrending && (
+            <span className="bg-[#EC4899] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">🔥 TRENDING</span>
+          )}
+        </div>
+        <div className="absolute bottom-3 right-3 bg-black/50 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded-full">
+          {guide.readTime}
+        </div>
+      </div>
+      <div className="p-5">
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-sm">{guide.icon}</span>
+          <span className="text-xs text-[#6d8a82] font-medium">{guide.category}</span>
+          <span className="w-1 h-1 rounded-full bg-[#d0ddd8]" />
+          <span className="text-xs text-[#6d8a82]">{guide.date}</span>
+        </div>
+        <h3 className="font-fraunces text-lg font-medium text-[#1a1a1a] group-hover:text-[#004643] transition-colors line-clamp-2">
+          {guide.title}
+        </h3>
+        <p className="text-sm text-[#6d8a82] mt-2 line-clamp-2">{guide.excerpt}</p>
+        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-[#e8edec]">
+          <div className="flex items-center gap-1 text-xs text-[#6d8a82]">
+            <span>👁️</span> {guide.views}
+          </div>
+          <div className="flex items-center gap-1 text-xs text-[#6d8a82]">
+            <span>❤️</span> {guide.likes}
+          </div>
+          <div className="flex items-center gap-1 text-xs text-[#6d8a82]">
+            <span>💬</span> {guide.comments}
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function GuideCardSmall({ guide }: { guide: Guide }) {
+  return (
+    <Link
+      href={`/guides/${guide.slug}`}
+      className="group bg-white rounded-xl p-4 border border-[#e8edec] hover:border-[#004643] transition-all hover:shadow-md hover:-translate-y-0.5"
+    >
+      <div className="flex items-start gap-3">
+        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#f0f5f3] to-[#e8edec] flex items-center justify-center text-2xl flex-shrink-0">
+          {guide.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-[#6d8a82]">{guide.category}</span>
+            {guide.isNew && (
+              <span className="text-[8px] bg-[#004643] text-white px-1.5 py-0.5 rounded-full">NEW</span>
+            )}
+          </div>
+          <h4 className="text-sm font-medium text-[#1a1a1a] group-hover:text-[#004643] transition-colors line-clamp-1">
+            {guide.title}
+          </h4>
+          <p className="text-xs text-[#6d8a82] line-clamp-1 mt-0.5">{guide.excerpt}</p>
+        </div>
+      </div>
+    </Link>
   );
 }
