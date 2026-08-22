@@ -3,11 +3,19 @@ import { MetadataRoute } from "next";
 import { supabaseServer, isSupabaseAvailable } from "@/lib/supabase/server";
 import { STATIC_PHONES } from "@/app/phones/finder/data/static-phone-data";
 
+// Guide data for sitemap
+const GUIDES = [
+  { slug: "phone-photography" },
+  { slug: "phone-security" },
+  { slug: "phone-accessories" },
+  { slug: "upgrade-guide" },
+];
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
   const currentDate = new Date();
 
-  console.log('🚀 Generating sitemap...');
+  console.log('🚀 Generating complete sitemap...');
 
   // ============ 1. STATIC PAGES ============
   const staticPages: MetadataRoute.Sitemap = [
@@ -34,6 +42,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: currentDate,
       changeFrequency: 'daily' as const,
       priority: 0.95
+    },
+    {
+      url: `${baseUrl}/guides`,
+      lastModified: currentDate,
+      changeFrequency: 'daily' as const,
+      priority: 0.9
+    },
+    {
+      url: `${baseUrl}/technology`,
+      lastModified: currentDate,
+      changeFrequency: 'daily' as const,
+      priority: 0.9
+    },
+    {
+      url: `${baseUrl}/reviews`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85
+    },
+    {
+      url: `${baseUrl}/news`,
+      lastModified: currentDate,
+      changeFrequency: 'daily' as const,
+      priority: 0.8
     },
     {
       url: `${baseUrl}/about`,
@@ -70,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: currentDate,
       changeFrequency: 'weekly' as const,
       priority: 0.3
-    }
+    },
   ];
 
   console.log(`✅ Static pages: ${staticPages.length}`);
@@ -124,9 +156,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Phone pages: ${phonePages.length}`);
 
-  // ============ 4. SAMSUNG GALAXY COMPARISON PAGES ============
+  // ============ 4. GUIDE PAGES ============
+  const guidePages: MetadataRoute.Sitemap = GUIDES.map((guide) => ({
+    url: `${baseUrl}/guides/${guide.slug}`,
+    lastModified: currentDate,
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }));
+
+  console.log(`✅ Guide pages: ${guidePages.length}`);
+
+  // ============ 5. SAMSUNG GALAXY COMPARISON PAGES ============
   const samsungPhones = phones.filter((p: any) => 
-    p.brand === 'Samsung' || p.model.toLowerCase().includes('galaxy')
+    p.brand === 'Samsung' || p.model?.toLowerCase().includes('galaxy')
   );
 
   const samsungSlugs = samsungPhones.map((p: any) => p.slug);
@@ -145,7 +187,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Samsung comparisons: ${samsungComparisons.length}`);
 
-  // ============ 5. ALL PHONE COMPARISON PAGES ============
+  // ============ 6. ALL PHONE COMPARISON PAGES ============
   const allComparisons: MetadataRoute.Sitemap = [];
   const maxPhones = Math.min(phones.length, 30);
 
@@ -156,7 +198,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       
       if (phone1 && phone2 && phone1.slug !== phone2.slug) {
         const url = `${baseUrl}/compare/${phone1.slug}-vs-${phone2.slug}`;
-        // Check if already added
         const exists = allComparisons.some(p => p.url === url) || 
                       samsungComparisons.some(p => p.url === url);
         if (!exists) {
@@ -173,23 +214,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ All comparisons: ${allComparisons.length}`);
 
-  // ============ 6. POPULAR COMPARISON SEARCH QUERIES ============
+  // ============ 7. POPULAR COMPARISON SEARCH QUERIES ============
   const popularPairs = [
     ['samsung-galaxy-s24-ultra', 'samsung-galaxy-s23-ultra'],
     ['samsung-galaxy-s24', 'samsung-galaxy-s23'],
     ['samsung-galaxy-s24-ultra', 'samsung-galaxy-s22-ultra'],
     ['samsung-galaxy-s23-ultra', 'samsung-galaxy-s22-ultra'],
-    ['apple-iphone-15-pro-max', 'apple-iphone-16-pro-max'],
-    ['apple-iphone-15', 'apple-iphone-16'],
-    ['apple-iphone-15-pro', 'apple-iphone-16-pro'],
-    ['google-pixel-8-pro', 'google-pixel-9-pro-xl'],
-    ['google-pixel-8', 'google-pixel-9'],
-    ['oneplus-12', 'oneplus-13'],
-    ['samsung-galaxy-s24-ultra', 'apple-iphone-15-pro-max'],
-    ['samsung-galaxy-s24-ultra', 'google-pixel-8-pro'],
-    ['samsung-galaxy-s24-ultra', 'oneplus-12'],
-    ['apple-iphone-15-pro-max', 'google-pixel-8-pro'],
-    ['apple-iphone-16-pro-max', 'samsung-galaxy-s24-ultra'],
+    ['apple-iphone-16-pro-max', 'apple-iphone-15-pro-max'],
+    ['apple-iphone-16', 'apple-iphone-15'],
+    ['apple-iphone-16-pro', 'apple-iphone-15-pro'],
+    ['google-pixel-10-pro', 'google-pixel-9-pro'],
+    ['google-pixel-10', 'google-pixel-9'],
+    ['oneplus-14-pro', 'oneplus-13-pro'],
+    ['samsung-galaxy-s24-ultra', 'apple-iphone-16-pro-max'],
+    ['samsung-galaxy-s24-ultra', 'google-pixel-10-pro'],
+    ['samsung-galaxy-s24-ultra', 'oneplus-14-pro'],
+    ['apple-iphone-16-pro-max', 'google-pixel-10-pro'],
   ];
 
   const popularComparisons: MetadataRoute.Sitemap = popularPairs
@@ -207,7 +247,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Popular comparisons: ${popularComparisons.length}`);
 
-  // ============ 7. SEARCH QUERY VARIATIONS ============
+  // ============ 8. SEARCH QUERY VARIATIONS ============
   const searchVariations: MetadataRoute.Sitemap = [];
   const topPhones = phones.slice(0, 10);
 
@@ -244,7 +284,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Search variations: ${searchVariations.length}`);
 
-  // ============ 8. BRAND COMPARISON PAGES ============
+  // ============ 9. BRAND COMPARISON PAGES ============
   const brands = [...new Set(phones.map((p: any) => p.brand))];
   const brandComparisons: MetadataRoute.Sitemap = [];
 
@@ -269,7 +309,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Brand comparisons: ${brandComparisons.length}`);
 
-  // ============ 9. YEAR-BASED COMPARISONS ============
+  // ============ 10. YEAR-BASED COMPARISONS ============
   const years = [...new Set(phones.map((p: any) => p.year))].sort();
   const yearComparisons: MetadataRoute.Sitemap = [];
 
@@ -294,16 +334,119 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`✅ Year comparisons: ${yearComparisons.length}`);
 
-  // ============ 10. COMBINE ALL ============
+  // ============ 11. TECHNOLOGY CATEGORY PAGES ============
+  const techCategories = [
+    'ai',
+    'generative-ai',
+    'quantum-computing',
+    'ar-vr',
+    'green-tech',
+    'cybersecurity',
+    'space-tech',
+    'biotech',
+  ];
+
+  const techCategoryPages: MetadataRoute.Sitemap = techCategories.map((slug) => ({
+    url: `${baseUrl}/technology/category/${slug}`,
+    lastModified: currentDate,
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }));
+
+  console.log(`✅ Tech category pages: ${techCategoryPages.length}`);
+
+  // ============ 12. TECHNOLOGY ARTICLE PAGES ============
+  // Fetch technology articles from database
+  let techArticles: any[] = [];
+  try {
+    const response = await fetch(`${baseUrl}/api/technology/articles?limit=100`, {
+      cache: 'no-store',
+    });
+    const data = await response.json();
+    if (data.success) {
+      techArticles = data.data || [];
+    }
+  } catch (error) {
+    console.error('Error fetching tech articles:', error);
+  }
+
+  const techArticlePages: MetadataRoute.Sitemap = techArticles.map((article: any) => ({
+    url: `${baseUrl}/technology/${article.slug}`,
+    lastModified: article.updatedAt ? new Date(article.updatedAt) : currentDate,
+    changeFrequency: 'weekly' as const,
+    priority: 0.85,
+  }));
+
+  console.log(`✅ Tech article pages: ${techArticlePages.length}`);
+
+  // ============ 13. COLLECTION PAGES ============
+  const collectionPages: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/collections/best-phones-2026`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/collections/top-10-phones`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/collections/best-camera`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/collections/best-battery`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/collections/best-gaming`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/collections/best-value`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/collections/under-500`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
+    },
+    {
+      url: `${baseUrl}/collections/under-1000`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly' as const,
+      priority: 0.75,
+    },
+  ];
+
+  console.log(`✅ Collection pages: ${collectionPages.length}`);
+
+  // ============ 14. COMBINE ALL ============
   const allPages = [
     ...staticPages,
     ...phonePages,
+    ...guidePages,
     ...samsungComparisons,
     ...allComparisons,
     ...popularComparisons,
     ...searchVariations,
     ...brandComparisons,
     ...yearComparisons,
+    ...techCategoryPages,
+    ...techArticlePages,
+    ...collectionPages,
   ];
 
   // Remove duplicates by URL
@@ -322,14 +465,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   console.log(`📊 TOTAL SITEMAP ENTRIES: ${uniquePages.length}`);
   console.log(`   - Static: ${staticPages.length}`);
-  console.log(`   - Phones: ${phonePages.length}`);
-  console.log(`   - Samsung: ${samsungComparisons.length}`);
+  console.log(`   - Phone Pages: ${phonePages.length}`);
+  console.log(`   - Guide Pages: ${guidePages.length}`);
+  console.log(`   - Samsung Comparisons: ${samsungComparisons.length}`);
   console.log(`   - All Comparisons: ${allComparisons.length}`);
-  console.log(`   - Popular: ${popularComparisons.length}`);
-  console.log(`   - Search: ${searchVariations.length}`);
-  console.log(`   - Brand: ${brandComparisons.length}`);
-  console.log(`   - Year: ${yearComparisons.length}`);
-  console.log(`   - Unique: ${uniquePages.length}`);
+  console.log(`   - Popular Comparisons: ${popularComparisons.length}`);
+  console.log(`   - Search Variations: ${searchVariations.length}`);
+  console.log(`   - Brand Comparisons: ${brandComparisons.length}`);
+  console.log(`   - Year Comparisons: ${yearComparisons.length}`);
+  console.log(`   - Tech Categories: ${techCategoryPages.length}`);
+  console.log(`   - Tech Articles: ${techArticlePages.length}`);
+  console.log(`   - Collections: ${collectionPages.length}`);
+  console.log(`   - Unique Total: ${uniquePages.length}`);
 
   return uniquePages;
 }

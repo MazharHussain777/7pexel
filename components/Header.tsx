@@ -10,13 +10,14 @@ interface HeaderProps {
   className?: string;
 }
 
+// ✅ NAVIGATION ITEMS WITH GUIDES
 const NAV_ITEMS = [
-  { href: "/phones", label: "Phones" },
-  { href: "/laptops", label: "Laptops" },
-  { href: "/technology", label: "Technology" },
-  { href: "/news", label: "News" },
-  { href: "/reviews", label: "Reviews" },
-  { href: "/guides", label: "Guides" },
+  { href: "/phones", label: "📱 Phones" },
+  { href: "/compare", label: "📊 Compare" },
+  { href: "/guides", label: "📚 Guides" },
+  { href: "/technology", label: "💡 Tech" },
+  { href: "/reviews", label: "⭐ Reviews" },
+  { href: "/news", label: "📰 News" },
 ];
 
 export function Header({ className = "" }: HeaderProps) {
@@ -225,7 +226,7 @@ export function Header({ className = "" }: HeaderProps) {
 
         <div className="max-w-[1600px] mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 md:h-[72px]">
-            {/* Logo - Custom Text Based */}
+            {/* Logo */}
             <Link
               href="/"
               className="flex items-center gap-3 group flex-shrink-0"
@@ -248,7 +249,7 @@ export function Header({ className = "" }: HeaderProps) {
 
             {/* Navigation - Centered */}
             <nav
-              className="hidden md:flex items-center gap-8 flex-1 justify-center"
+              className="hidden md:flex items-center gap-6 lg:gap-8 flex-1 justify-center"
               aria-label="Main navigation"
             >
               {NAV_ITEMS.map((item) => {
@@ -269,7 +270,7 @@ export function Header({ className = "" }: HeaderProps) {
                       {item.label}
                     </span>
 
-                    {/* Top-right corner indicator with glow */}
+                    {/* Top-right corner indicator */}
                     <span className="relative">
                       <span
                         className={`absolute -top-2 -right-2 w-2 h-2 rounded-full bg-[#004643] transition-all duration-300 ${
@@ -337,7 +338,7 @@ export function Header({ className = "" }: HeaderProps) {
                                 We respect your privacy. Your email is safe with us.
                               </p>
                               <p>
-                                <svg className="inline w-3 h-3 text-[#004643] mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="inline w-3 h-3 text-[#004643] mr-2" fill="currentColor" viewBox="0 0 24 24">
                                   <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
                                   <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                                 </svg>

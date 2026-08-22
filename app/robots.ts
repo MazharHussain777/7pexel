@@ -2,7 +2,7 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://7pexel.com';
+  const baseUrl = 'https://www.7pexel.com';
   
   return {
     rules: {
@@ -12,9 +12,22 @@ export default function robots(): MetadataRoute.Robots {
         '/phones',
         '/phones/finder',
         '/phones/finder/*',
+        '/phones/reviews',
+        '/phones/reviews/*',
         '/compare',
         '/compare/*',
         '/compare/*-vs-*',
+        '/guides',
+        '/guides/*',
+        '/technology',
+        '/technology/*',
+        '/technology/category/*',
+        '/reviews',
+        '/reviews/*',
+        '/news',
+        '/news/*',
+        '/collections',
+        '/collections/*',
         '/about',
         '/contact',
         '/privacy',
@@ -44,7 +57,6 @@ export default function robots(): MetadataRoute.Robots {
         '/private/',
         '/draft/',
         '/api/*',
-        '/*?*',
       ],
       crawlDelay: 0.5,
     },
